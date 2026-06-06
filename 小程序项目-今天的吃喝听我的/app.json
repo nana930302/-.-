@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/launch/launch",
+    "pages/index/index"
+  ],
+  "window": {
+    "backgroundColor": "#ffffff",
+    "textColor": "#000000",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "今天的吃喝听我的",
+    "navigationBarTextStyle": "black"
+  },
+  "usingComponents": {}
+}

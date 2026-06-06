@@ -1,0 +1,251 @@
+/* pages/launch/launch.wxss */
+
+.launch-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FFF5E6 0%, #FFE4E1 50%, #F0E6FF 100%);
+}
+
+.background-gradient {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 245, 230, 0.3) 0%, rgba(255, 228, 225, 0.3) 50%, rgba(240, 230, 255, 0.3) 100%);
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* 欢迎部分 */
+.welcome-section {
+  margin-top: 60rpx;
+  text-align: center;
+  opacity: 0;
+  animation: fadeInDown 0.8s ease-out forwards;
+}
+
+.welcome-section.show {
+  animation: fadeInDown 0.8s ease-out forwards;
+}
+
+.app-title {
+  display: block;
+  font-size: 56rpx;
+  font-weight: bold;
+  color: #FF6B9D;
+  margin-bottom: 20rpx;
+  text-shadow: 2px 2px 4px rgba(255, 107, 157, 0.2);
+  letter-spacing: 2rpx;
+}
+
+.app-subtitle {
+  display: block;
+  font-size: 28rpx;
+  color: #999999;
+  margin-top: 10rpx;
+}
+
+/* 卡通形象容器 */
+.characters-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 40rpx;
+  margin: 40rpx 0;
+  flex: 1;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.3s forwards;
+}
+
+.characters-container.show {
+  animation: fadeInUp 0.8s ease-out 0.3s forwards;
+}
+
+/* 单个角色卡片 */
+.character-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.cat-card {
+  animation-delay: 0s;
+}
+
+.dog-card {
+  animation-delay: 0.2s;
+}
+
+/* 图片容器 */
+.pet-image,
+.cat-svg,
+.dog-svg {
+  width: 240rpx;
+  height: 220rpx;
+  object-fit: contain;
+  filter: drop-shadow(0 8rpx 16rpx rgba(0, 0, 0, 0.1));
+}
+
+.cat-head,
+.dog-head {
+  animation: headShake 1s ease-in-out infinite;
+}
+
+.character-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #FF6B9D;
+  text-align: center;
+}
+
+.character-role {
+  display: block;
+  font-size: 20rpx;
+  color: #999999;
+  text-align: center;
+}
+
+/* 提示部分 */
+.tip-section {
+  margin-bottom: 60rpx;
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 1.2s forwards;
+}
+
+.tip-section.show {
+  animation: fadeIn 0.8s ease-out 1.2s forwards;
+}
+
+.loading-text {
+  display: block;
+  font-size: 24rpx;
+  color: #FF6B9D;
+  margin-bottom: 20rpx;
+  font-weight: 500;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+  height: 20rpx;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #FF6B9D;
+  animation: dot-bounce 1.4s infinite;
+}
+
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+/* 动画定义 */
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20rpx);
+  }
+}
+
+@keyframes headShake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes dot-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 320px) {
+  .app-title {
+    font-size: 40rpx;
+  }
+  
+  .character-card {
+    gap: 12rpx;
+  }
+  
+  .cat-svg,
+  .dog-svg {
+    width: 140rpx;
+    height: 140rpx;
+  }
+}

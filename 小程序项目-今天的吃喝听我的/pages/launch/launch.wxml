@@ -1,0 +1,30 @@
+<!-- pages/launch/launch.wxml -->
+<view class="launch-container">
+  <!-- 背景渐变 -->
+  <view class="background-gradient"></view>
+  
+  <!-- 标题和欢迎文字 -->
+  <view class="welcome-section {{showContent ? 'show' : ''}}">
+    <text class="app-title">今天的吃喝听我的</text>
+    <text class="app-subtitle">让小猫小狗为您服务</text>
+  </view>
+
+  <!-- 欢迎图片容器 -->
+  <view class="characters-container {{showCharacters ? 'show' : ''}}">
+    <view class="character-card welcome-card">
+      <image class="pet-image" src="../../images/welcome.png" mode="aspectFit" />
+      <text class="character-name">小白 & 小棕</text>
+      <text class="character-role">欢迎页形象</text>
+    </view>
+  </view>
+
+  <!-- 提示文字 -->
+  <view class="tip-section {{showTip ? 'show' : ''}}">
+    <text class="loading-text">加载中</text>
+    <view class="loading-dots">
+      <view class="dot"></view>
+      <view class="dot"></view>
+      <view class="dot"></view>
+    </view>
+  </view>
+</view>
