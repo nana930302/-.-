@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>管理后台 - 吃什么·喝什么</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#07C160;--green-dark:#06AD56;--green-light:#E8F8EF;--red:#FA5151;--orange:#FF8F1F;--blue:#4A90D9;--dark:#1A1A1A;--gray-bg:#F0F2F5;--white:#FFF;--border:#E5E5E5;--text:#1A1A1A;--text-secondary:#888;--text-hint:#B0B0B0;--gold:#D4A843;--gold-light:#F5E6C8;--gold-dark:#B8861F;--purple:#9B59B6;--pink:#E91E63;--radius:10px;--radius-lg:14px;--radius-pill:24px;--shadow:0 2px 8px rgba(0,0,0,0.06);--shadow-md:0 4px 16px rgba(0,0,0,0.1);--shadow-lg:0 8px 32px rgba(0,0,0,0.14);--shadow-gold:0 4px 20px rgba(212,168,67,0.25)}
+html,body{height:100%;font-size:15px;color:var(--text);background:var(--gray-bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;touch-action:manipulation}
+#app{max-width:480px;width:100%;min-height:100vh;margin:0 auto;background:var(--gray-bg)}
+
+/* Login */
+.login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;background:linear-gradient(160deg,#1A1A1A 0%,#2D2D2D 40%,#1A1A1A 100%)}
+.login-page .logo{font-size:64px;margin-bottom:16px;filter:drop-shadow(0 4px 12px rgba(7,193,96,0.3));animation:logo-float 3s ease-in-out infinite}
+@keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.login-page h1{color:var(--white);font-size:24px;margin-bottom:8px;letter-spacing:1px}
+.login-page .sub{color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:32px}
+.login-form{width:100%;max-width:320px}.login-form input{width:100%;padding:14px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius);font-size:15px;margin-bottom:12px;outline:none;background:rgba(255,255,255,0.08);color:var(--white);transition:all 0.3s}
+.login-form input:focus{border-color:var(--green);background:rgba(255,255,255,0.12);box-shadow:0 0 0 3px rgba(7,193,96,0.15)}
+.login-form input::placeholder{color:rgba(255,255,255,0.35)}
+.login-form .btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(7,193,96,0.3);transition:all 0.2s}
+.login-form .btn:active{transform:scale(0.97)}
+.login-error{color:var(--red);font-size:13px;text-align:center;margin-top:8px}
+
+/* Header */
+.admin-header{background:linear-gradient(180deg,#2A2A2A,var(--dark));color:var(--white);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
+.admin-header h2{font-size:17px;font-weight:600;letter-spacing:0.5px}.admin-header .logout-btn{background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.15);padding:6px 14px;border-radius:16px;font-size:13px;cursor:pointer;transition:all 0.2s}
+.admin-header .logout-btn:hover{background:rgba(250,81,81,0.3);border-color:rgba(250,81,81,0.5)}
+
+/* Tab nav */
+.admin-tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:48px;z-index:9;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.admin-tab{flex:1;padding:14px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--text-secondary);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.25s}
+.admin-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+.admin-tab:hover{color:var(--text)}
+
+/* Content */
+.admin-content{padding:16px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-header h3{font-size:17px;font-weight:700;letter-spacing:0.3px}.btn-add{background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);border:none;padding:8px 16px;border-radius:18px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(7,193,96,0.25);transition:all 0.2s}
+.btn-add:active{transform:scale(0.96)}
+.btn-sm{padding:6px 12px;border-radius:14px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all 0.2s}
+.btn-sm:active{transform:scale(0.95)}
+.btn-edit{background:#E8F0FE;color:var(--blue)}.btn-edit:hover{background:#D0E3FC}
+.btn-del{background:#FFE5E5;color:var(--red)}.btn-del:hover{background:#FFD0D0}
+.btn-view{background:var(--green-light);color:var(--green-dark)}
+
+/* List cards */
+.data-card{background:var(--white);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;transition:all 0.25s;border:1px solid transparent}
+.data-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);border-color:var(--border)}
+.data-card-emoji{font-size:32px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F8F9FA,#E8ECF1);border-radius:50%;flex-shrink:0;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06)}
+.data-card-info{flex:1;min-width:0}
+.data-card-title{font-size:15px;font-weight:600}.data-card-sub{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.data-card-actions{display:flex;gap:6px;flex-shrink:0}
+
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);text-align:center;transition:all 0.25s;border:1px solid transparent;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--green-dark));opacity:0;transition:opacity 0.3s}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.stat-card:hover::before{opacity:1}
+.stat-card.warn::before{background:linear-gradient(90deg,var(--orange),#FFB74D)}
+.stat-card.info::before{background:linear-gradient(90deg,var(--blue),#64B5F6)}
+.stat-card.danger::before{background:linear-gradient(90deg,var(--red),#FF6B6B)}
+.stat-card .sn{font-size:34px;font-weight:700;color:var(--green)}.stat-card .sl{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.stat-card.warn .sn{color:var(--orange)}.stat-card.info .sn{color:var(--blue)}.stat-card.danger .sn{color:var(--red)}
+
+/* Form modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.modal{background:var(--white);border-radius:var(--radius-lg) var(--radius-lg) 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:20px 16px 28px;box-shadow:0 -4px 20px rgba(0,0,0,0.15);animation:slide-up 0.35s cubic-bezier(0.25,0.46,0.45,0.94)}
+@keyframes slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center;color:var(--dark)}
+.form-group{margin-bottom:12px}.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;letter-spacing:0.3px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;outline:none;font-family:inherit;background:var(--gray-bg);transition:all 0.3s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--green);background:var(--white);box-shadow:0 2px 10px rgba(7,193,96,0.1)}
+.form-group textarea{min-height:80px;resize:vertical}.form-row{display:flex;gap:8px}.form-row .form-group{flex:1}
+.btn-row{display:flex;gap:8px;margin-top:16px}.btn-row button{flex:1;padding:12px;border-radius:20px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s}
+.btn-row button:active{transform:scale(0.96)}
+.btn-save{background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);box-shadow:0 4px 16px rgba(7,193,96,0.3)}.btn-cancel{background:var(--gray-bg);color:var(--text)}
+
+.tag-list{display:flex;flex-wrap:wrap;gap:6px}.tag-item{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--green-light);color:var(--green-dark);border-radius:12px;font-size:12px;cursor:pointer;transition:all 0.2s}.tag-item:hover{background:#D4EDDA}.tag-item .tag-x{color:var(--red);font-weight:bold;margin-left:2px}
+
+.empty-msg{text-align:center;padding:40px;color:var(--text-secondary);font-size:14px}
+.search-bar{margin-bottom:14px}.search-bar input{width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:20px;font-size:14px;outline:none;background:var(--white);transition:all 0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.04)}.search-bar input:focus{border-color:var(--green);box-shadow:0 2px 12px rgba(7,193,96,0.1)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ============================================================
+//  UTILITY
+// ============================================================
+function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ============================================================
+//  STATE
+// ============================================================
+let loggedIn = false;
+let currentTab = 'users';
+let editingRecipe = null, editingDrink = null;
+let recipeSearch = '', drinkSearch = '', userSearch = '';
+
+// Admin account
+const ADMIN = { username: 'admin', password: 'admin123' };
+
+// ============================================================
+//  DATA HELPERS
+// ============================================================
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('eatwhat_users') || '[]'); }
+  catch(e) { return []; }
+}
+function saveUsers(users) { localStorage.setItem('eatwhat_users', JSON.stringify(users)); }
+
+function getRecipes() {
+  try { return JSON.parse(localStorage.getItem('eatwhat_recipes') || 'null'); }
+  catch(e) { return null; }
+}
+function saveRecipes(recipes) { localStorage.setItem('eatwhat_recipes', JSON.stringify(recipes)); }
+
+function getDrinks() {
+  try { return JSON.parse(localStorage.getItem('eatwhat_drinks') || 'null'); }
+  catch(e) { return null; }
+}
+function saveDrinks(drinks) { localStorage.setItem('eatwhat_drinks', JSON.stringify(drinks)); }
+
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem('eatwhat_favs') || '[]'); }
+  catch(e) { return []; }
+}
+
+// Seed data if localStorage is empty
+function ensureData() {
+  if (!getRecipes()) {
+    // Copy from main app's built-in data structure
+    saveRecipes([]); // Will be initialized from main app
+  }
+  if (!getDrinks()) {
+    saveDrinks([]); // Will be initialized from main app
+  }
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function render() {
+  if (!loggedIn) { renderLogin(); return; }
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="admin-header">
+      <h2>🍜 管理后台</h2>
+      <button class="logout-btn" onclick="logout()">退出</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab${currentTab==='users'?' active':''}" onclick="switchTab('users')">👥 用户</button>
+      <button class="admin-tab${currentTab==='recipes'?' active':''}" onclick="switchTab('recipes')">🍳 菜品</button>
+      <button class="admin-tab${currentTab==='drinks'?' active':''}" onclick="switchTab('drinks')">🍸 调酒</button>
+      <button class="admin-tab${currentTab==='stats'?' active':''}" onclick="switchTab('stats')">📊 统计</button>
+    </div>
+    <div class="admin-content" id="admin-content"></div>
+  `;
+  renderContent();
+}
+
+function renderLogin() {
+  document.getElementById('app').innerHTML = `
+    <div class="login-page">
+      <div class="logo">🍜</div>
+      <h1>管理后台</h1>
+      <div class="sub">吃什么·喝什么 v4.0</div>
+      <div class="login-form">
+        <input type="text" id="admin-user" placeholder="管理员账号">
+        <input type="password" id="admin-pass" placeholder="管理员密码">
+        <button class="btn" onclick="doLogin()">登 录</button>
+        <div class="login-error" id="login-err" style="display:none"></div>
+      </div>
+    </div>`;
+}
+
+function doLogin() {
+  const u = document.getElementById('admin-user').value.trim();
+  const p = document.getElementById('admin-pass').value;
+  const err = document.getElementById('login-err');
+  if (u === ADMIN.username && p === ADMIN.password) {
+    loggedIn = true;
+    ensureData();
+    render();
+  } else {
+    err.textContent = '账号或密码错误';
+    err.style.display = 'block';
+  }
+}
+
+function logout() {
+  loggedIn = false;
+  render();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  render();
+}
+
+// ============================================================
+//  CONTENT RENDERERS
+// ============================================================
+function renderContent() {
+  const ct = document.getElementById('admin-content');
+  if (currentTab === 'users') renderUsers(ct);
+  else if (currentTab === 'recipes') renderRecipesAdmin(ct);
+  else if (currentTab === 'drinks') renderDrinksAdmin(ct);
+  else if (currentTab === 'stats') renderStats(ct);
+}
+
+// --- Users ---
+function renderUsers(ct) {
+  const users = getUsers();
+  const filtered = userSearch ? users.filter(u => u.nickname.includes(userSearch)) : users;
+  const favs = getFavs();
+
+  ct.innerHTML = `
+    <div class="search-bar"><input type="text" placeholder="🔍 搜索用户昵称..." value="${userSearch}" oninput="userSearch=this.value;renderContent()"></div>
+    <div class="section-header"><h3>用户列表 (${filtered.length})</h3></div>
+    ${filtered.length === 0 ? '<div class="empty-msg">暂无用户</div>' :
+    filtered.map(u => {
+      const userFavs = favs.length;
+      return `<div class="data-card">
+        <div class="data-card-emoji">👤</div>
+        <div class="data-card-info">
+          <div class="data-card-title">${escHtml(u.nickname)}</div>
+          <div class="data-card-sub">注册于 ${new Date(u.registeredAt).toLocaleDateString()} · 收藏${userFavs}项</div>
+        </div>
+        <div class="data-card-actions">
+          <button class="btn-sm btn-edit" onclick="resetUserPassword('${escAttr(u.nickname)}')">重置密码</button>
+          <button class="btn-sm btn-del" onclick="deleteUser('${escAttr(u.nickname)}')">删除</button>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function resetUserPassword(nickname) {
+  const newPwd = prompt(`请输入"${nickname}"的新密码（至少6位）：`);
+  if (!newPwd || newPwd.length < 6) { alert('密码至少6位'); return; }
+  const users = getUsers();
+  const user = users.find(u => u.nickname === nickname);
+  if (user) { user.password = newPwd; saveUsers(users); alert('密码已重置'); render(); }
+}
+
+function deleteUser(nickname) {
+  if (!confirm(`确定删除用户"${nickname}"吗？此操作不可恢复。`)) return;
+  let users = getUsers();
+  users = users.filter(u => u.nickname !== nickname);
+  saveUsers(users);
+  // Also clear their login session if active
+  const activeUser = JSON.parse(localStorage.getItem('eatwhat_user') || 'null');
+  if (activeUser && activeUser.nickname === nickname) localStorage.removeItem('eatwhat_user');
+  render();
+}
+
+// --- Recipes Admin ---
+function renderRecipesAdmin(ct) {
+  let recipes = getRecipes();
+  // If no custom data yet, we can't edit — tell admin to init from main app
+  if (!recipes || recipes.length === 0) {
+    ct.innerHTML = `
+      <div class="empty-msg" style="padding:60px 20px">
+        <div style="font-size:48px;margin-bottom:12px">📋</div>
+        <div style="font-weight:600;margin-bottom:6px">暂无菜品数据</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">请先在主应用中打开一次，然后刷新此页面</div>
+        <button class="btn-add" onclick="initDefaultRecipes()">📥 初始化默认菜品</button>
+      </div>`;
+    return;
+  }
+  const filtered = recipeSearch ? recipes.filter(r => r.name.includes(recipeSearch) || r.description.includes(recipeSearch) || r.dishType.some(t => t.includes(recipeSearch))) : recipes;
+
+  ct.innerHTML = `
+    <div class="search-bar"><input type="text" placeholder="🔍 搜索菜品名称或分类..." value="${recipeSearch}" oninput="recipeSearch=this.value;renderContent()"></div>
+    <div class="section-header"><h3>菜品列表 (${filtered.length})</h3><button class="btn-add" onclick="showRecipeForm()">+ 添加</button></div>
+    ${filtered.length === 0 ? '<div class="empty-msg">没有匹配的菜品</div>' :
+    filtered.map(r => `<div class="data-card">
+      <div class="data-card-emoji">${r.emoji||'🍳'}</div>
+      <div class="data-card-info">
+        <div class="data-card-title">${r.name} ${r.calories?`<span style="font-size:11px;color:var(--green)">🔥${r.calories}</span>`:''}</div>
+        <div class="data-card-sub">${r.dishType.join('·')} | ${r.time} | ${r.methods?.length||0}种做法</div>
+      </div>
+      <div class="data-card-actions">
+        <button class="btn-sm btn-view" onclick="viewRecipe('${r.id}')">查看</button>
+        <button class="btn-sm btn-edit" onclick="showRecipeForm('${r.id}')">编辑</button>
+        <button class="btn-sm btn-del" onclick="deleteRecipe('${r.id}')">删除</button>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+function initDefaultRecipes() {
+  // Remove custom data so main app falls back to built-in defaults
+  localStorage.removeItem('eatwhat_recipes');
+  alert('✅ 已恢复默认菜品数据！请刷新主应用查看。');
+  render();
+}
+
+function showRecipeForm(id) {
+  let recipes = getRecipes() || [];
+  editingRecipe = id ? recipes.find(r => r.id === id) : null;
+  const r = editingRecipe || { id: 'r' + Date.now(), name: '', emoji: '🍳', mealType: ['lunch', 'dinner'], dishType: ['stir-fry'], flavor: [], time: '', difficulty: 1, description: '', calories: '', methods: [{ name: '经典做法', ingredients: [], steps: [], tips: '' }] };
+
+  const mealOpts = { breakfast: '早饭', lunch: '午饭', dinner: '晚饭' };
+  const dishOpts = { 'stir-fry': '炒菜', soup: '汤羹', hotpot: '火锅', steam: '蒸煮', staple: '主食', other: '其他', diet: '减脂餐', 'cold-dish': '凉菜', dessert: '甜点' };
+  const flavorOpts = ['spicy', 'sour', 'sweet'];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'form-modal';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>${id ? '编辑菜品' : '添加菜品'}</h3>
+      <div class="form-row"><div class="form-group"><label>菜品名称 *</label><input id="rf-name" value="${r.name}"></div><div class="form-group"><label>Emoji</label><input id="rf-emoji" value="${r.emoji}"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label>餐次</label><select id="rf-mealType" multiple style="height:80px">${Object.entries(mealOpts).map(([k,v])=>`<option value="${k}" ${r.mealType?.includes(k)?'selected':''}>${v}</option>`).join('')}</select></div>
+        <div class="form-group"><label>类型 *</label><select id="rf-dishType" multiple style="height:80px">${Object.entries(dishOpts).map(([k,v])=>`<option value="${k}" ${r.dishType?.includes(k)?'selected':''}>${v}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>口味</label><select id="rf-flavor" multiple style="height:60px">${flavorOpts.map(f=>`<option value="${f}" ${r.flavor?.includes(f)?'selected':''}>${f==='spicy'?'辣':f==='sour'?'酸':'甜'}</option>`).join('')}</select></div>
+        <div class="form-group"><label>用时</label><input id="rf-time" value="${r.time||''}" placeholder="如：15分钟"></div>
+        <div class="form-group"><label>难度(1-5)</label><input id="rf-difficulty" type="number" min="1" max="5" value="${r.difficulty||1}"></div>
+      </div>
+      <div class="form-group"><label>热量</label><input id="rf-calories" value="${r.calories||''}" placeholder="如：~280kcal（减脂餐建议填写）"></div>
+      <div class="form-group"><label>简介</label><input id="rf-desc" value="${r.description||''}"></div>
+      <div class="form-group"><label>做法 (JSON格式，每项含name/ingredients/steps/tips)</label><textarea id="rf-methods" style="min-height:120px;font-size:12px">${JSON.stringify(r.methods||[], null, 2)}</textarea></div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn-save" onclick="saveRecipeForm('${id||''}')">💾 保存</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+}
+
+function saveRecipeForm(id) {
+  const name = document.getElementById('rf-name').value.trim();
+  if (!name) { alert('请输入菜品名称'); return; }
+
+  let mealType = Array.from(document.getElementById('rf-mealType').selectedOptions).map(o=>o.value);
+  let dishType = Array.from(document.getElementById('rf-dishType').selectedOptions).map(o=>o.value);
+  let flavor = Array.from(document.getElementById('rf-flavor').selectedOptions).map(o=>o.value);
+  if (!mealType.length) mealType = ['lunch', 'dinner'];
+  if (!dishType.length) dishType = ['stir-fry'];
+
+  let methods;
+  try { methods = JSON.parse(document.getElementById('rf-methods').value); } catch(e) { alert('做法JSON格式错误'); return; }
+  if (!Array.isArray(methods) || methods.length === 0) { alert('至少需要一种做法'); return; }
+
+  let recipes = getRecipes() || [];
+  const recipe = {
+    id: id || 'r' + Date.now(),
+    name,
+    emoji: document.getElementById('rf-emoji').value || '🍳',
+    mealType,
+    dishType,
+    flavor,
+    time: document.getElementById('rf-time').value || '15分钟',
+    difficulty: parseInt(document.getElementById('rf-difficulty').value) || 1,
+    description: document.getElementById('rf-desc').value,
+    calories: document.getElementById('rf-calories').value || undefined,
+    methods
+  };
+
+  if (id) {
+    const idx = recipes.findIndex(r => r.id === id);
+    if (idx >= 0) recipes[idx] = recipe;
+  } else {
+    recipes.push(recipe);
+  }
+
+  saveRecipes(recipes);
+  closeModal();
+  render();
+  alert('✅ 菜品已保存！请刷新主应用查看更新。');
+}
+
+function deleteRecipe(id) {
+  if (!confirm('确定删除这道菜品吗？')) return;
+  let recipes = getRecipes() || [];
+  recipes = recipes.filter(r => r.id !== id);
+  saveRecipes(recipes);
+  // Also remove from favorites
+  let favs = getFavs();
+  favs = favs.filter(f => f !== id);
+  localStorage.setItem('eatwhat_favs', JSON.stringify(favs));
+  render();
+}
+
+function viewRecipe(id) {
+  const recipes = getRecipes() || [];
+  const r = recipes.find(r => r.id === id);
+  if (!r) return;
+  alert(`📋 ${r.name}\n\n类型：${r.dishType.join('·')}\n用时：${r.time}\n难度：${'⭐'.repeat(r.difficulty)}\n${r.calories?'热量：'+r.calories+'\n':''}\n简介：${r.description}\n\n做法数量：${r.methods?.length||0}种`);
+}
+
+// --- Drinks Admin ---
+function renderDrinksAdmin(ct) {
+  let drinks = getDrinks();
+  if (!drinks || drinks.length === 0) {
+    ct.innerHTML = `
+      <div class="empty-msg" style="padding:60px 20px">
+        <div style="font-size:48px;margin-bottom:12px">🍸</div>
+        <div style="font-weight:600;margin-bottom:6px">暂无调酒数据</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">请先在主应用中打开一次，然后刷新此页面</div>
+        <button class="btn-add" onclick="initDefaultDrinks()">📥 初始化默认调酒</button>
+      </div>`;
+    return;
+  }
+  const filtered = drinkSearch ? drinks.filter(d => d.name.includes(drinkSearch) || d.emotion?.includes(drinkSearch) || d.baseLiquor.includes(drinkSearch)) : drinks;
+
+  ct.innerHTML = `
+    <div class="search-bar"><input type="text" placeholder="🔍 搜索酒名、基酒或情绪..." value="${drinkSearch}" oninput="drinkSearch=this.value;renderContent()"></div>
+    <div class="section-header"><h3>调酒列表 (${filtered.length})</h3><button class="btn-add" onclick="showDrinkForm()">+ 添加</button></div>
+    ${filtered.length === 0 ? '<div class="empty-msg">没有匹配的调酒</div>' :
+    filtered.map(d => `<div class="data-card">
+      <div class="data-card-emoji">${d.emoji||'🍸'}</div>
+      <div class="data-card-info">
+        <div class="data-card-title">${d.name} <span style="font-size:11px;color:var(--text-hint)">${d.en||''}</span></div>
+        <div class="data-card-sub">${d.emotion||''} | ${d.category?.join('·')||''} | ${d.alcoholLevel}酒精</div>
+      </div>
+      <div class="data-card-actions">
+        <button class="btn-sm btn-view" onclick="viewDrink('${d.id}')">查看</button>
+        <button class="btn-sm btn-edit" onclick="showDrinkForm('${d.id}')">编辑</button>
+        <button class="btn-sm btn-del" onclick="deleteDrink('${d.id}')">删除</button>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+function initDefaultDrinks() {
+  localStorage.removeItem('eatwhat_drinks');
+  alert('✅ 已恢复默认调酒数据！请刷新主应用查看。');
+  render();
+}
+
+function showDrinkForm(id) {
+  let drinks = getDrinks() || [];
+  editingDrink = id ? drinks.find(d => d.id === id) : null;
+  const d = editingDrink || { id: 'd' + Date.now(), name: '', en: '', emoji: '🍸', category: ['classic'], baseLiquor: 'vodka', glassType: 'highball', difficulty: 1, time: '5分钟', flavor: [], alcoholLevel: '中', colorGrad: 'linear-gradient(135deg, #fff, #ccc)', description: '', emotion: '', emotionColor: '#ccc', searchKw: '', ingredients: [], steps: [], garnish: '', tips: '' };
+
+  const catOpts = ['classic', 'fruity', 'low-alcohol', 'non-alcoholic', 'summer', 'party', 'night'];
+  const liqOpts = ['vodka', 'gin', 'rum', 'tequila', 'whiskey', 'brandy', 'none'];
+  const alcOpts = ['无', '低', '中', '高'];
+  const flavOpts = ['sweet', 'sour', 'bitter', 'refreshing', 'fruity'];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'form-modal';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>${id ? '编辑调酒' : '添加调酒'}</h3>
+      <div class="form-row"><div class="form-group"><label>名称 *</label><input id="df-name" value="${d.name}"></div><div class="form-group"><label>英文名</label><input id="df-en" value="${d.en||''}"></div></div>
+      <div class="form-row"><div class="form-group"><label>Emoji</label><input id="df-emoji" value="${d.emoji}"></div><div class="form-group"><label>搜索关键词</label><input id="df-searchKw" value="${d.searchKw||''}"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label>分类</label><select id="df-category" multiple style="height:80px">${catOpts.map(c=>`<option value="${c}" ${d.category?.includes(c)?'selected':''}>${c}</option>`).join('')}</select></div>
+        <div class="form-group"><label>基酒</label><select id="df-baseLiquor">${liqOpts.map(l=>`<option value="${l}" ${d.baseLiquor===l?'selected':''}>${l}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>酒精浓度</label><select id="df-alcoholLevel">${alcOpts.map(a=>`<option value="${a}" ${d.alcoholLevel===a?'selected':''}>${a}</option>`).join('')}</select></div>
+        <div class="form-group"><label>杯型</label><input id="df-glassType" value="${d.glassType||''}"></div>
+        <div class="form-group"><label>用时</label><input id="df-time" value="${d.time||''}"></div>
+        <div class="form-group"><label>难度(1-5)</label><input id="df-difficulty" type="number" min="1" max="5" value="${d.difficulty||1}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>情绪标签 *</label><input id="df-emotion" value="${d.emotion||''}" placeholder="如：🍃 清新放松"></div>
+        <div class="form-group"><label>情绪颜色</label><input id="df-emotionColor" type="color" value="${d.emotionColor||'#56ab91'}" style="height:38px;padding:4px"></div>
+      </div>
+      <div class="form-row"><div class="form-group"><label>卡片渐变色</label><input id="df-colorGrad" value="${d.colorGrad||''}" placeholder="linear-gradient(135deg, #fff, #ccc)"></div></div>
+      <div class="form-group"><label>口味</label><select id="df-flavor" multiple style="height:60px">${flavOpts.map(f=>`<option value="${f}" ${d.flavor?.includes(f)?'selected':''}>${f}</option>`).join('')}</select></div>
+      <div class="form-group"><label>简介</label><input id="df-desc" value="${d.description||''}"></div>
+      <div class="form-group"><label>装饰</label><input id="df-garnish" value="${d.garnish||''}"></div>
+      <div class="form-group"><label>配方 (JSON: [{n:"材料",a:"用量"}])</label><textarea id="df-ingredients" style="min-height:80px;font-size:12px">${JSON.stringify(d.ingredients||[], null, 2)}</textarea></div>
+      <div class="form-group"><label>步骤 (JSON: ["步骤1","步骤2"])</label><textarea id="df-steps" style="min-height:80px;font-size:12px">${JSON.stringify(d.steps||[], null, 2)}</textarea></div>
+      <div class="form-group"><label>小贴士</label><input id="df-tips" value="${d.tips||''}"></div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn-save" onclick="saveDrinkForm('${id||''}')">💾 保存</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+}
+
+function saveDrinkForm(id) {
+  const name = document.getElementById('df-name').value.trim();
+  if (!name) { alert('请输入调酒名称'); return; }
+  const emotion = document.getElementById('df-emotion').value.trim();
+  if (!emotion) { alert('请输入情绪标签'); return; }
+
+  let category = Array.from(document.getElementById('df-category').selectedOptions).map(o=>o.value);
+  if (!category.length) category = ['classic'];
+  let flavor = Array.from(document.getElementById('df-flavor').selectedOptions).map(o=>o.value);
+  let ingredients, steps;
+  try { ingredients = JSON.parse(document.getElementById('df-ingredients').value); } catch(e) { alert('配方JSON格式错误'); return; }
+  try { steps = JSON.parse(document.getElementById('df-steps').value); } catch(e) { alert('步骤JSON格式错误'); return; }
+
+  let drinks = getDrinks() || [];
+  const drink = {
+    id: id || 'd' + Date.now(),
+    name,
+    en: document.getElementById('df-en').value,
+    emoji: document.getElementById('df-emoji').value || '🍸',
+    category,
+    baseLiquor: document.getElementById('df-baseLiquor').value,
+    glassType: document.getElementById('df-glassType').value,
+    difficulty: parseInt(document.getElementById('df-difficulty').value) || 1,
+    time: document.getElementById('df-time').value || '5分钟',
+    flavor,
+    alcoholLevel: document.getElementById('df-alcoholLevel').value,
+    colorGrad: document.getElementById('df-colorGrad').value,
+    description: document.getElementById('df-desc').value,
+    emotion,
+    emotionColor: document.getElementById('df-emotionColor').value,
+    searchKw: document.getElementById('df-searchKw').value || (name + '调酒教程'),
+    ingredients,
+    steps,
+    garnish: document.getElementById('df-garnish').value,
+    tips: document.getElementById('df-tips').value
+  };
+
+  if (id) {
+    const idx = drinks.findIndex(d => d.id === id);
+    if (idx >= 0) drinks[idx] = drink;
+  } else {
+    drinks.push(drink);
+  }
+
+  saveDrinks(drinks);
+  closeModal();
+  render();
+  alert('✅ 调酒已保存！请刷新主应用查看更新。');
+}
+
+function deleteDrink(id) {
+  if (!confirm('确定删除这款调酒吗？')) return;
+  let drinks = getDrinks() || [];
+  drinks = drinks.filter(d => d.id !== id);
+  saveDrinks(drinks);
+  let favs = getFavs();
+  favs = favs.filter(f => f !== id);
+  localStorage.setItem('eatwhat_favs', JSON.stringify(favs));
+  render();
+}
+
+function viewDrink(id) {
+  const drinks = getDrinks() || [];
+  const d = drinks.find(d => d.id === id);
+  if (!d) return;
+  alert(`🍸 ${d.name} (${d.en})\n\n情绪：${d.emotion}\n分类：${d.category?.join('·')}\n基酒：${d.baseLiquor}\n酒精：${d.alcoholLevel}\n杯型：${d.glassType}\n用时：${d.time}\n\n简介：${d.description}\n装饰：${d.garnish}`);
+}
+
+function closeModal() {
+  const m = document.getElementById('form-modal');
+  if (m) m.remove();
+}
+
+// --- Stats ---
+function renderStats(ct) {
+  const users = getUsers();
+  const recipes = getRecipes() || [];
+  const drinks = getDrinks() || [];
+  const favs = getFavs();
+
+  // Count favorites per item
+  const favCount = {};
+  favs.forEach(f => { favCount[f] = (favCount[f] || 0) + 1; });
+  const topItems = Object.entries(favCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  ct.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="sn">${users.length}</div><div class="sl">👥 注册用户</div></div>
+      <div class="stat-card info"><div class="sn">${recipes.length}</div><div class="sl">🍳 菜品总数</div></div>
+      <div class="stat-card warn"><div class="sn">${drinks.length}</div><div class="sl">🍸 调酒总数</div></div>
+      <div class="stat-card danger"><div class="sn">${favs.length}</div><div class="sl">❤️ 收藏总数</div></div>
+    </div>
+    <div class="section-header"><h3>🏆 热门收藏 TOP5</h3></div>
+    ${topItems.length === 0 ? '<div class="empty-msg">暂无收藏数据</div>' :
+    topItems.map(([id, count], i) => {
+      const item = recipes.find(r => r.id === id) || drinks.find(d => d.id === id);
+      const name = item ? (item.emoji + ' ' + item.name) : id;
+      return `<div class="data-card">
+        <div style="font-size:24px;font-weight:700;color:var(--green);min-width:36px;text-align:center">#${i+1}</div>
+        <div class="data-card-info"><div class="data-card-title">${name}</div><div class="data-card-sub">被收藏 ${count} 次</div></div>
+      </div>`;
+    }).join('')}
+    <div class="section-header" style="margin-top:16px"><h3>📊 菜品分类统计</h3></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${(()=>{
+        const cats={};recipes.forEach(r=>r.dishType?.forEach(t=>{cats[t]=(cats[t]||0)+1}));
+        const labels={'stir-fry':'🍳炒菜',soup:'🍲汤羹',hotpot:'🫕火锅',steam:'🧆蒸煮',staple:'🍚主食',other:'🥟其他',diet:'🥗减脂餐','cold-dish':'🥒凉菜',dessert:'🍰甜点'};
+        return Object.entries(cats).map(([k,v])=>`<span style="padding:6px 12px;background:var(--white);border-radius:14px;font-size:13px;box-shadow:var(--shadow)">${labels[k]||k}: ${v}道</span>`).join('');
+      })()}
+    </div>
+  `;
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+  render();
+  console.log('🍜 管理后台 v5.0 已就绪');
+  console.log('默认账号: admin / admin123');
+  console.log('📊 支持管理：炒菜·汤羹·火锅·蒸煮·主食·其他·减脂餐·凉菜·甜点');
+}
+init();
+</script>
+</body>
+</html>
