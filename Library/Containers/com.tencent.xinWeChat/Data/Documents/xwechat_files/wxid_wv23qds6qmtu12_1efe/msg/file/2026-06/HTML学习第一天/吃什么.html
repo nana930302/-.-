@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>吃什么·喝什么</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#07C160;--green-dark:#06AD56;--green-light:#E8F8EF;
+  --dark:#1A1A1A;--gray-bg:#F5F5F5;--gray-card:#F7F7F7;
+  --border:#E5E5E5;--text:#1A1A1A;--text-secondary:#888;
+  --text-hint:#B0B0B0;--white:#FFF;--red:#FA5151;--orange:#FF8F1F;
+  --yellow:#FFC300;--blue:#4A90D9;--purple:#9B59B6;--pink:#E91E63;
+  --gold:#D4A843;--gold-light:#F5E6C8;--gold-dark:#B8861F;
+  --copper:#C17F59;--bronze:#A0714F;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);--shadow-md:0 4px 16px rgba(0,0,0,0.1);--shadow-lg:0 8px 32px rgba(0,0,0,0.14);--shadow-xl:0 16px 48px rgba(0,0,0,0.18);
+  --shadow-gold:0 4px 20px rgba(212,168,67,0.25);
+  --radius:12px;--radius-lg:16px;--radius-pill:24px;
+}
+html,body{height:100%;font-size:16px;color:var(--text);background:#EDEDED;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#app{max-width:414px;width:100%;height:100vh;height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:var(--gray-bg);position:relative;overflow:hidden;box-shadow:var(--shadow-lg);touch-action:manipulation}
+#nav-bar{height:48px;min-height:48px;background:linear-gradient(180deg,#2A2A2A 0%,var(--dark) 100%);color:var(--white);display:flex;align-items:center;justify-content:center;position:relative;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
+#nav-title{font-size:17px;font-weight:600;letter-spacing:1px;display:flex;align-items:center;gap:6px}
+#main-content{flex:1;position:relative;overflow:hidden}
+.tab-page{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;background:var(--gray-bg);padding:16px 16px 20px;transition:transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.3s ease;-webkit-overflow-scrolling:touch}
+.tab-page.hidden{transform:translateX(30%);opacity:0;pointer-events:none;z-index:1}
+.tab-page.active{transform:translateX(0);opacity:1;pointer-events:auto;z-index:2}
+.tab-page::-webkit-scrollbar{width:0}
+
+#tab-bar{height:56px;min-height:56px;background:var(--white);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:100;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -2px 12px rgba(0,0,0,0.06)}
+.tab-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 7px;border:none;background:transparent;cursor:pointer;color:var(--text-secondary);font-size:10px;transition:all 0.25s cubic-bezier(0.25,0.46,0.45,0.94);-webkit-tap-highlight-color:transparent;border-radius:8px;position:relative}
+.tab-item .tab-icon{font-size:20px;line-height:1;transition:transform 0.25s}
+.tab-item .tab-label{font-size:9px;font-weight:500}
+.tab-item.active{color:var(--green)}.tab-item.active .tab-icon{transform:scale(1.15);filter:drop-shadow(0 1px 3px rgba(7,193,96,0.3))}.tab-item:active{background:var(--gray-card)}
+.tab-badge{position:absolute;top:1px;right:50%;transform:translateX(16px);background:linear-gradient(135deg,var(--red),#FF6B6B);color:var(--white);font-size:10px;font-weight:600;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 6px rgba(250,81,81,0.3)}
+
+.section-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--dark);letter-spacing:0.3px}.section-title .st-icon{font-size:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.1))}
+
+/* Meal & Dish Type */
+.meal-type-row{display:flex;gap:10px;margin-bottom:20px}
+.meal-type-card{flex:1;background:var(--white);border-radius:var(--radius-lg);padding:16px 10px;text-align:center;cursor:pointer;box-shadow:var(--shadow);border:2px solid transparent;transition:all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);position:relative;overflow:hidden}
+.meal-type-card::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:var(--radius-lg);opacity:0;transition:opacity 0.3s}
+.meal-type-card:active{transform:scale(0.96)}.meal-type-card.selected{border-color:var(--gold);background:linear-gradient(135deg,#FFFDF5,#FBF3E0);box-shadow:var(--shadow-gold)}
+.meal-type-card.selected::before{opacity:1;background:radial-gradient(circle at 50% 0%,rgba(212,168,67,0.15),transparent 70%)}
+.meal-type-card .mt-emoji{font-size:40px;display:block;margin-bottom:6px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1));transition:transform 0.3s}
+.meal-type-card.selected .mt-emoji{transform:scale(1.1);filter:drop-shadow(0 2px 6px rgba(212,168,67,0.3))}
+.meal-type-card .mt-name{font-size:15px;font-weight:600}.meal-type-card .mt-desc{font-size:11px;color:var(--text-secondary);margin-top:2px}
+
+.dish-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.dish-type-card{background:var(--white);border-radius:var(--radius);padding:14px 6px;text-align:center;cursor:pointer;box-shadow:var(--shadow);border:2px solid transparent;transition:all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);position:relative;overflow:hidden}
+.dish-type-card::after{content:'';position:absolute;inset:0;border-radius:var(--radius);background:radial-gradient(circle at 50% 0%,rgba(255,215,0,0.08),transparent 60%);opacity:0;transition:opacity 0.3s}
+.dish-type-card:hover::after,.dish-type-card.selected::after{opacity:1}
+.dish-type-card:active{transform:scale(0.95)}.dish-type-card.selected{border-color:var(--gold);background:linear-gradient(135deg,#FFFDF5,#FBF3E0);box-shadow:var(--shadow-gold);transform:translateY(-1px)}
+.dish-type-card .dt-emoji{font-size:30px;display:block;margin-bottom:4px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.08));transition:transform 0.3s}
+.dish-type-card.selected .dt-emoji{transform:scale(1.12);filter:drop-shadow(0 2px 6px rgba(212,168,67,0.3))}
+.dish-type-card .dt-name{font-size:13px;font-weight:600;position:relative;z-index:1}
+.dish-type-card .dt-badge{position:absolute;top:4px;right:4px;background:linear-gradient(135deg,var(--red),#FF6B6B);color:var(--white);font-size:9px;padding:2px 6px;border-radius:8px;box-shadow:0 2px 6px rgba(250,81,81,0.3);z-index:2}
+
+.btn-primary{width:100%;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);border:none;font-size:17px;font-weight:600;padding:14px;border-radius:var(--radius-pill);cursor:pointer;box-shadow:0 4px 20px rgba(7,193,96,0.35);text-align:center;transition:all 0.2s cubic-bezier(0.25,0.46,0.45,0.94);position:relative;overflow:hidden;letter-spacing:0.5px}
+.btn-primary::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.6s}
+.btn-primary:hover::before{left:100%}
+.btn-primary:active{transform:scale(0.96);box-shadow:0 2px 8px rgba(7,193,96,0.2)}.btn-primary:disabled{background:var(--text-hint);box-shadow:none;cursor:not-allowed}
+
+/* Search */
+.search-wrap{position:relative;margin-bottom:14px}
+.search-wrap input{width:100%;padding:12px 40px 12px 40px;border:1.5px solid var(--border);border-radius:var(--radius-pill);font-size:14px;background:var(--white);outline:none;transition:all 0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.search-wrap input:focus{border-color:var(--green);box-shadow:0 2px 12px rgba(7,193,96,0.12)}
+.search-wrap .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-hint)}
+.search-wrap .search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);border:none;background:var(--gray-card);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--text-hint);transition:all 0.2s}
+.search-wrap .search-clear:hover{background:#FFE5E5;color:var(--red)}
+.search-highlight{background:#FFF3CD;padding:0 2px;border-radius:3px}
+
+/* Filter */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-chip{display:inline-flex;align-items:center;gap:4px;padding:7px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-pill);font-size:13px;color:var(--text);cursor:pointer;transition:all 0.25s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.filter-chip.selected{border-color:var(--gold);background:linear-gradient(135deg,#FFFDF5,#FBF3E0);color:var(--gold-dark);font-weight:600;box-shadow:0 2px 8px rgba(212,168,67,0.2)}
+.filter-chip .fc-close{margin-left:2px;font-size:14px;color:var(--text-hint);line-height:1}
+.filter-clear{font-size:12px;color:var(--text-secondary);cursor:pointer;padding:6px 8px;border:none;background:transparent;transition:color 0.2s}
+.filter-clear:hover{color:var(--red)}
+.results-count{font-size:13px;color:var(--text-secondary);margin-bottom:12px;text-align:center}.results-count strong{color:var(--green);font-size:16px}
+
+/* Recipe Cards */
+.recipe-card{background:var(--white);border-radius:var(--radius-lg);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);border:1px solid transparent;position:relative}
+.recipe-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--copper),var(--gold));border-radius:0 2px 2px 0;opacity:0;transition:opacity 0.3s}
+.recipe-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);border-color:var(--border)}
+.recipe-card.expanded{border-color:var(--gold-light);box-shadow:var(--shadow-gold)}
+.recipe-card.expanded::before{opacity:1}
+.recipe-card:active{box-shadow:var(--shadow-lg)}
+.recipe-summary{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.recipe-emoji{font-size:38px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F8F9FA,#E8ECF1);border-radius:50%;flex-shrink:0;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);transition:transform 0.3s}
+.recipe-card.expanded .recipe-emoji{transform:scale(1.08);background:linear-gradient(135deg,var(--gold-light),#FBF3E0)}
+.recipe-info{flex:1;min-width:0}
+.recipe-name-row{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.recipe-name{font-size:16px;font-weight:600}
+.recipe-cal{font-size:11px;color:var(--green-dark);background:var(--green-light);padding:2px 8px;border-radius:10px;font-weight:500}
+.recipe-desc{font-size:12px;color:var(--text-secondary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipe-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap}
+.recipe-meta .meta-time{color:var(--orange);font-weight:500}.recipe-meta .meta-stars{color:var(--gold);font-size:11px}
+.fav-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;cursor:pointer;font-size:22px;transition:transform 0.2s;flex-shrink:0}
+.fav-btn:active{transform:scale(1.3)}.fav-btn.liked{animation:heart-pop 0.4s ease}
+@keyframes heart-pop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 4px 16px rgba(255,143,31,0.3)}50%{box-shadow:0 4px 28px rgba(255,143,31,0.55)}}
+@keyframes purple-glow{0%,100%{box-shadow:0 4px 16px rgba(233,30,99,0.3)}50%{box-shadow:0 4px 28px rgba(233,30,99,0.55)}}
+.recipe-arrow{color:var(--text-hint);font-size:16px;transition:transform 0.35s ease;flex-shrink:0}
+.recipe-card.expanded .recipe-arrow{transform:rotate(90deg)}
+.recipe-detail{max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)}
+.recipe-detail-inner{border-top:1px solid var(--border)}
+.method-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin:0 16px}
+.method-tab{flex:1;padding:10px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.25s;white-space:nowrap;position:relative}
+.method-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}.method-tab:active{background:var(--green-light)}
+.method-content{padding:14px 16px 16px}
+.recipe-detail-section{margin-top:14px}.recipe-detail-label{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:var(--gold-dark)}.recipe-detail-label .dl-icon{font-size:16px}
+.ingredient-list{display:flex;flex-wrap:wrap;gap:6px}
+.ingredient-chip{background:linear-gradient(135deg,#F8F9FA,#EEF0F4);padding:5px 12px;border-radius:var(--radius-pill);font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:4px;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+.ingredient-chip .ing-amount{color:var(--text-secondary);font-size:12px}
+.step-list{list-style:none}.step-item{display:flex;gap:10px;margin-bottom:10px;font-size:14px;line-height:1.6}
+.step-num{width:24px;height:24px;min-width:24px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin-top:1px;box-shadow:0 2px 6px rgba(7,193,96,0.25)}
+.tips-box{background:linear-gradient(135deg,#FFFDF5,#FFF9E6);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:#8B6914;line-height:1.6;display:flex;gap:8px;border:1px solid var(--gold-light)}
+.empty-state{text-align:center;padding:48px 20px}.empty-icon{font-size:72px;margin-bottom:16px;opacity:0.7;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.1))}.empty-title{font-size:18px;font-weight:600;margin-bottom:8px}.empty-desc{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px}
+
+/* Drinks */
+.category-scroll{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.category-scroll::-webkit-scrollbar{display:none}
+.cat-chip{flex-shrink:0;padding:8px 16px;border-radius:var(--radius-pill);font-size:13px;font-weight:500;border:1.5px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;transition:all 0.25s cubic-bezier(0.25,0.46,0.45,0.94);white-space:nowrap}
+.cat-chip:active{transform:scale(0.95)}.cat-chip.selected{background:linear-gradient(135deg,var(--purple),var(--pink));color:var(--white);border-color:transparent;box-shadow:0 4px 14px rgba(233,30,99,0.3)}
+
+.drink-card{border-radius:var(--radius-lg);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);position:relative}
+.drink-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.drink-card:active{box-shadow:var(--shadow-xl)}
+.drink-card-header{padding:18px 16px 14px;display:flex;align-items:center;gap:14px;position:relative;color:var(--white)}
+.drink-card-header::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,0.12),rgba(0,0,0,0.08));pointer-events:none}
+.drink-card-emoji{font-size:44px;width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.22);border-radius:50%;flex-shrink:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 12px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.3);transition:transform 0.3s}
+.drink-card.expanded .drink-card-emoji{transform:scale(1.1) rotate(-5deg)}
+.drink-card-info{flex:1;min-width:0}
+.drink-card-name{font-size:18px;font-weight:700;margin-bottom:2px;text-shadow:0 2px 4px rgba(0,0,0,0.25);letter-spacing:0.5px}
+.drink-card-en{font-size:11px;opacity:0.9;margin-bottom:4px;letter-spacing:1px}
+.drink-card-meta{display:flex;align-items:center;gap:8px;font-size:12px;flex-wrap:wrap}
+.drink-alc-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.3);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.drink-glass{display:inline-flex;align-items:center;gap:3px;opacity:0.95;font-size:11px}
+
+/* Emotion Tag */
+.emotion-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;margin-top:4px;background:rgba(255,255,255,0.3);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.emotion-tag.dark{background:rgba(0,0,0,0.25)}
+
+.alc-indicator{display:flex;align-items:center;gap:6px;margin-top:4px}.alc-label{font-size:10px;font-weight:500;opacity:0.8}.alc-dots{display:flex;gap:4px}.alc-dot{width:10px;height:6px;border-radius:3px;background:rgba(255,255,255,0.3)}.alc-dot.filled{background:var(--gold-light)}.alc-dot.filled.high{background:var(--red)}
+
+.drink-card-body{background:var(--white);padding:0}
+.drink-summary{padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.drink-summary-text{font-size:13px;color:var(--text-secondary);flex:1}.drink-summary-arrow{color:var(--text-hint);font-size:16px;transition:transform 0.35s ease}
+.drink-card.expanded .drink-summary-arrow{transform:rotate(90deg)}
+.drink-detail{max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.25,0.46,0.45,0.94);background:var(--white)}
+.drink-detail-inner{padding:0 16px 16px;border-top:1px solid var(--border)}
+
+.platform-btns{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.platform-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:10px 8px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;color:var(--white);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.platform-btn:active{transform:scale(0.94)}
+.platform-btn.douyin{background:linear-gradient(135deg,#1A1A1A,#444)}
+.platform-btn.xiaohongshu{background:linear-gradient(135deg,#FF2442,#FF6B81);box-shadow:0 2px 12px rgba(255,36,66,0.3)}
+.platform-btn.bilibili{background:linear-gradient(135deg,#FB7299,#FF9DB5);box-shadow:0 2px 12px rgba(251,114,153,0.3)}
+
+/* Favorites */
+.fav-item{display:flex;align-items:center;gap:12px;background:var(--white);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);border:1px solid transparent}
+.fav-item:hover{box-shadow:var(--shadow-md);transform:translateX(2px);border-color:var(--gold-light)}
+.fav-item:active{background:var(--gray-card)}
+.fav-item-emoji{font-size:34px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F8F9FA,#E8ECF1);border-radius:50%;flex-shrink:0;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06)}
+.fav-item-info{flex:1;min-width:0}.fav-item-name{font-size:15px;font-weight:600}.fav-item-desc{font-size:12px;color:var(--text-secondary)}.fav-item-type{font-size:10px;color:var(--gold-dark);background:var(--gold-light);padding:2px 8px;border-radius:8px;margin-top:3px;display:inline-block;font-weight:500}
+.fav-item-remove{color:var(--text-hint);font-size:12px;padding:6px 10px;border:none;background:var(--gray-card);border-radius:var(--radius-pill);cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.fav-item-remove:active{background:#FFE5E5;color:var(--red)}
+
+/* Profile / Login */
+.profile-header{text-align:center;padding:28px 20px;background:linear-gradient(180deg,#FFFDF5 0%,var(--white) 40%);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:16px;position:relative;overflow:hidden}
+.profile-header::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:120px;height:120px;background:radial-gradient(circle,rgba(212,168,67,0.15),transparent 70%);pointer-events:none}
+.profile-avatar{font-size:64px;width:84px;height:84px;background:linear-gradient(135deg,var(--gold-light),#FBF3E0);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 16px rgba(212,168,67,0.2),inset 0 1px 0 rgba(255,255,255,0.8)}
+.profile-name{font-size:20px;font-weight:700;margin-bottom:4px}.profile-id{font-size:13px;color:var(--text-secondary)}
+.stats-row{display:flex;gap:10px;margin-bottom:16px}
+.stat-card{flex:1;background:var(--white);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow);transition:transform 0.2s,box-shadow 0.2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-num{font-size:28px;font-weight:700;color:var(--green)}.stat-label{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.menu-group{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:15px;transition:all 0.2s}
+.menu-item:last-child{border-bottom:none}.menu-item:active{background:var(--gold-light)}
+.menu-item .mi-left{display:flex;align-items:center;gap:10px}.menu-item .mi-icon{font-size:20px}.menu-item .mi-arrow{color:var(--text-hint)}
+
+/* Login Modal */
+.login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:200;display:none;align-items:center;justify-content:center;pointer-events:none}
+.login-modal{background:var(--white);border-radius:var(--radius-lg);padding:28px 24px;width:90%;max-width:360px;box-shadow:var(--shadow-xl);animation:modal-in 0.3s cubic-bezier(0.25,0.46,0.45,0.94)}
+@keyframes modal-in{from{opacity:0;transform:translateY(20px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.login-modal h3{text-align:center;margin-bottom:20px;font-size:18px;color:var(--dark)}
+.login-field{margin-bottom:14px}.login-field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-secondary)}
+.login-field input{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:15px;outline:none;transition:all 0.3s;background:var(--gray-card)}
+.login-field input:focus{border-color:var(--green);background:var(--white);box-shadow:0 2px 12px rgba(7,193,96,0.1)}
+.login-tip{text-align:center;font-size:13px;color:var(--text-secondary);margin-top:12px}.login-tip a{color:var(--green);cursor:pointer;font-weight:600;transition:color 0.2s}
+.login-tip a:hover{color:var(--green-dark)}
+.login-error{color:var(--red);font-size:13px;text-align:center;margin-top:8px;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Fortune Modal */
+.fortune-modal{background:linear-gradient(135deg,#FFF5F8,#FFE8F0);border-radius:var(--radius-lg);padding:32px 28px;width:90%;max-width:380px;box-shadow:0 8px 32px rgba(255,107,157,0.3);animation:fortune-in 0.4s cubic-bezier(0.25,0.46,0.45,0.94);border:2px solid #FFB6C1}
+@keyframes fortune-in{from{opacity:0;transform:scale(0.8) rotate(-5deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.fortune-animation{text-align:center;padding:20px 0}
+.fortune-stick-container{height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.fortune-stick{width:8px;height:100px;background:linear-gradient(180deg,#8B4513,#D2691E);border-radius:4px;position:relative;animation:shake 0.1s infinite;box-shadow:0 4px 12px rgba(139,69,19,0.3)}
+@keyframes shake{0%,100%{transform:translateX(-2px) rotate(-2deg)}50%{transform:translateX(2px) rotate(2deg)}}
+.fortune-text{font-size:18px;color:var(--text-secondary);font-weight:500;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.fortune-result{text-align:center}
+.fortune-emoji{font-size:72px;margin-bottom:16px;animation:fortune-pop 0.6s cubic-bezier(0.68,-0.55,0.265,1.55)}
+@keyframes fortune-pop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.fortune-title{font-size:28px;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,#FF6B9D,#FF8E53);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.fortune-desc{font-size:16px;color:var(--text);line-height:1.6;margin-bottom:16px}
+.fortune-detail{font-size:14px;color:var(--text-secondary);background:rgba(255,255,255,0.8);padding:12px;border-radius:var(--radius);border:1px solid #FFD4DC}
+
+@media(min-width:415px){#app{border-radius:var(--radius-lg);margin-top:20px;height:calc(100vh - 40px);height:calc(100dvh - 40px)}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <nav id="nav-bar"><span id="nav-title">吃什么·喝什么</span></nav>
+  <div id="main-content">
+
+    <!-- Tab 0: 首页 -->
+    <div id="tab-home" class="tab-page active">
+      <button class="btn-primary" id="btn-fortune" style="margin-bottom:16px;background:linear-gradient(135deg,#FF6B9D,#FF8E53);box-shadow:0 4px 20px rgba(255,107,157,0.4);animation:purple-glow 3s ease-in-out infinite">🎯 每天都是上上签</button>
+      <div class="section-title"><span class="st-icon">⏰</span> 选择餐次</div>
+      <div class="meal-type-row">
+        <div class="meal-type-card" data-filter="mealType" data-value="breakfast"><span class="mt-emoji">🌅</span><div class="mt-name">早饭</div><div class="mt-desc">豆浆·包子·煎饼</div></div>
+        <div class="meal-type-card" data-filter="mealType" data-value="lunch"><span class="mt-emoji">☀️</span><div class="mt-name">午饭</div><div class="mt-desc">炒菜·米饭·面条</div></div>
+        <div class="meal-type-card" data-filter="mealType" data-value="dinner"><span class="mt-emoji">🌙</span><div class="mt-name">晚饭</div><div class="mt-desc">清淡·汤品·小炒</div></div>
+      </div>
+      <div class="section-title"><span class="st-icon">🍳</span> 菜品类型</div>
+      <div class="dish-type-grid" id="dish-type-grid">
+        <div class="dish-type-card" data-filter="dishType" data-value="stir-fry"><span class="dt-emoji">🍳</span><div class="dt-name">炒菜</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="soup"><span class="dt-emoji">🍲</span><div class="dt-name">汤羹</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="hotpot"><span class="dt-emoji">🫕</span><div class="dt-name">火锅</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="steam"><span class="dt-emoji">🧆</span><div class="dt-name">蒸煮</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="staple"><span class="dt-emoji">🍚</span><div class="dt-name">主食</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="other"><span class="dt-emoji">🥟</span><div class="dt-name">其他</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="diet"><span class="dt-emoji">🥗</span><div class="dt-name">减脂餐</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="cold-dish"><span class="dt-emoji">🥒</span><div class="dt-name">凉菜</div></div>
+        <div class="dish-type-card" data-filter="dishType" data-value="dessert"><span class="dt-emoji">🍰</span><div class="dt-name">甜点</div></div>
+      </div>
+      <button class="btn-primary" id="btn-view-menu">📋 查看菜单</button>
+      <button class="btn-primary" id="btn-random-home" style="margin-top:10px;background:linear-gradient(135deg,#FF8F1F,#FF6D00);box-shadow:0 4px 16px rgba(255,143,31,0.3);animation:glow-pulse 3s ease-in-out infinite">🎯 随便来一个</button>
+      <button class="btn-primary" id="btn-go-drinks" style="margin-top:10px;background:linear-gradient(135deg,#9B59B6,#E91E63);box-shadow:0 4px 16px rgba(233,30,99,0.3);animation:purple-glow 3s ease-in-out infinite 0.5s">🍸 今天喝什么？</button>
+    </div>
+
+    <!-- Tab 1: 菜单 -->
+    <div id="tab-menu" class="tab-page hidden">
+      <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="menu-search" placeholder="搜食材或菜名..."><button class="search-clear" id="menu-search-clear" style="display:none">×</button></div>
+      <div id="menu-filter-bar" class="filter-bar"></div>
+      <div id="menu-results"></div>
+    </div>
+
+    <!-- Tab 2: 喝什么 -->
+    <div id="tab-drinks" class="tab-page hidden">
+      <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="drink-search" placeholder="搜酒名、基酒或情绪..."><button class="search-clear" id="drink-search-clear" style="display:none">×</button></div>
+      <div class="category-scroll" id="drink-categories">
+        <button class="cat-chip selected" data-cat="all">🍹 全部</button>
+        <button class="cat-chip" data-cat="classic">🏛️ 经典</button>
+        <button class="cat-chip" data-cat="fruity">🍓 果味</button>
+        <button class="cat-chip" data-cat="low-alcohol">🍃 微醺</button>
+        <button class="cat-chip" data-cat="non-alcoholic">🧃 无酒精</button>
+        <button class="cat-chip" data-cat="summer">☀️ 夏日</button>
+        <button class="cat-chip" data-cat="party">🎉 派对</button>
+        <button class="cat-chip" data-cat="night">🌙 晚安酒</button>
+      </div>
+      <div id="drinks-results"></div>
+    </div>
+
+    <!-- Tab 3: 收藏 -->
+    <div id="tab-favorites" class="tab-page hidden"><div id="fav-list"></div></div>
+
+    <!-- Tab 4: 我的 -->
+    <div id="tab-profile" class="tab-page hidden">
+      <div class="profile-header" id="profile-card">
+        <div class="profile-avatar" id="profile-avatar">😋</div>
+        <div class="profile-name" id="profile-display-name">点击登录</div>
+        <div class="profile-id" id="profile-subtitle">登录享受更多功能</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-favs">0</div><div class="stat-label">❤️ 收藏</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-dishes">0</div><div class="stat-label">🍳 菜品</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-drinks">0</div><div class="stat-label">🍸 调酒</div></div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-item" id="btn-login-action"><span class="mi-left"><span class="mi-icon">👤</span><span id="login-action-text">登录 / 注册</span></span><span class="mi-arrow">›</span></div>
+        <div class="menu-item" id="btn-logout" style="display:none"><span class="mi-left"><span class="mi-icon">🚪</span>退出登录</span><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="alert('已是最新版本 v5.0 ✨\n新增：104道菜品扩充·减脂餐加量·交互修复')"><span class="mi-left"><span class="mi-icon">🔄</span>检查更新</span><span class="mi-arrow">v5.0 ›</span></div>
+        <div class="menu-item" onclick="alert('吃什么·喝什么 v5.0 ✨\n\n🍳 104道菜品：早餐·炒菜·汤羹·火锅·蒸煮·主食\n🥒 凉菜·🍰甜点·🥗丰富减脂餐\n🍸 25款调酒 + 情绪标签\n🔍 智能搜索\n👤 用户系统\n🎨 豪华视觉设计\n\n帮你解决每顿饭&每杯酒的选择困难症！')"><span class="mi-left"><span class="mi-icon">ℹ️</span>关于我们</span><span class="mi-arrow">›</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <footer id="tab-bar">
+    <button class="tab-item active" data-tab="0"><span class="tab-icon">🏠</span><span class="tab-label">首页</span></button>
+    <button class="tab-item" data-tab="1"><span class="tab-icon">📋</span><span class="tab-label">菜单</span></button>
+    <button class="tab-item" data-tab="2"><span class="tab-icon">🍸</span><span class="tab-label">喝什么</span></button>
+    <button class="tab-item" data-tab="3"><span class="tab-icon">❤️</span><span class="tab-label">收藏</span></button>
+    <button class="tab-item" data-tab="4"><span class="tab-icon">👤</span><span class="tab-label">我的</span></button>
+  </footer>
+</div>
+
+<!-- Login Modal -->
+<div class="login-overlay" id="login-overlay" style="display:none">
+  <div class="login-modal">
+    <h3 id="login-modal-title">登录</h3>
+    <div class="login-field"><label>昵称</label><input type="text" id="login-nickname" placeholder="请输入昵称"></div>
+    <div class="login-field"><label>密码</label><input type="password" id="login-password" placeholder="请输入密码（6位以上）"></div>
+    <div class="login-error" id="login-error" style="display:none"></div>
+    <button class="btn-primary" id="btn-submit-login" style="margin-top:8px">登录</button>
+    <div class="login-tip"><span id="login-switch-text">还没有账号？</span> <a id="login-switch-link" style="cursor:pointer">立即注册</a></div>
+    <button class="btn-primary" id="btn-cancel-login" style="margin-top:8px;background:var(--text-hint);box-shadow:none">取消</button>
+  </div>
+</div>
+
+<!-- Fortune Draw Modal -->
+<div class="login-overlay" id="fortune-overlay" style="display:none">
+  <div class="fortune-modal">
+    <div id="fortune-content">
+      <div class="fortune-animation" id="fortune-animation">
+        <div class="fortune-stick-container">
+          <div class="fortune-stick" id="fortune-stick"></div>
+        </div>
+        <div class="fortune-text" id="fortune-result-text">正在抽签...</div>
+      </div>
+      <div class="fortune-result" id="fortune-result" style="display:none">
+        <div class="fortune-emoji" id="fortune-emoji"></div>
+        <div class="fortune-title" id="fortune-title"></div>
+        <div class="fortune-desc" id="fortune-desc"></div>
+        <div class="fortune-detail" id="fortune-detail"></div>
+        <button class="btn-primary" id="btn-close-fortune" style="margin-top:16px;background:linear-gradient(135deg,#FF6B9D,#FF8E53)">🙏 感谢祈福</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// === DEBUG: 全局错误捕获 ===
+window.onerror=function(m,s,l,c,e){alert('JS错误 行'+l+': '+m);return false;};
+console.log('✅ 脚本开始执行...');
+
+// ============================================================
+//  DATA - RECIPES (with 减脂餐) & DRINKS (with emotions)
+// ============================================================
+function getRecipes(){return[
+  // ===== 早饭 =====
+  {id:'jiandan-bing',name:'葱花鸡蛋饼',emoji:'🧇',mealType:['breakfast'],dishType:['staple','other'],flavor:['sweet'],time:'10分钟',difficulty:1,description:'快手早餐饼，葱香四溢',methods:[{name:'经典做法',ingredients:[{n:'面粉',a:'150g'},{n:'鸡蛋',a:'2个'},{n:'葱花',a:'大量'},{n:'盐',a:'适量'}],steps:['面粉加鸡蛋、水搅成糊状','加葱花和盐搅匀','平底锅刷油倒入面糊','小火煎至两面金黄'],tips:'面糊调到舀起来能顺畅流下的程度，饼才够薄'}]},
+  {id:'xiaomi-zhou',name:'小米粥',emoji:'🥣',mealType:['breakfast'],dishType:['soup'],flavor:['sweet'],time:'30分钟',difficulty:1,description:'养胃暖身，搭配小菜最舒服',methods:[{name:'经典做法',ingredients:[{n:'小米',a:'100g'},{n:'水',a:'1500ml'},{n:'枸杞',a:'适量'},{n:'红枣',a:'5颗'}],steps:['小米淘洗干净','水开后下小米','大火煮开转小火','加红枣煮25分钟','出锅前加枸杞'],tips:'水开后再下米，不容易粘锅底'}]},
+  {id:'huntun',name:'馄饨',emoji:'🥟',mealType:['breakfast'],dishType:['other','soup'],flavor:['sour'],time:'25分钟',difficulty:3,description:'皮薄馅嫩，汤鲜味美',methods:[{name:'鲜肉馄饨',ingredients:[{n:'馄饨皮',a:'30张'},{n:'猪肉馅',a:'200g'},{n:'虾仁',a:'100g'},{n:'紫菜',a:'适量'},{n:'香醋',a:'1勺'}],steps:['肉馅和虾仁剁碎调味','取馄饨皮包入馅料','水开下馄饨','碗中放紫菜虾皮醋','馄饨浮起再煮2分钟','连汤盛入碗中'],tips:'皮边缘抹点水，捏得更紧实'}]},
+
+  // ===== 炒菜 =====
+  {id:'gongbao-jiding',name:'宫保鸡丁',emoji:'🍗',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['spicy','sweet'],time:'25分钟',difficulty:3,description:'麻辣鲜香，花生酥脆，米饭杀手',methods:[{name:'传统做法',ingredients:[{n:'鸡胸肉',a:'300g'},{n:'花生米',a:'50g'},{n:'干辣椒',a:'10个'},{n:'花椒',a:'1小把'},{n:'生抽',a:'2勺'},{n:'醋',a:'1勺'},{n:'糖',a:'1勺'}],steps:['鸡丁加料酒生抽淀粉腌15分钟','花生米小火炒至金黄','调汁','热油滑炒鸡丁盛出','爆香干辣椒花椒','倒入鸡丁黄瓜丁翻炒','淋汁翻炒','最后加花生米出锅'],tips:'花生米最后放，提前放就不脆了'}]},
+  {id:'mapo-doufu',name:'麻婆豆腐',emoji:'🧈',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['spicy'],time:'15分钟',difficulty:2,description:'麻辣烫香，嫩滑入味，下饭神器',methods:[{name:'传统做法',ingredients:[{n:'嫩豆腐',a:'1块'},{n:'猪肉末',a:'100g'},{n:'豆瓣酱',a:'1勺'},{n:'花椒粉',a:'适量'},{n:'蒜末',a:'适量'},{n:'水淀粉',a:'适量'}],steps:['豆腐切块焯水1分钟','热油炒肉末变白','加豆瓣酱炒出红油','加蒜末加水烧开','放入豆腐小火煮5分钟','水淀粉勾芡撒花椒粉葱花'],tips:'豆腐焯水不容易碎，煮时轻晃锅子不翻动'}]},
+  {id:'hongshao-rou',name:'红烧肉',emoji:'🥩',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['sweet'],time:'90分钟',difficulty:4,description:'肥而不腻，入口即化，宴客硬菜',methods:[{name:'传统做法',ingredients:[{n:'五花肉',a:'500g'},{n:'冰糖',a:'30g'},{n:'生抽',a:'3勺'},{n:'老抽',a:'1勺'},{n:'料酒',a:'2勺'},{n:'八角',a:'2个'}],steps:['五花肉切3cm块焯水','小火炒化冰糖至焦糖色','下肉翻炒上色','加生抽老抽料酒香料','加开水小火炖60分钟','大火收汁'],tips:'炒糖色用小火，冰糖变琥珀色马上放肉'}]},
+  {id:'fanqie-chao-dan',name:'西红柿炒鸡蛋',emoji:'🍅',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['sour','sweet'],time:'10分钟',difficulty:1,description:'国民第一菜，酸甜开胃，零失败',methods:[{name:'经典做法',ingredients:[{n:'西红柿',a:'2个'},{n:'鸡蛋',a:'3个'},{n:'糖',a:'1勺'},{n:'盐',a:'适量'},{n:'葱花',a:'适量'}],steps:['鸡蛋打散加盐','西红柿切块','热油炒鸡蛋凝固盛出','炒西红柿出汁','加糖盐调味','倒回鸡蛋翻炒撒葱花'],tips:'西红柿炒出汤汁再放鸡蛋，蛋才能吸味'}]},
+  {id:'yuxiang-rousi',name:'鱼香肉丝',emoji:'🥢',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['spicy','sour','sweet'],time:'20分钟',difficulty:3,description:'鱼香味型集大成者，酸甜微辣',methods:[{name:'传统做法',ingredients:[{n:'猪里脊',a:'250g'},{n:'木耳',a:'适量'},{n:'胡萝卜',a:'半根'},{n:'青椒',a:'1个'},{n:'泡椒',a:'3个'},{n:'郫县豆瓣酱',a:'半勺'},{n:'生抽',a:'2勺'},{n:'醋',a:'1.5勺'},{n:'糖',a:'1勺'}],steps:['肉切丝加料酒淀粉腌制','蔬菜切丝','调鱼香汁','滑炒肉丝盛出','炒泡椒豆瓣酱出红油','下蔬菜丝翻炒','倒肉丝淋汁翻炒'],tips:'鱼香汁提前调好，一气呵成'}]},
+
+  // ===== 汤羹 =====
+  {id:'suanla-tang',name:'酸辣汤',emoji:'🥘',mealType:['lunch','dinner'],dishType:['soup'],flavor:['spicy','sour'],time:'20分钟',difficulty:2,description:'酸辣开胃，一碗下肚浑身舒畅',methods:[{name:'经典做法',ingredients:[{n:'豆腐',a:'半块'},{n:'木耳',a:'适量'},{n:'鸡蛋',a:'1个'},{n:'白胡椒粉',a:'1勺'},{n:'香醋',a:'3勺'},{n:'火腿丝',a:'适量'}],steps:['木耳豆腐火腿切丝','水开下所有丝','加白胡椒粉盐生抽','水淀粉勾芡','淋蛋花','关火加醋'],tips:'醋一定关火后放，煮久了酸味跑掉'}]},
+
+  // ===== 火锅 =====
+  {id:'mala-huoguo',name:'麻辣火锅',emoji:'🫕',mealType:['lunch','dinner'],dishType:['hotpot'],flavor:['spicy'],time:'60分钟',difficulty:2,description:'红油翻滚，麻辣鲜香，聚会首选',methods:[{name:'自制锅底',ingredients:[{n:'牛油火锅底料',a:'1包'},{n:'干辣椒',a:'20个'},{n:'花椒',a:'1大把'},{n:'姜蒜',a:'适量'}],steps:['锅中加牛油底料小火炒化','加姜蒜葱炒香','加干辣椒花椒','加开水烧开','涮入喜欢的食材'],tips:'底料先炒一下比直接加水煮香十倍'}]},
+
+  // ===== 蒸煮 =====
+  {id:'qingzheng-luyu',name:'清蒸鲈鱼',emoji:'🐟',mealType:['lunch','dinner'],dishType:['steam'],flavor:['sour'],time:'25分钟',difficulty:3,description:'鲜嫩爽滑，原汁原味',methods:[{name:'传统清蒸',ingredients:[{n:'鲈鱼',a:'1条(500g)'},{n:'姜丝',a:'适量'},{n:'葱丝',a:'适量'},{n:'蒸鱼豉油',a:'3勺'}],steps:['鱼处理干净划刀抹料酒','塞姜片','水开入锅大火蒸8-10分钟','倒掉腥水','铺葱姜丝淋蒸鱼豉油','浇热油'],tips:'倒掉蒸鱼的腥水很关键'}]},
+
+  // ===== 主食 =====
+  {id:'danchaofan',name:'蛋炒饭',emoji:'🍚',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sweet'],time:'10分钟',difficulty:2,description:'粒粒分明，金黄诱人',methods:[{name:'经典做法',ingredients:[{n:'隔夜米饭',a:'2碗'},{n:'鸡蛋',a:'2个'},{n:'火腿丁',a:'适量'},{n:'葱花',a:'适量'}],steps:['鸡蛋打散','热油炒鸡蛋碎盛出','锅中炒火腿丁','加米饭大火翻炒打散','加鸡蛋碎','盐调味撒葱花'],tips:'米饭最好用隔夜的，水分少炒出来粒粒分明'}]},
+  {id:'congyou-banmian',name:'葱油拌面',emoji:'🍜',mealType:['lunch','dinner','breakfast'],dishType:['staple'],flavor:['sweet'],time:'15分钟',difficulty:1,description:'葱香扑鼻，简单却惊艳的面食',methods:[{name:'上海做法',ingredients:[{n:'细面条',a:'200g'},{n:'小葱',a:'1大把'},{n:'生抽',a:'3勺'},{n:'老抽',a:'1勺'},{n:'白糖',a:'1勺'}],steps:['小葱切段','多油小火炸葱至焦黄','留底油加生抽老抽糖熬酱汁','面煮熟捞出','拌入葱油和酱汁'],tips:'炸葱油一定要小火慢炸'}]},
+
+  // ===== 减脂餐 (NEW) =====
+  {id:'jixiong-shalad',name:'鸡胸肉蔬菜沙拉',emoji:'🥗',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sour'],time:'15分钟',difficulty:1,calories:'~280kcal',description:'高蛋白低脂，健身必备',methods:[{name:'经典做法',ingredients:[{n:'鸡胸肉',a:'150g'},{n:'生菜',a:'100g'},{n:'小番茄',a:'8颗'},{n:'黄瓜',a:'半根'},{n:'玉米粒',a:'50g'},{n:'橄榄油',a:'1勺'},{n:'黑醋',a:'2勺'}],steps:['鸡胸肉加盐黑胡椒煎熟切片','生菜撕碎铺底','黄瓜切片番茄对半切','玉米粒焯水','所有材料摆盘','淋橄榄油和黑醋'],tips:'鸡胸肉提前用盐水泡30分钟，煎出来不柴'}]},
+  {id:'quinoa-bowl',name:'藜麦牛油果碗',emoji:'🥑',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'20分钟',difficulty:2,calories:'~350kcal',description:'超级食物组合，饱腹感强',methods:[{name:'经典做法',ingredients:[{n:'藜麦',a:'100g'},{n:'牛油果',a:'半个'},{n:'虾仁',a:'100g'},{n:'玉米粒',a:'50g'},{n:'柠檬汁',a:'适量'},{n:'盐',a:'适量'}],steps:['藜麦洗净加水煮15分钟','虾仁煎熟','牛油果切片','藜麦铺底摆上虾仁牛油果玉米','挤柠檬汁撒盐'],tips:'藜麦煮到出现小尾巴（胚芽）就可以了'}]},
+  {id:'zheng-basha',name:'清蒸巴沙鱼',emoji:'🐟',mealType:['lunch','dinner'],dishType:['diet','steam'],flavor:['sour'],time:'15分钟',difficulty:1,calories:'~200kcal',description:'无刺嫩滑，低卡高蛋白',methods:[{name:'清蒸',ingredients:[{n:'巴沙鱼柳',a:'200g'},{n:'姜丝',a:'适量'},{n:'蒸鱼豉油',a:'2勺'},{n:'葱丝',a:'适量'}],steps:['鱼柳解冻用厨房纸吸干水分','铺姜丝','水开蒸8分钟','倒掉腥水','淋蒸鱼豉油','铺葱丝即可'],tips:'巴沙鱼水分多，一定要用厨房纸吸干'}]},
+  {id:'moyu-si',name:'凉拌魔芋丝',emoji:'🍜',mealType:['lunch','dinner'],dishType:['diet'],flavor:['spicy','sour'],time:'10分钟',difficulty:1,calories:'~80kcal',description:'几乎零卡，酸辣开胃',methods:[{name:'凉拌',ingredients:[{n:'魔芋丝',a:'200g'},{n:'黄瓜丝',a:'半根'},{n:'胡萝卜丝',a:'少许'},{n:'醋',a:'2勺'},{n:'生抽',a:'1勺'},{n:'辣椒油',a:'适量'},{n:'蒜末',a:'适量'}],steps:['魔芋丝开水烫2分钟捞出','黄瓜胡萝卜切丝','调汁：醋+生抽+辣椒油+蒜末','所有材料拌匀'],tips:'魔芋丝本身没味道，调味要重一点'}]},
+  {id:'fanqie-jungu-tang',name:'番茄菌菇汤',emoji:'🍄',mealType:['lunch','dinner'],dishType:['diet','soup'],flavor:['sour','sweet'],time:'20分钟',difficulty:1,calories:'~120kcal',description:'无油低卡，鲜美暖胃',methods:[{name:'清煮',ingredients:[{n:'番茄',a:'2个'},{n:'金针菇',a:'1把'},{n:'香菇',a:'4朵'},{n:'豆腐',a:'半块'},{n:'盐',a:'适量'},{n:'葱花',a:'适量'}],steps:['番茄切块','锅中不放油直接下番茄炒出汁','加水烧开','放入菌菇和豆腐','煮10分钟','加盐葱花'],tips:'番茄本身的水分足够炒出汁，全程不需要放油'}]},
+  {id:'shuizhu-xiaren',name:'水煮虾仁西兰花',emoji:'🥦',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~220kcal',description:'高蛋白+高纤维，简单快手',methods:[{name:'水煮',ingredients:[{n:'虾仁',a:'200g'},{n:'西兰花',a:'1颗'},{n:'蒜末',a:'适量'},{n:'盐',a:'适量'},{n:'黑胡椒',a:'适量'}],steps:['西兰花掰小朵焯水2分钟','虾仁焯水至变红','沥干水分','撒蒜末盐黑胡椒','拌匀即可'],tips:'水煮不要过久，虾仁变色就捞出'}]},
+  {id:'quanmai-sanmingzhi',name:'全麦三明治',emoji:'🥪',mealType:['breakfast','lunch'],dishType:['diet','other'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~300kcal',description:'健康碳水+优质蛋白的完美组合',methods:[{name:'快手版',ingredients:[{n:'全麦面包',a:'2片'},{n:'鸡蛋',a:'1个'},{n:'生菜',a:'2片'},{n:'番茄',a:'2片'},{n:'鸡胸肉片',a:'50g'}],steps:['鸡蛋无油煎熟','面包烤一下','依次铺生菜鸡胸肉番茄鸡蛋','对角切开'],tips:'全麦面包选无糖的，热量更低'}]},
+  {id:'yanmai-yogurt',name:'燕麦酸奶杯',emoji:'🥣',mealType:['breakfast'],dishType:['diet'],flavor:['sweet'],time:'5分钟',difficulty:1,calories:'~250kcal',description:'冷藏过夜，早餐随手拿',methods:[{name:'隔夜燕麦',ingredients:[{n:'燕麦片',a:'50g'},{n:'无糖酸奶',a:'150ml'},{n:'奇亚籽',a:'1勺'},{n:'蓝莓',a:'适量'},{n:'蜂蜜',a:'少许'}],steps:['杯中铺一层燕麦','倒酸奶没过','加奇亚籽','铺水果','冷藏过夜','早上加蜂蜜食用'],tips:'一次可以做3-5杯放冰箱，一周早餐搞定'}]},
+  {id:'doufu-shucaibing',name:'豆腐蔬菜饼',emoji:'🧇',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'15分钟',difficulty:2,calories:'~180kcal',description:'豆腐代替面粉，低碳水高蛋白',methods:[{name:'香煎',ingredients:[{n:'老豆腐',a:'200g'},{n:'胡萝卜碎',a:'50g'},{n:'菠菜碎',a:'50g'},{n:'鸡蛋',a:'1个'},{n:'盐',a:'适量'}],steps:['豆腐捏碎挤掉水分','加胡萝卜碎菠菜碎鸡蛋盐','搅拌均匀','捏成小饼','不粘锅少油煎至两面金黄'],tips:'豆腐水分一定要挤干，不然饼不成形'}]},
+  {id:'donggua-haitang',name:'冬瓜海带汤',emoji:'🥣',mealType:['lunch','dinner'],dishType:['diet','soup'],flavor:['sweet'],time:'20分钟',difficulty:1,calories:'~60kcal',description:'消水肿神器，几乎零卡',methods:[{name:'清煮',ingredients:[{n:'冬瓜',a:'300g'},{n:'海带结',a:'100g'},{n:'姜片',a:'适量'},{n:'盐',a:'适量'},{n:'虾皮',a:'少许'}],steps:['冬瓜去皮切块','海带结洗净','水开下姜片海带煮10分钟','加冬瓜再煮10分钟','加盐虾皮'],tips:'虾皮代替味精提鲜，热量更低'}]},
+
+  // ===== 凉菜 =====
+  {id:'liangban-huanggua',name:'拍黄瓜',emoji:'🥒',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['spicy','sour'],time:'5分钟',difficulty:1,description:'清脆爽口，夏天必备凉菜',methods:[{name:'经典做法',ingredients:[{n:'黄瓜',a:'2根'},{n:'蒜末',a:'适量'},{n:'醋',a:'2勺'},{n:'生抽',a:'1勺'},{n:'辣椒油',a:'1勺'},{n:'芝麻油',a:'几滴'},{n:'香菜',a:'适量'}],steps:['黄瓜洗净用刀拍裂','切成小段','调汁：蒜末+醋+生抽+辣椒油+芝麻油','汁浇在黄瓜上','撒香菜拌匀'],tips:'拍黄瓜比切的好吃，裂缝更容易入味'}]},
+  {id:'liangban-muer',name:'凉拌木耳',emoji:'🍄',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['spicy','sour'],time:'15分钟',difficulty:1,description:'爽脆开胃，低卡健康',methods:[{name:'经典做法',ingredients:[{n:'干木耳',a:'30g'},{n:'蒜末',a:'适量'},{n:'小米辣',a:'2个'},{n:'醋',a:'2勺'},{n:'生抽',a:'1勺'},{n:'辣椒油',a:'适量'},{n:'洋葱丝',a:'适量'}],steps:['木耳泡发洗净撕小朵','开水焯2分钟捞出过凉水','洋葱切丝','调汁：蒜末+小米辣+醋+生抽+辣椒油','所有材料拌匀','冷藏半小时更入味'],tips:'木耳焯水后过凉水，口感更脆'}]},
+  {id:'liangban-san-si',name:'凉拌三丝',emoji:'🥕',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['sour'],time:'15分钟',difficulty:1,description:'海带+豆皮+胡萝卜，清爽三丝',methods:[{name:'经典做法',ingredients:[{n:'海带丝',a:'100g'},{n:'豆皮',a:'1张'},{n:'胡萝卜',a:'半根'},{n:'蒜末',a:'适量'},{n:'醋',a:'2勺'},{n:'生抽',a:'1勺'},{n:'糖',a:'半勺'},{n:'香油',a:'几滴'}],steps:['海带丝焯水2分钟','豆皮和胡萝卜切细丝','调汁：醋+生抽+糖+香油+蒜末','三丝混合','倒入料汁拌匀'],tips:'海带丝买现成的更省事，焯水去腥味'}]},
+  {id:'suanni-bairou',name:'蒜泥白肉',emoji:'🥩',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['spicy','sour'],time:'30分钟',difficulty:3,description:'蒜香浓郁，肥而不腻的川菜经典',methods:[{name:'经典做法',ingredients:[{n:'五花肉',a:'300g'},{n:'蒜泥',a:'大量'},{n:'生抽',a:'2勺'},{n:'醋',a:'1勺'},{n:'辣椒油',a:'2勺'},{n:'花椒粉',a:'适量'},{n:'黄瓜片',a:'垫底用'}],steps:['五花肉整块冷水下锅煮20分钟','捞出放凉切薄片','黄瓜切片垫盘底','肉片码在黄瓜上','蒜泥加生抽、醋、辣椒油、花椒粉调成酱汁','酱汁浇在肉上'],tips:'肉煮好放凉再切容易切薄；蒜泥要现剁的才够味'}]},
+  {id:'laocu-huangsheng',name:'老醋花生',emoji:'🥜',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['sour','sweet'],time:'10分钟',difficulty:1,description:'酸甜酥脆，下酒绝配',methods:[{name:'经典做法',ingredients:[{n:'花生米',a:'200g'},{n:'陈醋',a:'3勺'},{n:'白糖',a:'1勺'},{n:'生抽',a:'1勺'},{n:'洋葱丁',a:'适量'},{n:'青椒丁',a:'适量'}],steps:['花生米小火炒至金黄酥脆','洋葱青椒切丁','陈醋+糖+生抽调成老醋汁','花生米和蔬菜丁混合','浇老醋汁拌匀即可'],tips:'老醋汁提前调好放一会儿，糖完全融化味道更好'}]},
+  {id:'kou-shui-ji',name:'口水鸡',emoji:'🍗',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['spicy'],time:'30分钟',difficulty:3,description:'麻辣鲜香，让人流口水的川味凉菜',methods:[{name:'经典做法',ingredients:[{n:'鸡腿',a:'2个'},{n:'花椒油',a:'1勺'},{n:'辣椒油',a:'2勺'},{n:'芝麻酱',a:'1勺'},{n:'生抽',a:'2勺'},{n:'醋',a:'1勺'},{n:'花生碎',a:'适量'},{n:'葱花',a:'适量'}],steps:['鸡腿冷水下锅加姜片料酒煮15分钟','捞出放冰水中冷却','鸡腿斩块装盘','芝麻酱加生抽醋澥开','加花椒油辣椒油调成红油汁','汁浇在鸡块上','撒花生碎和葱花'],tips:'鸡肉过冰水皮才会Q弹，口感更好'}]},
+
+  // ===== 甜点 =====
+  {id:'hongdou-tang',name:'红豆沙',emoji:'🫘',mealType:['lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'60分钟',difficulty:2,description:'甜蜜绵密，中式经典甜品',methods:[{name:'经典做法',ingredients:[{n:'红豆',a:'200g'},{n:'冰糖',a:'80g'},{n:'陈皮',a:'1小块'},{n:'水',a:'适量'}],steps:['红豆提前泡4小时','红豆加水大火烧开','转小火加陈皮慢熬40分钟','加冰糖继续熬10分钟','熬至红豆软烂汤汁浓稠'],tips:'加一小块陈皮能提升风味层次，去豆腥味'}]},
+  {id:'mugua-yiner',name:'木瓜银耳羹',emoji:'🍈',mealType:['lunch','dinner','breakfast'],dishType:['dessert','soup'],flavor:['sweet'],time:'40分钟',difficulty:2,description:'美容养颜，胶质满满',methods:[{name:'经典做法',ingredients:[{n:'银耳',a:'1朵'},{n:'木瓜',a:'半个'},{n:'冰糖',a:'50g'},{n:'枸杞',a:'适量'}],steps:['银耳提前泡发撕小朵','银耳加水大火烧开','转小火炖30分钟至出胶','木瓜去皮切块放入','加冰糖再炖10分钟','撒枸杞'],tips:'银耳泡发后撕得越碎越容易出胶'}]},
+  {id:'shuangpi-nai',name:'双皮奶',emoji:'🥛',mealType:['lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'30分钟',difficulty:3,description:'广东名点，奶香浓郁，滑嫩如丝',methods:[{name:'经典做法',ingredients:[{n:'全脂牛奶',a:'400ml'},{n:'蛋清',a:'2个'},{n:'白糖',a:'30g'}],steps:['牛奶煮至微沸倒入碗中','静置冷却形成奶皮','筷子拨开奶皮倒出牛奶','牛奶加蛋清和糖搅匀','倒回碗中奶皮下','覆保鲜膜蒸15分钟','冷却后冷藏食用'],tips:'一定要用全脂牛奶，脱脂牛奶形不成奶皮'}]},
+  {id:'mianhua-tang',name:'棉花糖热可可',emoji:'☕',mealType:['breakfast','lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'5分钟',difficulty:1,description:'冬日暖心热饮，棉花糖融化在可可里',methods:[{name:'快手版',ingredients:[{n:'可可粉',a:'2勺'},{n:'牛奶',a:'250ml'},{n:'棉花糖',a:'6颗'},{n:'白糖',a:'1勺'}],steps:['牛奶加热至微沸','可可粉加少许热水调成糊','可可糊倒入热牛奶中搅匀','加糖调味','放上棉花糖'],tips:'棉花糖半融的时候最好吃，又软又拉丝'}]},
+  {id:'bingfen',name:'冰粉',emoji:'🍧',mealType:['lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'10分钟(+冷藏)',difficulty:1,description:'四川夏日消暑神器，冰凉Q弹',methods:[{name:'快手版',ingredients:[{n:'冰粉粉',a:'20g'},{n:'开水',a:'1000ml'},{n:'红糖',a:'100g'},{n:'花生碎',a:'适量'},{n:'葡萄干',a:'适量'},{n:'山楂碎',a:'适量'}],steps:['冰粉粉倒入开水中搅拌融化','倒入容器冷藏2小时凝固','红糖加少量水熬成糖浆','冰粉切块盛碗中','浇红糖水撒花生碎葡萄干山楂碎'],tips:'冰粉的配料随心加，水果、椰果、芝麻都可以'}]},
+  {id:'tang-buli',name:'焦糖布丁',emoji:'🍮',mealType:['lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'40分钟',difficulty:3,description:'法式经典，焦糖脆壳+嫩滑布丁',methods:[{name:'经典做法',ingredients:[{n:'鸡蛋',a:'2个'},{n:'牛奶',a:'250ml'},{n:'白糖',a:'60g'},{n:'香草精',a:'几滴'}],steps:['30g白糖加少量水小火熬成焦糖','焦糖倒入模具底部','鸡蛋打散加牛奶和30g糖搅匀','过筛倒入模具','烤盘加热水浴法','160度烤30分钟','冷却后倒扣脱模'],tips:'熬焦糖不要搅拌，晃动锅子即可；过筛是布丁嫩滑的关键'}]}
+].concat(getRecipeExpansion());}
+
+function getRecipeExpansion(){return[
+  // ===== 早餐扩展 =====
+  {id:'zheng-shuijidan',name:'蒸水蛋',emoji:'🥚',mealType:['breakfast','dinner'],dishType:['steam','diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~120kcal',description:'嫩滑细腻，早餐晚餐都舒服',methods:[{name:'家常做法',ingredients:[{n:'鸡蛋',a:'2个'},{n:'温水',a:'1.5倍蛋液'},{n:'盐',a:'少许'},{n:'生抽',a:'1勺'}],steps:['鸡蛋打散加盐','加入温水搅匀并过筛','盖保鲜膜扎小孔','水开后蒸10分钟','淋生抽即可'],tips:'过筛后口感更细腻'}]},
+  {id:'nangua-xiaomi-zhou',name:'南瓜小米粥',emoji:'🎃',mealType:['breakfast'],dishType:['soup','diet'],flavor:['sweet'],time:'25分钟',difficulty:1,calories:'~180kcal',description:'香甜软糯，暖胃又有饱腹感',methods:[{name:'清甜版',ingredients:[{n:'小米',a:'80g'},{n:'南瓜',a:'150g'},{n:'清水',a:'1200ml'},{n:'枸杞',a:'少许'}],steps:['小米淘洗干净','南瓜切小块','水开下小米和南瓜','小火煮20分钟','出锅前撒枸杞'],tips:'南瓜切小块更容易煮化'}]},
+  {id:'fanqie-jidan-sanmingzhi',name:'番茄鸡蛋三明治',emoji:'🥪',mealType:['breakfast','lunch'],dishType:['other','diet'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~260kcal',description:'家里常见食材就能做的快手早餐',methods:[{name:'快手版',ingredients:[{n:'全麦吐司',a:'4片'},{n:'鸡蛋',a:'2个'},{n:'番茄',a:'1个'},{n:'生菜',a:'2片'}],steps:['鸡蛋煎熟','番茄切片吸干水分','吐司稍微烤一下','夹入生菜番茄鸡蛋','对半切开'],tips:'番茄水分擦干，吐司不容易软'}]},
+  {id:'xianggu-qingcai-mian',name:'香菇青菜面',emoji:'🍜',mealType:['breakfast','lunch'],dishType:['staple'],flavor:['sweet'],time:'15分钟',difficulty:1,description:'汤鲜面滑，工作日早餐很顶',methods:[{name:'清汤版',ingredients:[{n:'挂面',a:'1把'},{n:'香菇',a:'4朵'},{n:'青菜',a:'1把'},{n:'生抽',a:'1勺'}],steps:['香菇切片煮出香味','下面条煮开','放青菜继续煮1分钟','加生抽和盐调味','盛出即可'],tips:'香菇先煮2分钟，汤底会更鲜'}]},
+  {id:'zi-mi-fantuan',name:'紫米饭团',emoji:'🍙',mealType:['breakfast'],dishType:['staple','diet'],flavor:['sweet'],time:'20分钟',difficulty:2,calories:'~320kcal',description:'顶饱又方便，适合带着走',methods:[{name:'基础版',ingredients:[{n:'紫米饭',a:'1碗'},{n:'鸡蛋',a:'1个'},{n:'黄瓜条',a:'适量'},{n:'肉松',a:'少许'}],steps:['紫米饭提前蒸好','鸡蛋煎成蛋饼切条','保鲜膜铺好米饭压平','放入黄瓜和蛋条肉松','卷起整形成饭团'],tips:'手上蘸点水再整形不粘手'}]},
+  {id:'yumijizhou',name:'玉米鸡丝粥',emoji:'🌽',mealType:['breakfast'],dishType:['soup'],flavor:['sweet'],time:'30分钟',difficulty:2,description:'清甜顺口，老人小孩都爱吃',methods:[{name:'顺滑版',ingredients:[{n:'大米',a:'80g'},{n:'鸡胸肉',a:'80g'},{n:'玉米粒',a:'50g'},{n:'姜丝',a:'少许'}],steps:['大米煮成粥底','鸡胸肉煮熟撕丝','粥里加入玉米粒','放鸡丝煮5分钟','加盐和姜丝调味'],tips:'鸡丝最后再放，口感更嫩'}]},
+  {id:'quanmai-beiguo',name:'全麦贝果早餐盘',emoji:'🥯',mealType:['breakfast'],dishType:['diet','staple'],flavor:['sweet'],time:'8分钟',difficulty:1,calories:'~300kcal',description:'高纤早餐盘，清爽不油腻',methods:[{name:'简餐版',ingredients:[{n:'全麦贝果',a:'1个'},{n:'鸡蛋',a:'1个'},{n:'牛油果',a:'半个'},{n:'生菜',a:'适量'}],steps:['贝果对半切开加热','鸡蛋煎至喜欢熟度','牛油果切片','搭配生菜一起摆盘','撒黑胡椒即可'],tips:'贝果切开烤一下口感更好'}]},
+  {id:'tudou-sibing',name:'土豆丝饼',emoji:'🥔',mealType:['breakfast','lunch'],dishType:['staple'],flavor:['sweet'],time:'15分钟',difficulty:1,description:'外脆里软，适合没胃口的早晨',methods:[{name:'香煎版',ingredients:[{n:'土豆',a:'2个'},{n:'面粉',a:'2勺'},{n:'胡椒粉',a:'少许'},{n:'盐',a:'适量'}],steps:['土豆擦丝洗去淀粉','加面粉盐胡椒拌匀','平底锅刷油摊平','小火煎至两面金黄','切块装盘'],tips:'土豆丝要尽量沥干水再拌面粉'}]},
+
+  // ===== 炒菜扩展 =====
+  {id:'qingjiao-tudousi',name:'青椒土豆丝',emoji:'🥔',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['sour'],time:'12分钟',difficulty:1,description:'脆爽下饭，永远不会出错的家常菜',methods:[{name:'家常版',ingredients:[{n:'土豆',a:'2个'},{n:'青椒',a:'1个'},{n:'醋',a:'1勺'},{n:'蒜末',a:'适量'}],steps:['土豆切丝泡水','青椒切丝','热油爆香蒜末','下土豆丝大火翻炒','加青椒丝和醋调味','炒匀出锅'],tips:'土豆丝泡水能更脆'}]},
+  {id:'ganbian-sijidou',name:'干煸四季豆',emoji:'🫛',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['spicy'],time:'18分钟',difficulty:2,description:'外皮起皱最香，米饭克星',methods:[{name:'下饭版',ingredients:[{n:'四季豆',a:'300g'},{n:'肉末',a:'80g'},{n:'干辣椒',a:'6个'},{n:'芽菜',a:'1勺'}],steps:['四季豆摘洗干净','中火煸至表皮起皱盛出','炒香肉末和干辣椒芽菜','倒回四季豆翻炒','加生抽调味出锅'],tips:'四季豆一定炒熟透再吃'}]},
+  {id:'suanrong-xilanhua',name:'蒜蓉西兰花',emoji:'🥦',mealType:['lunch','dinner'],dishType:['stir-fry','diet'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~130kcal',description:'清爽少油，健身期也能放心吃',methods:[{name:'清炒版',ingredients:[{n:'西兰花',a:'1颗'},{n:'蒜末',a:'1勺'},{n:'盐',a:'适量'},{n:'食用油',a:'少许'}],steps:['西兰花掰小朵焯水1分钟','锅中少油爆香蒜末','下西兰花快速翻炒','加盐调味','炒匀出锅'],tips:'先焯水能缩短翻炒时间'}]},
+  {id:'qincai-xianggan',name:'芹菜香干',emoji:'🥬',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['sweet'],time:'12分钟',difficulty:1,description:'清香脆嫩，适合搭配米饭和粥',methods:[{name:'快手版',ingredients:[{n:'芹菜',a:'1把'},{n:'香干',a:'4片'},{n:'蒜末',a:'适量'},{n:'生抽',a:'1勺'}],steps:['芹菜切段香干切条','锅中爆香蒜末','先炒香干','下芹菜大火快炒','加生抽盐调味','炒匀即可'],tips:'芹菜别炒太久，保留脆感更好'}]},
+  {id:'qingjiao-niurou',name:'青椒牛肉',emoji:'🥩',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['spicy'],time:'18分钟',difficulty:2,description:'嫩牛肉配青椒，香气特别足',methods:[{name:'嫩炒版',ingredients:[{n:'牛里脊',a:'250g'},{n:'青椒',a:'2个'},{n:'生抽',a:'1勺'},{n:'淀粉',a:'1勺'}],steps:['牛肉切片加生抽淀粉抓匀','青椒切块','热油滑炒牛肉盛出','炒青椒至断生','倒回牛肉加盐调味','快速翻匀出锅'],tips:'牛肉先滑炒再回锅，口感更嫩'}]},
+  {id:'dishanxian',name:'地三鲜',emoji:'🍆',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['sweet'],time:'20分钟',difficulty:2,description:'土豆茄子青椒的东北经典组合',methods:[{name:'家常版',ingredients:[{n:'土豆',a:'1个'},{n:'茄子',a:'1根'},{n:'青椒',a:'1个'},{n:'生抽',a:'2勺'}],steps:['土豆切块煎熟','茄子切滚刀块煎软','青椒切块备用','调一碗蒜香酱汁','所有食材回锅翻炒','淋酱汁收一收即可'],tips:'茄子用少油煎代替炸，更轻盈'}]},
+  {id:'qingchao-youmaicai',name:'清炒油麦菜',emoji:'🥬',mealType:['lunch','dinner'],dishType:['stir-fry','diet'],flavor:['sweet'],time:'6分钟',difficulty:1,calories:'~90kcal',description:'脆嫩带清香，几分钟就能上桌',methods:[{name:'蒜香版',ingredients:[{n:'油麦菜',a:'1把'},{n:'蒜末',a:'适量'},{n:'蚝油',a:'半勺'},{n:'盐',a:'少许'}],steps:['油麦菜切段洗净','热油爆香蒜末','下油麦菜快速翻炒','加蚝油和盐','断生即可出锅'],tips:'全程大火快炒，口感更脆'}]},
+  {id:'muer-chaorou',name:'木耳炒肉',emoji:'🍄',mealType:['lunch','dinner'],dishType:['stir-fry'],flavor:['sweet'],time:'16分钟',difficulty:2,description:'荤素搭配均衡，口感特别丰富',methods:[{name:'家常版',ingredients:[{n:'里脊肉',a:'200g'},{n:'泡发木耳',a:'1碗'},{n:'胡萝卜',a:'半根'},{n:'生抽',a:'1勺'}],steps:['肉片腌制5分钟','木耳和胡萝卜切好','先炒肉片变色盛出','再炒胡萝卜和木耳','倒回肉片调味','翻匀出锅'],tips:'木耳提前泡好并洗净根部'}]},
+
+  // ===== 汤羹扩展 =====
+  {id:'donggua-wanzi-tang',name:'冬瓜丸子汤',emoji:'🍲',mealType:['lunch','dinner'],dishType:['soup'],flavor:['sweet'],time:'25分钟',difficulty:2,description:'汤清味鲜，喝起来特别舒服',methods:[{name:'家常版',ingredients:[{n:'冬瓜',a:'300g'},{n:'猪肉馅',a:'150g'},{n:'姜末',a:'少许'},{n:'葱花',a:'适量'}],steps:['肉馅加盐和姜末搅上劲','冬瓜切片','水开下丸子煮定型','加入冬瓜煮10分钟','加盐胡椒和葱花'],tips:'肉馅顺一个方向搅拌更弹'}]},
+  {id:'zicai-danhua-tang',name:'紫菜蛋花汤',emoji:'🥣',mealType:['breakfast','lunch','dinner'],dishType:['soup'],flavor:['sweet'],time:'8分钟',difficulty:1,description:'一锅快手汤，配饭配面都很搭',methods:[{name:'快手版',ingredients:[{n:'紫菜',a:'1小把'},{n:'鸡蛋',a:'1个'},{n:'虾皮',a:'少许'},{n:'香油',a:'几滴'}],steps:['锅中水烧开','放紫菜和虾皮','淋入蛋液形成蛋花','加盐胡椒调味','滴香油出锅'],tips:'蛋液沿筷子缓缓倒入，蛋花更细'}]},
+  {id:'luobo-paigu-tang',name:'萝卜排骨汤',emoji:'🍖',mealType:['lunch','dinner'],dishType:['soup'],flavor:['sweet'],time:'70分钟',difficulty:2,description:'清甜不腻，秋冬喝特别养人',methods:[{name:'炖汤版',ingredients:[{n:'排骨',a:'400g'},{n:'白萝卜',a:'1根'},{n:'姜片',a:'3片'},{n:'盐',a:'适量'}],steps:['排骨焯水洗净','加姜片和足量水炖40分钟','放入萝卜块再炖25分钟','加盐调味即可'],tips:'盐最后放，汤更清甜'}]},
+  {id:'haidai-doufu-tang',name:'海带豆腐汤',emoji:'🪸',mealType:['lunch','dinner'],dishType:['soup','diet'],flavor:['sweet'],time:'15分钟',difficulty:1,calories:'~110kcal',description:'低脂高鲜，晚餐来一碗很轻松',methods:[{name:'清汤版',ingredients:[{n:'海带结',a:'100g'},{n:'嫩豆腐',a:'1块'},{n:'姜丝',a:'少许'},{n:'葱花',a:'适量'}],steps:['海带结洗净','锅中水开下姜丝海带','放豆腐块小火煮8分钟','加盐胡椒调味','撒葱花出锅'],tips:'嫩豆腐下锅后别大力搅动'}]},
+  {id:'lianou-paigu-tang',name:'莲藕排骨汤',emoji:'🪷',mealType:['lunch','dinner'],dishType:['soup'],flavor:['sweet'],time:'80分钟',difficulty:2,description:'粉糯莲藕和排骨是绝配',methods:[{name:'慢炖版',ingredients:[{n:'排骨',a:'400g'},{n:'莲藕',a:'1节'},{n:'姜片',a:'适量'},{n:'盐',a:'适量'}],steps:['排骨焯水洗净','莲藕切块','排骨加姜片炖50分钟','放莲藕再炖25分钟','加盐即可'],tips:'选粉藕炖出来更面'}]},
+
+  // ===== 火锅扩展 =====
+  {id:'fanqie-feiniu-guo',name:'番茄肥牛锅',emoji:'🍅',mealType:['lunch','dinner'],dishType:['hotpot'],flavor:['sour','sweet'],time:'25分钟',difficulty:1,description:'酸甜开胃，家庭小火锅首选',methods:[{name:'家常版',ingredients:[{n:'肥牛卷',a:'300g'},{n:'番茄',a:'3个'},{n:'金针菇',a:'1把'},{n:'豆腐',a:'半块'}],steps:['番茄炒出沙加水煮汤底','放豆腐和金针菇煮开','下肥牛卷烫熟','加盐和胡椒调味','边煮边吃'],tips:'番茄先炒出沙，锅底更浓'}]},
+  {id:'suancai-bairou-guo',name:'酸菜白肉锅',emoji:'🥬',mealType:['lunch','dinner'],dishType:['hotpot'],flavor:['sour'],time:'35分钟',difficulty:2,description:'酸爽暖胃，很适合天气凉的时候',methods:[{name:'东北风味',ingredients:[{n:'酸菜',a:'300g'},{n:'五花肉片',a:'250g'},{n:'粉丝',a:'1把'},{n:'姜片',a:'适量'}],steps:['酸菜洗净切丝','锅中加水和姜片煮开','放酸菜煮10分钟','下五花肉片和粉丝','煮熟调味即可'],tips:'酸菜太咸可以先冲洗一下'}]},
+  {id:'jungu-jitang-guo',name:'菌菇鸡汤锅',emoji:'🍄',mealType:['lunch','dinner'],dishType:['hotpot','diet'],flavor:['sweet'],time:'40分钟',difficulty:2,calories:'~320kcal',description:'鲜味十足，低负担也能吃得满足',methods:[{name:'鲜菌版',ingredients:[{n:'鸡腿肉',a:'300g'},{n:'白玉菇',a:'1盒'},{n:'香菇',a:'6朵'},{n:'娃娃菜',a:'1颗'}],steps:['鸡腿肉煎至微黄','加水煮成汤底','放菌菇煮10分钟','加入娃娃菜和豆腐','调味后边煮边吃'],tips:'鸡肉先煎一下汤更香'}]},
+  {id:'haixian-doufu-guo',name:'海鲜豆腐锅',emoji:'🦐',mealType:['lunch','dinner'],dishType:['hotpot'],flavor:['sweet'],time:'20分钟',difficulty:2,description:'鲜虾和豆腐一起煮，汤都舍不得剩',methods:[{name:'鲜甜版',ingredients:[{n:'鲜虾',a:'8只'},{n:'嫩豆腐',a:'1块'},{n:'蛤蜊',a:'200g'},{n:'娃娃菜',a:'半颗'}],steps:['蛤蜊吐沙洗净','锅中加水煮开下蛤蜊','放豆腐和娃娃菜','再下鲜虾煮熟','加盐胡椒即可'],tips:'蛤蜊开口后就要及时调味'}]},
+
+  // ===== 蒸煮扩展 =====
+  {id:'suanrong-fensi-wawacai',name:'蒜蓉粉丝娃娃菜',emoji:'🥬',mealType:['lunch','dinner'],dishType:['steam','diet'],flavor:['sweet'],time:'15分钟',difficulty:1,calories:'~150kcal',description:'蒜香浓郁，清爽又有满足感',methods:[{name:'蒸制版',ingredients:[{n:'娃娃菜',a:'1颗'},{n:'粉丝',a:'1把'},{n:'蒜末',a:'2勺'},{n:'生抽',a:'1勺'}],steps:['粉丝泡软铺盘底','娃娃菜切开码好','铺上蒜末','水开蒸8分钟','淋生抽热油即可'],tips:'粉丝提前泡软更容易入味'}]},
+  {id:'qingzheng-daxia',name:'清蒸大虾',emoji:'🦐',mealType:['lunch','dinner'],dishType:['steam','diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~180kcal',description:'原汁原味，蘸料一配就很鲜',methods:[{name:'鲜蒸版',ingredients:[{n:'鲜虾',a:'12只'},{n:'姜片',a:'适量'},{n:'葱丝',a:'适量'},{n:'料酒',a:'1勺'}],steps:['鲜虾开背去虾线','摆盘放姜片和料酒','水开蒸6分钟','撒葱丝','蘸酱食用'],tips:'虾蒸久了会老，变色就差不多了'}]},
+  {id:'qingzheng-nangua',name:'清蒸南瓜',emoji:'🎃',mealType:['breakfast','lunch','dinner'],dishType:['steam','diet'],flavor:['sweet'],time:'15分钟',difficulty:1,calories:'~110kcal',description:'自带甜味，减脂期当主食很合适',methods:[{name:'原味版',ingredients:[{n:'贝贝南瓜',a:'1个'},{n:'清水',a:'适量'}],steps:['南瓜洗净切块','摆入盘中','水开后蒸12分钟','筷子能轻松插透即可'],tips:'贝贝南瓜蒸熟后更香更粉'}]},
+  {id:'xiami-zheng-doufu',name:'虾米蒸豆腐',emoji:'🧈',mealType:['lunch','dinner'],dishType:['steam'],flavor:['sweet'],time:'12分钟',difficulty:1,description:'嫩豆腐吸满鲜味，特别下饭',methods:[{name:'鲜蒸版',ingredients:[{n:'嫩豆腐',a:'1块'},{n:'虾米',a:'1小把'},{n:'生抽',a:'1勺'},{n:'葱花',a:'适量'}],steps:['豆腐切块摆盘','虾米泡软后铺在表面','淋生抽','水开蒸8分钟','撒葱花即可'],tips:'豆腐下面垫一点盘汁更好吃'}]},
+  {id:'fensi-zheng-jingzhen',name:'粉丝蒸金针菇',emoji:'🍄',mealType:['lunch','dinner'],dishType:['steam','diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~140kcal',description:'蒜香十足，清爽里带一点鲜甜',methods:[{name:'蒜香版',ingredients:[{n:'金针菇',a:'1把'},{n:'粉丝',a:'1把'},{n:'蒜末',a:'2勺'},{n:'小米辣',a:'少许'}],steps:['粉丝泡软铺盘底','金针菇剪根洗净摆上','铺蒜末和小米辣','水开蒸8分钟','淋生抽热油'],tips:'蒸完出的汤汁拌粉丝很好吃'}]},
+  {id:'douchi-zheng-paigu',name:'豆豉蒸排骨',emoji:'🍖',mealType:['lunch','dinner'],dishType:['steam'],flavor:['spicy'],time:'30分钟',difficulty:2,description:'排骨嫩而不柴，豆豉香气很足',methods:[{name:'广式版',ingredients:[{n:'排骨',a:'350g'},{n:'豆豉',a:'1勺'},{n:'蒜末',a:'1勺'},{n:'淀粉',a:'1勺'}],steps:['排骨泡去血水','加豆豉蒜末生抽淀粉抓匀','腌15分钟','水开蒸20分钟','撒葱花即可'],tips:'排骨先泡水口感更干净'}]},
+  {id:'qingzheng-longliyu',name:'清蒸龙利鱼',emoji:'🐠',mealType:['lunch','dinner'],dishType:['steam','diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~170kcal',description:'刺少肉嫩，孩子和减脂人群都合适',methods:[{name:'清淡版',ingredients:[{n:'龙利鱼柳',a:'200g'},{n:'姜丝',a:'适量'},{n:'蒸鱼豉油',a:'1勺'},{n:'葱丝',a:'适量'}],steps:['鱼柳吸干水分','铺姜丝入盘','水开蒸8分钟','倒掉多余汤汁','淋豉油铺葱丝即可'],tips:'鱼柳表面抹一点料酒更去腥'}]},
+
+  // ===== 主食扩展 =====
+  {id:'yangzhou-chaofan',name:'扬州炒饭',emoji:'🍚',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sweet'],time:'15分钟',difficulty:2,description:'配料丰富，粒粒分明很有食欲',methods:[{name:'经典版',ingredients:[{n:'米饭',a:'2碗'},{n:'鸡蛋',a:'2个'},{n:'火腿丁',a:'适量'},{n:'豌豆胡萝卜丁',a:'适量'}],steps:['鸡蛋炒散盛出','配菜炒香','下米饭翻松','放鸡蛋和火腿丁','加盐炒匀即可'],tips:'米饭冷藏过再炒更容易粒粒分明'}]},
+  {id:'niurou-chaomian',name:'牛肉炒面',emoji:'🍝',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sweet'],time:'18分钟',difficulty:2,description:'香气很足，一盘就是满足的一餐',methods:[{name:'快炒版',ingredients:[{n:'熟面条',a:'300g'},{n:'牛肉',a:'150g'},{n:'洋葱',a:'半个'},{n:'生抽',a:'2勺'}],steps:['牛肉先炒变色盛出','洋葱炒香','下面条抖散','加牛肉和生抽调味','翻匀即可'],tips:'熟面条先抖散，锅里不容易成坨'}]},
+  {id:'zajiangmian',name:'炸酱面',emoji:'🍜',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sweet'],time:'25分钟',difficulty:2,description:'酱香浓郁，拌起来特别过瘾',methods:[{name:'家常版',ingredients:[{n:'面条',a:'2人份'},{n:'肉末',a:'150g'},{n:'黄豆酱',a:'2勺'},{n:'黄瓜丝',a:'适量'}],steps:['肉末炒散炒香','下黄豆酱炒匀','加少量水熬成酱','面条煮熟过凉','拌上酱和黄瓜丝即可'],tips:'酱不要太干，拌面更均匀'}]},
+  {id:'fanqie-feiniu-yimian',name:'番茄肥牛意面',emoji:'🍝',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sour','sweet'],time:'20分钟',difficulty:2,description:'中西混搭，酸甜浓郁很讨喜',methods:[{name:'浓汤版',ingredients:[{n:'意面',a:'200g'},{n:'肥牛卷',a:'180g'},{n:'番茄',a:'2个'},{n:'洋葱',a:'少许'}],steps:['意面煮至八分熟','番茄炒出沙','下洋葱和肥牛卷','加少量水煮成酱汁','放入意面拌匀'],tips:'意面留一点煮面水更容易挂汁'}]},
+  {id:'shucai-chaomifen',name:'蔬菜炒米粉',emoji:'🍜',mealType:['breakfast','lunch','dinner'],dishType:['staple'],flavor:['sweet'],time:'15分钟',difficulty:1,description:'简单快手，冰箱有啥菜都能炒',methods:[{name:'家常版',ingredients:[{n:'米粉',a:'1把'},{n:'鸡蛋',a:'1个'},{n:'包菜丝',a:'适量'},{n:'胡萝卜丝',a:'适量'}],steps:['米粉泡软沥干','鸡蛋炒散盛出','炒香包菜和胡萝卜','下米粉翻炒','放鸡蛋加生抽调味'],tips:'米粉别泡太久，不然会断'}]},
+  {id:'jidan-ganfan',name:'鸡蛋盖饭',emoji:'🍛',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sweet'],time:'10分钟',difficulty:1,description:'一个平底锅就能搞定的快手饭',methods:[{name:'日常版',ingredients:[{n:'米饭',a:'1碗'},{n:'鸡蛋',a:'2个'},{n:'洋葱',a:'半个'},{n:'生抽',a:'1勺'}],steps:['洋葱炒软','加生抽和少量水','淋入蛋液半凝固时关火','铺在热米饭上即可'],tips:'蛋液不要全熟，拌饭更香'}]},
+  {id:'suancai-rousi-mifen',name:'酸菜肉丝米粉',emoji:'🍲',mealType:['lunch','dinner'],dishType:['staple'],flavor:['sour'],time:'18分钟',difficulty:2,description:'酸香开胃，天热没胃口时很好用',methods:[{name:'汤粉版',ingredients:[{n:'米粉',a:'1把'},{n:'酸菜',a:'80g'},{n:'肉丝',a:'100g'},{n:'葱花',a:'适量'}],steps:['肉丝炒变色','下酸菜炒香','加水煮开成汤底','放泡软米粉煮熟','撒葱花即可'],tips:'酸菜先炒一下香气更足'}]},
+
+  // ===== 减脂餐扩展 =====
+  {id:'xiangjian-sanwenyu',name:'香煎三文鱼配芦笋',emoji:'🍣',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'15分钟',difficulty:2,calories:'~360kcal',description:'高蛋白高Omega-3，颜值和营养都在线',methods:[{name:'香煎版',ingredients:[{n:'三文鱼',a:'180g'},{n:'芦笋',a:'8根'},{n:'黑胡椒',a:'适量'},{n:'海盐',a:'少许'}],steps:['三文鱼擦干水分撒盐黑胡椒','平底锅煎至两面金黄','芦笋焯水后少油翻一下','装盘即可'],tips:'鱼皮那面先煎更容易定型'}]},
+  {id:'huacai-chaofan',name:'花菜炒饭',emoji:'🥦',mealType:['lunch','dinner'],dishType:['diet','staple'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~220kcal',description:'用花菜代替米饭，低碳又有饱腹感',methods:[{name:'低碳版',ingredients:[{n:'花菜碎',a:'300g'},{n:'鸡蛋',a:'2个'},{n:'胡萝卜丁',a:'少许'},{n:'玉米粒',a:'少许'}],steps:['花菜打成米粒状','鸡蛋炒散盛出','炒香胡萝卜和玉米','下花菜碎翻炒3分钟','放鸡蛋加盐调味'],tips:'花菜别炒太久，保持颗粒感更像炒饭'}]},
+  {id:'jizhi-shucai-juan',name:'鸡肉生菜卷',emoji:'🌯',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~230kcal',description:'清爽脆口，晚餐吃也没有负担',methods:[{name:'卷菜版',ingredients:[{n:'鸡胸肉',a:'150g'},{n:'生菜叶',a:'6片'},{n:'黄瓜条',a:'适量'},{n:'胡萝卜条',a:'适量'}],steps:['鸡胸肉煎熟切条','生菜叶洗净沥干','放上鸡肉和蔬菜条','卷起来食用','可蘸无糖酸奶酱'],tips:'生菜选大片的更好卷'}]},
+  {id:'shui-zhu-jixiong-nangua',name:'水煮鸡胸肉南瓜盘',emoji:'🍗',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'18分钟',difficulty:1,calories:'~290kcal',description:'蛋白质加优质碳水，适合训练日',methods:[{name:'简餐版',ingredients:[{n:'鸡胸肉',a:'180g'},{n:'南瓜',a:'180g'},{n:'西兰花',a:'半颗'},{n:'黑胡椒',a:'适量'}],steps:['鸡胸肉煮熟切片','南瓜蒸熟切块','西兰花焯水','摆盘后撒黑胡椒和盐'],tips:'鸡胸肉煮的时候放姜片去腥'}]},
+  {id:'jinniang-doufu-jianzhi',name:'虾仁酿豆腐',emoji:'🧈',mealType:['lunch','dinner'],dishType:['diet','steam'],flavor:['sweet'],time:'20分钟',difficulty:2,calories:'~240kcal',description:'豆腐和虾仁组合，轻盈又鲜',methods:[{name:'蒸制版',ingredients:[{n:'北豆腐',a:'1块'},{n:'虾仁',a:'120g'},{n:'胡萝卜碎',a:'少许'},{n:'生抽',a:'1勺'}],steps:['豆腐切块中间挖小坑','虾仁剁碎拌胡萝卜碎','填入豆腐中','水开蒸10分钟','淋生抽即可'],tips:'豆腐选硬一点的不容易碎'}]},
+  {id:'jian-danbai-juan',name:'蛋白菠菜卷',emoji:'🥚',mealType:['breakfast','lunch'],dishType:['diet'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~170kcal',description:'低脂高蛋白，早午餐都合适',methods:[{name:'平底锅版',ingredients:[{n:'鸡蛋清',a:'4个'},{n:'菠菜',a:'1小把'},{n:'黑胡椒',a:'少许'},{n:'盐',a:'少许'}],steps:['菠菜焯水切碎','蛋清打散加盐胡椒','倒入锅中摊成蛋皮','铺菠菜卷起切段','装盘即可'],tips:'小火慢煎蛋皮更完整'}]},
+  {id:'jizhi-caihua-kao',name:'鸡肉烤花菜',emoji:'🥦',mealType:['lunch','dinner'],dishType:['diet'],flavor:['spicy'],time:'25分钟',difficulty:1,calories:'~280kcal',description:'烤出来更香，比水煮更有满足感',methods:[{name:'烤箱版',ingredients:[{n:'鸡胸肉',a:'150g'},{n:'花菜',a:'250g'},{n:'辣椒粉',a:'少许'},{n:'橄榄油',a:'1勺'}],steps:['鸡肉切块腌10分钟','花菜切小朵','和调料一起拌匀','铺烤盘200度烤18分钟','中途翻一次面'],tips:'花菜切小朵更容易烤透'}]},
+  {id:'fanqie-longliyu',name:'番茄龙利鱼',emoji:'🍅',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sour'],time:'18分钟',difficulty:1,calories:'~210kcal',description:'酸甜开胃，鱼肉嫩滑又低脂',methods:[{name:'汤汁版',ingredients:[{n:'龙利鱼柳',a:'200g'},{n:'番茄',a:'2个'},{n:'黑胡椒',a:'适量'},{n:'蒜末',a:'少许'}],steps:['鱼柳切块腌胡椒','番茄炒出沙','加少量水煮开','下鱼块煮熟','加盐调味即可'],tips:'鱼块下锅后轻轻推动，别大力翻'}]},
+  {id:'xilanhua-jidan-shalad',name:'西兰花鸡蛋沙拉',emoji:'🥗',mealType:['breakfast','lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~220kcal',description:'冷吃热吃都可以，备餐很方便',methods:[{name:'备餐版',ingredients:[{n:'西兰花',a:'半颗'},{n:'鸡蛋',a:'2个'},{n:'玉米粒',a:'30g'},{n:'无糖酸奶',a:'2勺'}],steps:['西兰花焯水切小朵','鸡蛋煮熟切块','加玉米粒混合','拌无糖酸奶和黑胡椒','冷藏后食用更清爽'],tips:'酸奶可以换成少量油醋汁'}]},
+  {id:'xiaren-doufu-geng',name:'虾仁豆腐羹',emoji:'🦐',mealType:['lunch','dinner'],dishType:['diet','soup'],flavor:['sweet'],time:'15分钟',difficulty:1,calories:'~190kcal',description:'嫩滑又鲜，晚上喝一碗很合适',methods:[{name:'顺滑版',ingredients:[{n:'虾仁',a:'120g'},{n:'内脂豆腐',a:'1盒'},{n:'鸡蛋',a:'1个'},{n:'淀粉水',a:'少许'}],steps:['虾仁切小段','水开下虾仁和豆腐','淋入蛋液','少量淀粉水勾薄芡','加盐胡椒即可'],tips:'勾芡薄一点口感更自然'}]},
+  {id:'jizhi-lusun',name:'芦笋鸡胸肉',emoji:'🌱',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~240kcal',description:'一锅快炒，高蛋白又清脆',methods:[{name:'快炒版',ingredients:[{n:'鸡胸肉',a:'160g'},{n:'芦笋',a:'1把'},{n:'蒜末',a:'少许'},{n:'黑胡椒',a:'适量'}],steps:['鸡胸肉切片腌一下','芦笋切段焯水','先炒鸡胸肉变色','放芦笋快速翻炒','加黑胡椒和盐出锅'],tips:'芦笋提前焯水能保持颜色更漂亮'}]},
+  {id:'jizhi-kugua',name:'鸡胸肉炒苦瓜',emoji:'🥒',mealType:['lunch','dinner'],dishType:['diet'],flavor:['bitter'],time:'14分钟',difficulty:1,calories:'~210kcal',description:'清爽去腻，适合夏天控卡期',methods:[{name:'清炒版',ingredients:[{n:'鸡胸肉',a:'150g'},{n:'苦瓜',a:'1根'},{n:'蒜末',a:'适量'},{n:'生抽',a:'1勺'}],steps:['苦瓜去瓤切片焯水','鸡胸肉切片腌制','热锅少油炒鸡肉','放苦瓜翻炒','加生抽和盐调味'],tips:'苦瓜先焯水可以去掉部分苦味'}]},
+  {id:'niurou-caijiao-bowl',name:'牛肉彩椒能量碗',emoji:'🥗',mealType:['lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'18分钟',difficulty:2,calories:'~340kcal',description:'高蛋白配彩椒，工作餐也很能打',methods:[{name:'能量碗版',ingredients:[{n:'牛肉片',a:'150g'},{n:'彩椒',a:'1个'},{n:'生菜',a:'1把'},{n:'玉米粒',a:'40g'}],steps:['牛肉煎熟调味','彩椒炒至断生','碗里铺生菜','摆上牛肉彩椒和玉米粒','淋少量油醋汁'],tips:'牛肉切薄片更容易快速成熟'}]},
+  {id:'oumai-danbai-bing',name:'燕麦蛋白饼',emoji:'🥞',mealType:['breakfast'],dishType:['diet'],flavor:['sweet'],time:'10分钟',difficulty:1,calories:'~210kcal',description:'减脂早餐常客，简单又扛饿',methods:[{name:'平底锅版',ingredients:[{n:'燕麦片',a:'50g'},{n:'蛋清',a:'3个'},{n:'香蕉',a:'半根'},{n:'肉桂粉',a:'少许'}],steps:['香蕉压泥','和燕麦蛋清拌匀','平底锅摊成小饼','小火煎熟两面','撒肉桂粉即可'],tips:'面糊静置2分钟，燕麦更容易吸水'}]},
+  {id:'shucai-jiandanbei',name:'蔬菜鸡蛋杯',emoji:'🧁',mealType:['breakfast','lunch'],dishType:['diet'],flavor:['sweet'],time:'20分钟',difficulty:1,calories:'~160kcal',description:'一口一个，备餐很方便',methods:[{name:'烤箱版',ingredients:[{n:'鸡蛋',a:'3个'},{n:'菠菜碎',a:'适量'},{n:'彩椒丁',a:'适量'},{n:'蘑菇丁',a:'适量'}],steps:['鸡蛋打散','加入蔬菜丁和调味','倒入模具七分满','180度烤15分钟','放凉后脱模'],tips:'模具刷一点油更好脱模'}]},
+  {id:'jizhi-yumili-shalad',name:'金枪鱼玉米沙拉',emoji:'🥗',mealType:['breakfast','lunch','dinner'],dishType:['diet'],flavor:['sweet'],time:'8分钟',difficulty:1,calories:'~240kcal',description:'开罐即拌，适合忙碌日子的轻食',methods:[{name:'快手版',ingredients:[{n:'水浸金枪鱼',a:'1罐'},{n:'玉米粒',a:'50g'},{n:'生菜',a:'1把'},{n:'小番茄',a:'6颗'}],steps:['生菜撕碎装碗','放玉米粒和番茄','拌入沥干的金枪鱼','撒黑胡椒和少量油醋汁'],tips:'选水浸型热量更低'}]},
+  {id:'caizhi-danpi-juan',name:'彩蔬蛋皮卷',emoji:'🌯',mealType:['breakfast','lunch'],dishType:['diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~190kcal',description:'看着很丰富，其实做法很简单',methods:[{name:'轻食版',ingredients:[{n:'鸡蛋',a:'2个'},{n:'黄瓜条',a:'适量'},{n:'胡萝卜条',a:'适量'},{n:'紫甘蓝',a:'少许'}],steps:['鸡蛋摊成蛋皮','放入切好的蔬菜条','卷起后切段','按口味撒胡椒和盐'],tips:'蛋皮摊薄一点更容易卷'}]},
+  {id:'qingdun-jizhi-jungu',name:'清炖鸡胸菌菇',emoji:'🍗',mealType:['lunch','dinner'],dishType:['diet','soup'],flavor:['sweet'],time:'25分钟',difficulty:1,calories:'~230kcal',description:'鲜味突出，适合晚上喝一点热汤',methods:[{name:'炖煮版',ingredients:[{n:'鸡胸肉',a:'160g'},{n:'香菇',a:'4朵'},{n:'白玉菇',a:'1把'},{n:'姜片',a:'适量'}],steps:['鸡胸肉切块焯一下','锅中加水和姜片煮开','放菌菇和鸡肉炖15分钟','加盐胡椒调味即可'],tips:'鸡胸肉切大块炖煮不容易柴'}]},
+  {id:'xihulu-jidan-bing',name:'西葫芦鸡蛋饼',emoji:'🥒',mealType:['breakfast','lunch'],dishType:['diet'],flavor:['sweet'],time:'12分钟',difficulty:1,calories:'~180kcal',description:'高水分高纤维，口感软嫩清爽',methods:[{name:'平底锅版',ingredients:[{n:'西葫芦',a:'1根'},{n:'鸡蛋',a:'2个'},{n:'全麦面粉',a:'2勺'},{n:'盐',a:'少许'}],steps:['西葫芦擦丝挤水','加入鸡蛋和面粉','调匀成糊','平底锅摊成小饼','煎熟两面'],tips:'挤掉一部分水，饼更容易成形'}]},
+  {id:'niunai-guomai-bei',name:'酸奶水果能量杯',emoji:'🍓',mealType:['breakfast'],dishType:['diet','dessert'],flavor:['sweet'],time:'5分钟',difficulty:1,calories:'~220kcal',description:'适合早晨没时间开火的时候',methods:[{name:'冷拌版',ingredients:[{n:'无糖酸奶',a:'200g'},{n:'草莓',a:'4颗'},{n:'蓝莓',a:'适量'},{n:'坚果碎',a:'1勺'}],steps:['杯中倒入酸奶','铺上切好的水果','撒坚果碎即可'],tips:'坚果最后撒，口感更脆'}]},
+
+  // ===== 凉菜扩展 =====
+  {id:'suanla-oupian',name:'酸辣藕片',emoji:'🪷',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['spicy','sour'],time:'12分钟',difficulty:1,description:'脆爽开胃，夏天一盘不够吃',methods:[{name:'凉拌版',ingredients:[{n:'莲藕',a:'1节'},{n:'醋',a:'2勺'},{n:'辣椒油',a:'1勺'},{n:'蒜末',a:'适量'}],steps:['莲藕切薄片焯水2分钟','过凉水沥干','拌入调料','静置10分钟更入味'],tips:'切片后泡水防止发黑'}]},
+  {id:'chencu-haidaijie',name:'陈醋海带结',emoji:'🪸',mealType:['lunch','dinner'],dishType:['cold-dish','diet'],flavor:['sour'],time:'8分钟',difficulty:1,calories:'~90kcal',description:'低卡爽口，配肉菜很解腻',methods:[{name:'凉拌版',ingredients:[{n:'海带结',a:'150g'},{n:'陈醋',a:'2勺'},{n:'生抽',a:'1勺'},{n:'蒜末',a:'适量'}],steps:['海带结焯水后过凉','加陈醋生抽蒜末拌匀','冷藏10分钟更好吃'],tips:'海带结焯水能去掉部分腥味'}]},
+  {id:'liangban-jinzhen',name:'凉拌金针菇',emoji:'🍄',mealType:['lunch','dinner'],dishType:['cold-dish','diet'],flavor:['spicy','sour'],time:'10分钟',difficulty:1,calories:'~80kcal',description:'脆嫩弹口，做法特别省事',methods:[{name:'凉拌版',ingredients:[{n:'金针菇',a:'1把'},{n:'小米辣',a:'1个'},{n:'醋',a:'2勺'},{n:'生抽',a:'1勺'}],steps:['金针菇切根焯熟','过凉水沥干','加调料拌匀','撒葱花即可'],tips:'金针菇焯1分钟就够了'}]},
+  {id:'majiang-youmaicai',name:'麻酱油麦菜',emoji:'🥬',mealType:['lunch','dinner'],dishType:['cold-dish'],flavor:['sweet'],time:'8分钟',difficulty:1,description:'清香蔬菜配芝麻酱，简单却很香',methods:[{name:'凉拌版',ingredients:[{n:'油麦菜',a:'1把'},{n:'芝麻酱',a:'2勺'},{n:'蒜末',a:'少许'},{n:'生抽',a:'1勺'}],steps:['油麦菜洗净切段','芝麻酱加温水调开','拌入蒜末和生抽','浇在油麦菜上'],tips:'芝麻酱先调稀，不然不容易拌匀'}]},
+  {id:'liangban-jisi-huanggua',name:'鸡丝黄瓜',emoji:'🥒',mealType:['lunch','dinner'],dishType:['cold-dish','diet'],flavor:['sour'],time:'15分钟',difficulty:1,calories:'~160kcal',description:'清爽高蛋白，夏天很适合做晚餐配菜',methods:[{name:'轻食版',ingredients:[{n:'鸡胸肉',a:'120g'},{n:'黄瓜',a:'1根'},{n:'醋',a:'1勺'},{n:'蒜末',a:'少许'}],steps:['鸡胸肉煮熟撕丝','黄瓜拍松切段','加调料拌匀','放鸡丝一起拌匀即可'],tips:'鸡丝可以提前做好冷藏备用'}]},
+
+  // ===== 甜点扩展 =====
+  {id:'yangzhi-ganlu',name:'杨枝甘露',emoji:'🥭',mealType:['lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'15分钟',difficulty:2,description:'芒果控会很爱，清甜又顺滑',methods:[{name:'经典版',ingredients:[{n:'芒果',a:'2个'},{n:'西米',a:'50g'},{n:'椰奶',a:'200ml'},{n:'西柚粒',a:'适量'}],steps:['西米煮熟过凉','芒果一半打泥一半切丁','混合椰奶和芒果泥','加西米和芒果丁','撒西柚粒即可'],tips:'冷藏后口感更好'}]},
+  {id:'taojiao-yimi-geng',name:'桃胶薏米羹',emoji:'🍑',mealType:['breakfast','lunch','dinner'],dishType:['dessert','soup'],flavor:['sweet'],time:'60分钟',difficulty:2,description:'软糯润口，适合慢慢炖一锅',methods:[{name:'养生版',ingredients:[{n:'桃胶',a:'30g'},{n:'薏米',a:'50g'},{n:'冰糖',a:'适量'},{n:'清水',a:'1200ml'}],steps:['桃胶提前泡发洗净','薏米浸泡30分钟','一起入锅炖40分钟','加冰糖煮10分钟即可'],tips:'桃胶杂质多，要耐心清洗'}]},
+  {id:'nangua-ximi-lu',name:'南瓜西米露',emoji:'🎃',mealType:['breakfast','lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'25分钟',difficulty:1,description:'金黄顺滑，冷热都好喝',methods:[{name:'甜品版',ingredients:[{n:'南瓜',a:'200g'},{n:'西米',a:'50g'},{n:'牛奶',a:'200ml'},{n:'白糖',a:'适量'}],steps:['西米煮熟备用','南瓜蒸熟压泥','加牛奶和糖煮开','加入西米搅匀即可'],tips:'南瓜泥先过筛会更细腻'}]},
+  {id:'mangguo-buding',name:'芒果布丁',emoji:'🥭',mealType:['lunch','dinner'],dishType:['dessert'],flavor:['sweet'],time:'20分钟(+冷藏)',difficulty:1,description:'冰冰凉凉，夏天特别受欢迎',methods:[{name:'免烤版',ingredients:[{n:'芒果',a:'2个'},{n:'牛奶',a:'250ml'},{n:'吉利丁片',a:'2片'},{n:'白糖',a:'适量'}],steps:['吉利丁片泡软','芒果打成泥','牛奶加糖微热后放吉利丁','和芒果泥混合','倒模冷藏凝固'],tips:'牛奶不要煮沸，温热就够'}]},
+  {id:'shuiguo-lao',name:'水果捞',emoji:'🍓',mealType:['breakfast','lunch','dinner'],dishType:['dessert','diet'],flavor:['sweet'],time:'8分钟',difficulty:1,calories:'~180kcal',description:'冰箱水果大集合，清爽又解馋',methods:[{name:'酸奶版',ingredients:[{n:'无糖酸奶',a:'200g'},{n:'西瓜',a:'适量'},{n:'芒果',a:'适量'},{n:'蓝莓',a:'适量'}],steps:['水果切小块装碗','淋上酸奶','冷藏10分钟后食用'],tips:'酸奶版本比炼乳版本更轻负担'}]}
+];}
+
+function getDrinks(){return[
+  // ===== 经典 =====
+  {id:'mojito',name:'莫吉托',en:'Mojito',emoji:'🍃',category:['classic','summer'],baseLiquor:'rum',glassType:'highball',difficulty:2,time:'5分钟',flavor:['refreshing','sour','sweet'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #a8e6cf, #88d8b0, #56ab91)',description:'清爽薄荷+青柠，海明威最爱的古巴经典',emotion:'🍃 清新放松',emotionColor:'#56ab91',searchKw:'莫吉托调酒教程',ingredients:[{n:'白朗姆酒',a:'60ml'},{n:'青柠汁',a:'30ml'},{n:'薄荷叶',a:'10片'},{n:'白糖',a:'2茶匙'},{n:'苏打水',a:'适量'},{n:'冰块',a:'满杯'}],steps:['杯中放入薄荷叶和白糖','用捣棒轻轻按压出薄荷香气','加入青柠汁','加满冰块','倒入白朗姆酒','苏打水补满','轻轻搅拌，薄荷枝装饰'],garnish:'薄荷枝+青柠角',tips:'薄荷叶要轻拍再放，不要捣碎，否则会有苦味'},
+  {id:'margarita',name:'玛格丽特',en:'Margarita',emoji:'🍋',category:['classic','party'],baseLiquor:'tequila',glassType:'martini',difficulty:3,time:'5分钟',flavor:['sour'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #fff9c4, #f9e79f, #d4e157)',description:'杯口盐边+龙舌兰的经典搭配',emotion:'🎉 热烈狂欢',emotionColor:'#d4e157',searchKw:'玛格丽特调酒教程',ingredients:[{n:'龙舌兰酒',a:'50ml'},{n:'君度橙酒',a:'25ml'},{n:'青柠汁',a:'25ml'},{n:'盐',a:'适量'},{n:'冰块',a:'适量'}],steps:['杯口用青柠擦拭湿润','杯口蘸盐形成盐边','雪克壶中加入龙舌兰、君度、青柠汁','加冰用力摇合15秒','过滤倒入盐边杯中'],garnish:'青柠片',tips:'摇合要充分，表面起雾才说明够冰'},
+  {id:'gin-tonic',name:'金汤力',en:'Gin & Tonic',emoji:'🍸',category:['classic','summer'],baseLiquor:'gin',glassType:'highball',difficulty:1,time:'3分钟',flavor:['bitter','refreshing'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #e8f5e9, #c8e6c9, #a5d6a7)',description:'最简单的经典鸡尾酒，杜松子香气配苦味汤力水',emotion:'🌿 宁静致远',emotionColor:'#a5d6a7',searchKw:'金汤力调酒教程',ingredients:[{n:'金酒',a:'50ml'},{n:'汤力水',a:'150ml'},{n:'青柠角',a:'2个'},{n:'冰块',a:'满杯'}],steps:['杯中加满冰块','倒入金酒','汤力水沿杯壁缓缓倒入','轻轻搅拌一次','挤入青柠汁并用青柠角装饰'],garnish:'青柠角或柠檬片',tips:'汤力水要冷藏过的，倒的时候沿杯壁以免气泡跑掉'},
+  {id:'old-fashioned',name:'古典鸡尾酒',en:'Old Fashioned',emoji:'🥃',category:['classic','night'],baseLiquor:'whiskey',glassType:'rocks',difficulty:2,time:'5分钟',flavor:['bitter','sweet'],alcoholLevel:'高',colorGrad:'linear-gradient(135deg, #d7ccc8, #bcaaa4, #8d6e63)',description:'威士忌爱好者的终极选择，简单而深邃',emotion:'🧘 沉稳内敛',emotionColor:'#8d6e63',searchKw:'古典鸡尾酒OldFashioned教程',ingredients:[{n:'波本威士忌',a:'60ml'},{n:'方糖',a:'1块'},{n:'苦精',a:'3滴'},{n:'苏打水',a:'少许'},{n:'冰块',a:'1大块'}],steps:['杯中放入方糖','加苦精和少许苏打水','捣碎方糖搅拌溶解','加大冰块','倒入威士忌','轻轻搅拌20秒','橙皮拧皮出油放入'],garnish:'橙皮+樱桃',tips:'用大冰块比小冰块好，融化慢不会过度稀释'},
+  {id:'cosmopolitan',name:'大都会',en:'Cosmopolitan',emoji:'🍷',category:['classic','party'],baseLiquor:'vodka',glassType:'martini',difficulty:2,time:'5分钟',flavor:['sour','sweet','fruity'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #f8bbd0, #f48fb1, #ec407a)',description:'粉红诱惑，《欲望都市》带火的经典',emotion:'💕 浪漫优雅',emotionColor:'#ec407a',searchKw:'大都会鸡尾酒教程',ingredients:[{n:'伏特加',a:'45ml'},{n:'君度橙酒',a:'15ml'},{n:'蔓越莓汁',a:'30ml'},{n:'青柠汁',a:'15ml'}],steps:['所有材料加入雪克壶','加冰用力摇合15秒','过滤倒入马提尼杯','柠檬皮拧皮装饰'],garnish:'柠檬皮卷',tips:'蔓越莓汁要纯的不要调配饮料'},
+  {id:'martini',name:'干马提尼',en:'Dry Martini',emoji:'🍸',category:['classic','night'],baseLiquor:'gin',glassType:'martini',difficulty:4,time:'5分钟',flavor:['bitter'],alcoholLevel:'高',colorGrad:'linear-gradient(135deg, #eceff1, #cfd8dc, #b0bec5)',description:'007的最爱，纯粹而优雅的烈酒艺术',emotion:'🎩 成熟冷峻',emotionColor:'#90a4ae',searchKw:'干马提尼调酒教程',ingredients:[{n:'金酒',a:'75ml'},{n:'干味美思',a:'15ml'},{n:'橄榄',a:'1颗'}],steps:['搅拌杯加冰预冷','倒入金酒和干味美思','搅拌30秒至充分冰镇','过滤倒入冰过的马提尼杯','放入橄榄'],garnish:'橄榄',tips:'搅拌时间越长化水越多口感越柔和'},
+
+  // ===== 果味 =====
+  {id:'tequila-sunrise',name:'龙舌兰日出',en:'Tequila Sunrise',emoji:'🌅',category:['fruity','summer','party'],baseLiquor:'tequila',glassType:'highball',difficulty:2,time:'5分钟',flavor:['fruity','sweet'],alcoholLevel:'中',colorGrad:'linear-gradient(180deg, #ff9800, #ff7043, #f44336)',description:'杯中日出，红黄渐变美到窒息',emotion:'🔥 热情奔放',emotionColor:'#f44336',searchKw:'龙舌兰日出调酒教程',ingredients:[{n:'龙舌兰酒',a:'50ml'},{n:'鲜橙汁',a:'120ml'},{n:'红石榴糖浆',a:'15ml'},{n:'冰块',a:'满杯'}],steps:['杯中加满冰块','倒入龙舌兰酒','倒入橙汁','沿杯壁缓缓倒入石榴糖浆','糖浆沉底形成渐变','不要搅拌'],garnish:'橙片+樱桃',tips:'石榴糖浆最后放且不搅拌，才能形成日出的渐变效果'},
+  {id:'pina-colada',name:'椰林飘香',en:'Piña Colada',emoji:'🥥',category:['fruity','summer'],baseLiquor:'rum',glassType:'hurricane',difficulty:2,time:'5分钟',flavor:['sweet','fruity'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #fff9c4, #fff176, #ffee58)',description:'椰香菠萝，热带海滩度假的味道',emotion:'🏖️ 慵懒假期',emotionColor:'#ffee58',searchKw:'椰林飘香调酒教程',ingredients:[{n:'白朗姆酒',a:'50ml'},{n:'椰浆',a:'40ml'},{n:'菠萝汁',a:'80ml'},{n:'冰块',a:'1杯'}],steps:['所有材料加入搅拌机','加冰块','高速搅拌至冰沙状','倒入飓风杯中','菠萝块装饰'],garnish:'菠萝角+樱桃',tips:'用新鲜菠萝汁比罐头的香太多'},
+  {id:'blue-hawaii',name:'蓝色夏威夷',en:'Blue Hawaii',emoji:'🏝️',category:['fruity','summer','party'],baseLiquor:'rum',glassType:'hurricane',difficulty:2,time:'5分钟',flavor:['sweet','fruity'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #64b5f6, #42a5f5, #1e88e5)',description:'湛蓝如海，仿佛置身夏威夷',emotion:'🌊 自由畅快',emotionColor:'#1e88e5',searchKw:'蓝色夏威夷调酒教程',ingredients:[{n:'白朗姆酒',a:'45ml'},{n:'蓝柑酒',a:'30ml'},{n:'菠萝汁',a:'60ml'},{n:'椰浆',a:'30ml'},{n:'冰块',a:'1杯'}],steps:['搅拌机中加入所有材料','加冰高速搅拌','倒入杯中','菠萝和樱桃装饰'],garnish:'菠萝片+樱桃+小伞',tips:'蓝柑酒的蓝色来自天然柑橘提取'},
+  {id:'strawberry-daiquiri',name:'草莓黛绮莉',en:'Strawberry Daiquiri',emoji:'🍓',category:['fruity','party'],baseLiquor:'rum',glassType:'martini',difficulty:1,time:'5分钟',flavor:['fruity','sweet','sour'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #f8bbd0, #f06292, #e91e63)',description:'酸甜草莓冰沙，女生最爱',emotion:'💖 甜蜜恋爱',emotionColor:'#e91e63',searchKw:'草莓黛绮莉调酒教程',ingredients:[{n:'白朗姆酒',a:'50ml'},{n:'新鲜草莓',a:'6颗'},{n:'青柠汁',a:'20ml'},{n:'糖浆',a:'15ml'},{n:'冰块',a:'1杯'}],steps:['草莓去蒂','所有材料加冰放入搅拌机','打至冰沙状','倒入杯中'],garnish:'草莓切片',tips:'用冷冻草莓代替冰块，冰沙更浓稠'},
+  {id:'midori-sour',name:'蜜瓜球',en:'Midori Sour',emoji:'🍈',category:['fruity','party'],baseLiquor:'none',glassType:'rocks',difficulty:1,time:'3分钟',flavor:['fruity','sweet','sour'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #a5d6a7, #66bb6a, #43a047)',description:'蜜瓜甜酒+柠檬，清爽酸甜小清新',emotion:'😊 轻松愉悦',emotionColor:'#43a047',searchKw:'蜜瓜球鸡尾酒教程',ingredients:[{n:'蜜瓜甜酒',a:'45ml'},{n:'柠檬汁',a:'30ml'},{n:'糖浆',a:'10ml'},{n:'苏打水',a:'适量'}],steps:['雪克壶加蜜瓜甜酒、柠檬汁、糖浆','加冰摇合','过滤倒入冰杯中','苏打水补满'],garnish:'蜜瓜球或柠檬片',tips:'蜜瓜甜酒本身就很甜，糖浆少放或不放'},
+
+  // ===== 微醺 =====
+  {id:'gin-fizz',name:'金菲兹',en:'Gin Fizz',emoji:'🥂',category:['low-alcohol','summer'],baseLiquor:'gin',glassType:'collins',difficulty:3,time:'8分钟',flavor:['sour','refreshing'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #fff9c4, #fff9c4, #f5f5dc)',description:'绵密泡沫+清爽口感，经典长饮',emotion:'☁️ 温柔绵密',emotionColor:'#f5f5dc',searchKw:'金菲兹调酒教程',ingredients:[{n:'金酒',a:'50ml'},{n:'柠檬汁',a:'30ml'},{n:'糖浆',a:'20ml'},{n:'蛋白',a:'1个'},{n:'苏打水',a:'适量'}],steps:['雪克壶加金酒、柠檬汁、糖浆、蛋白','不加冰先干摇15秒','加冰再湿摇15秒','过滤倒入杯中','苏打水补满'],garnish:'柠檬片',tips:'干摇是关键步骤，不干摇蛋白不起泡'},
+  {id:'whiskey-sour',name:'威士忌酸',en:'Whiskey Sour',emoji:'🥃',category:['low-alcohol','classic'],baseLiquor:'whiskey',glassType:'rocks',difficulty:2,time:'5分钟',flavor:['sour'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #ffcc80, #ffb74d, #ffa726)',description:'酸中带甜，威士忌入门首选',emotion:'🔥 外冷内热',emotionColor:'#e65100',searchKw:'威士忌酸调酒教程',ingredients:[{n:'波本威士忌',a:'60ml'},{n:'柠檬汁',a:'30ml'},{n:'糖浆',a:'20ml'},{n:'蛋白',a:'1个'}],steps:['所有材料加冰摇合15秒','过滤倒入冰杯中','苦精滴在泡沫上','用牙签拉花'],garnish:'柠檬片+樱桃',tips:'加蛋白口感更丝滑'},
+  {id:'moscow-mule',name:'莫斯科骡子',en:'Moscow Mule',emoji:'🫚',category:['low-alcohol','summer'],baseLiquor:'vodka',glassType:'copper',difficulty:1,time:'3分钟',flavor:['sour','refreshing'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #ffe0b2, #ffcc80, #ffb74d)',description:'姜味辛辣+青柠清爽，铜杯是灵魂',emotion:'⚡ 活力提神',emotionColor:'#ffb74d',searchKw:'莫斯科骡子调酒教程',ingredients:[{n:'伏特加',a:'50ml'},{n:'姜汁啤酒',a:'150ml'},{n:'青柠汁',a:'15ml'},{n:'冰块',a:'满杯'}],steps:['铜杯中加满冰块','倒入伏特加','挤入青柠汁','姜汁啤酒补满','轻轻搅拌'],garnish:'青柠角+薄荷',tips:'一定要用铜杯！'},
+  {id:'black-russian',name:'黑俄罗斯',en:'Black Russian',emoji:'☕',category:['low-alcohol','night'],baseLiquor:'vodka',glassType:'rocks',difficulty:1,time:'2分钟',flavor:['sweet','bitter'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #4e342e, #3e2723, #21120f)',description:'咖啡+伏特加，甜苦交织的成人饮品',emotion:'🌑 深邃独处',emotionColor:'#3e2723',searchKw:'黑俄罗斯调酒教程',ingredients:[{n:'伏特加',a:'50ml'},{n:'咖啡利口酒',a:'25ml'},{n:'冰块',a:'适量'}],steps:['杯中加满冰块','倒入伏特加','倒入咖啡利口酒','搅拌均匀'],garnish:'无',tips:'咖啡利口酒推荐Kahlúa；加牛奶就是白俄罗斯'},
+  {id:'long-island',name:'长岛冰茶',en:'Long Island Iced Tea',emoji:'🍹',category:['low-alcohol','party'],baseLiquor:'vodka',glassType:'collins',difficulty:3,time:'5分钟',flavor:['sour','sweet'],alcoholLevel:'高',colorGrad:'linear-gradient(135deg, #ffcc80, #ffab40, #ff9100)',description:'看着像冰茶，喝着是烈酒，派对之王',emotion:'🎊 放纵不羁',emotionColor:'#ff6d00',searchKw:'长岛冰茶调酒教程',ingredients:[{n:'伏特加',a:'20ml'},{n:'金酒',a:'20ml'},{n:'朗姆酒',a:'20ml'},{n:'龙舌兰',a:'20ml'},{n:'君度',a:'20ml'},{n:'柠檬汁',a:'30ml'},{n:'可乐',a:'适量'}],steps:['杯中加满冰块','依次倒入五种烈酒','加柠檬汁','可乐补满调色','轻轻搅拌'],garnish:'柠檬片',tips:'酒精含量很高，慢慢喝！'},
+
+  // ===== 无酒精 =====
+  {id:'shirley-temple',name:'秀兰邓波儿',en:'Shirley Temple',emoji:'👧',category:['non-alcoholic','party'],baseLiquor:'none',glassType:'highball',difficulty:1,time:'3分钟',flavor:['sweet','fruity'],alcoholLevel:'无',colorGrad:'linear-gradient(135deg, #f8bbd0, #f48fb1, #e91e63)',description:'童星同名饮品，甜蜜可爱',emotion:'👧 童心未泯',emotionColor:'#e91e63',searchKw:'秀兰邓波儿无酒精调酒',ingredients:[{n:'姜汁汽水',a:'150ml'},{n:'红石榴糖浆',a:'15ml'},{n:'柠檬汁',a:'10ml'},{n:'樱桃',a:'2颗'},{n:'冰块',a:'适量'}],steps:['杯中加冰块','倒入红石榴糖浆','加柠檬汁','姜汁汽水补满','樱桃装饰'],garnish:'樱桃',tips:'可以用雪碧代替姜汁汽水'},
+  {id:'virgin-mojito',name:'处子莫吉托',en:'Virgin Mojito',emoji:'🌿',category:['non-alcoholic','summer'],baseLiquor:'none',glassType:'highball',difficulty:1,time:'5分钟',flavor:['refreshing','sour'],alcoholLevel:'无',colorGrad:'linear-gradient(135deg, #c8e6c9, #a5d6a7, #81c784)',description:'无酒精版莫吉托，薄荷青柠照样清爽',emotion:'🧘 清净自在',emotionColor:'#81c784',searchKw:'无酒精莫吉托教程',ingredients:[{n:'青柠汁',a:'30ml'},{n:'薄荷叶',a:'10片'},{n:'白糖',a:'2茶匙'},{n:'苏打水',a:'适量'},{n:'冰块',a:'满杯'}],steps:['薄荷和糖轻捣出香','加入青柠汁','加满冰块','苏打水补满','轻轻搅拌'],garnish:'薄荷枝+青柠角',tips:'去掉朗姆酒就是完美无酒精版'},
+  {id:'fruit-punch',name:'水果宾治',en:'Fruit Punch',emoji:'🍹',category:['non-alcoholic','party','summer'],baseLiquor:'none',glassType:'hurricane',difficulty:1,time:'5分钟',flavor:['fruity','sweet'],alcoholLevel:'无',colorGrad:'linear-gradient(135deg, #ffcc80, #ffab40, #ef6c00)',description:'缤纷水果聚会，大人小孩都喜欢',emotion:'🥳 欢乐聚会',emotionColor:'#ef6c00',searchKw:'水果宾治无酒精调酒',ingredients:[{n:'橙汁',a:'100ml'},{n:'菠萝汁',a:'100ml'},{n:'蔓越莓汁',a:'50ml'},{n:'雪碧',a:'100ml'},{n:'各种水果丁',a:'适量'}],steps:['大杯中混合所有果汁','加入切好的水果丁','加冰块','雪碧补满','搅拌一下'],garnish:'各种水果串',tips:'水果提前冻一下，融化后不会稀释饮料'},
+  {id:'lemon-mint-cooler',name:'柠檬薄荷冰饮',en:'Lemon Mint Cooler',emoji:'🍋',category:['non-alcoholic','summer'],baseLiquor:'none',glassType:'highball',difficulty:1,time:'5分钟',flavor:['sour','refreshing'],alcoholLevel:'无',colorGrad:'linear-gradient(135deg, #fff9c4, #fff176, #ffee58)',description:'消暑神器，比饮料健康百倍',emotion:'💛 阳光活力',emotionColor:'#ffee58',searchKw:'柠檬薄荷饮教程',ingredients:[{n:'柠檬',a:'1个'},{n:'薄荷叶',a:'10片'},{n:'蜂蜜',a:'2勺'},{n:'苏打水',a:'适量'},{n:'冰块',a:'满杯'}],steps:['柠檬一半切片一半榨汁','薄荷和蜂蜜放入杯中','加柠檬汁轻捣','加冰块和柠檬片','苏打水补满搅拌'],garnish:'柠檬片+薄荷尖',tips:'蜂蜜用温水化开再放'},
+
+  // ===== 夏日 =====
+  {id:'sangria',name:'桑格利亚',en:'Sangria',emoji:'🍷',category:['summer','party','fruity'],baseLiquor:'brandy',glassType:'hurricane',difficulty:2,time:'10分钟(+冷藏)',flavor:['fruity','sweet'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #d32f2f, #c62828, #7b1fa2)',description:'西班牙水果红酒，派对大壶饮品',emotion:'💃 热情似火',emotionColor:'#9c27b0',searchKw:'桑格利亚Sangria教程',ingredients:[{n:'红葡萄酒',a:'1瓶'},{n:'白兰地',a:'50ml'},{n:'橙汁',a:'100ml'},{n:'苹果',a:'半个'},{n:'橙子',a:'1个'},{n:'糖',a:'2勺'}],steps:['水果切片放入大壶','加糖和水果轻轻捣一下','倒入整瓶红酒','加白兰地和橙汁','搅拌后冷藏2小时以上','加冰饮用'],garnish:'水果片+肉桂棒',tips:'提前冷藏是关键，水果味道才能融入酒中'},
+  {id:'mint-julep',name:'薄荷朱莉普',en:'Mint Julep',emoji:'🌿',category:['summer','classic'],baseLiquor:'whiskey',glassType:'copper',difficulty:2,time:'5分钟',flavor:['refreshing'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #c8e6c9, #a5d6a7, #4caf50)',description:'肯塔基赛马会官方饮品，薄荷碎冰绝配',emotion:'🍃 优雅从容',emotionColor:'#4caf50',searchKw:'薄荷朱莉普调酒教程',ingredients:[{n:'波本威士忌',a:'60ml'},{n:'薄荷叶',a:'12片'},{n:'糖浆',a:'15ml'},{n:'碎冰',a:'满杯'}],steps:['杯中轻捣薄荷和糖浆','加满碎冰','倒入威士忌','搅拌至杯壁结霜','薄荷枝装饰'],garnish:'薄荷枝',tips:'用碎冰不用大冰块'},
+  {id:'sea-breeze',name:'海风',en:'Sea Breeze',emoji:'🌊',category:['summer','low-alcohol'],baseLiquor:'vodka',glassType:'highball',difficulty:1,time:'3分钟',flavor:['fruity','sour'],alcoholLevel:'低',colorGrad:'linear-gradient(180deg, #e91e63, #f44336, #ff9800)',description:'蔓越莓+西柚，粉红渐变清新海风',emotion:'🌅 温柔浪漫',emotionColor:'#ff9800',searchKw:'海风鸡尾酒教程',ingredients:[{n:'伏特加',a:'45ml'},{n:'蔓越莓汁',a:'90ml'},{n:'西柚汁',a:'45ml'},{n:'冰块',a:'适量'}],steps:['杯中加满冰块','倒入伏特加','加蔓越莓汁','缓缓倒入西柚汁','青柠角装饰'],garnish:'青柠角',tips:'西柚汁最后缓缓倒入形成分层'},
+  {id:'aperol-spritz',name:'阿佩罗橙光',en:'Aperol Spritz',emoji:'🍊',category:['summer','low-alcohol'],baseLiquor:'none',glassType:'highball',difficulty:1,time:'3分钟',flavor:['bitter','sweet','refreshing'],alcoholLevel:'低',colorGrad:'linear-gradient(135deg, #ff7043, #f4511e, #e64a19)',description:'意大利国民开胃酒，橙色气泡阳光',emotion:'☀️ 惬意午后',emotionColor:'#e64a19',searchKw:'阿佩罗橙光Aperol教程',ingredients:[{n:'阿佩罗酒',a:'60ml'},{n:'普罗塞克起泡酒',a:'60ml'},{n:'苏打水',a:'30ml'},{n:'橙片',a:'1片'},{n:'冰块',a:'满杯'}],steps:['葡萄酒杯中加满冰块','倒入阿佩罗','倒入普罗塞克','加苏打水','搅拌一次','橙片装饰'],garnish:'橙片',tips:'3:2:1 黄金比例'},
+
+  // ===== 晚安酒 =====
+  {id:'hot-toddy',name:'热托蒂',en:'Hot Toddy',emoji:'☕',category:['night'],baseLiquor:'whiskey',glassType:'highball',difficulty:1,time:'5分钟',flavor:['sweet'],alcoholLevel:'中',colorGrad:'linear-gradient(135deg, #795548, #6d4c41, #4e342e)',description:'热饮威士忌，冬日暖身+治感冒偏方',emotion:'🫂 温暖治愈',emotionColor:'#6d4c41',searchKw:'热托蒂HotToddy教程',ingredients:[{n:'威士忌',a:'50ml'},{n:'蜂蜜',a:'2勺'},{n:'柠檬汁',a:'20ml'},{n:'热水',a:'150ml'},{n:'肉桂棒',a:'1根'}],steps:['杯中加蜂蜜和柠檬汁','倒入威士忌','加热水搅拌至蜂蜜融化','放入肉桂棒'],garnish:'柠檬片+肉桂棒+丁香',tips:'感冒时喝一杯暖身又助眠'}
+];}
+
+function getFortuneSticks(){return[
+  {id:'chun-shang',name:'春上签',emoji:'🌸',level:'大吉',title:'花开富贵',desc:'运势如春花般绚烂绽放，今日宜大胆追梦',detail:'财运⭐⭐⭐⭐⭐ | 桃花⭐⭐⭐⭐⭐ | 事业⭐⭐⭐⭐'},
+  {id:'xia-shang',name:'夏上签',emoji:'☀️',level:'大吉',title:'阳光普照',desc:'活力满满的一天，适合开启新计划',detail:'财运⭐⭐⭐⭐ | 桃花⭐⭐⭐⭐ | 事业⭐⭐⭐⭐⭐'},
+  {id:'qiu-shang',name:'秋上签',emoji:'🍂',level:'上吉',title:'收获满满',desc:'之前的努力即将见到回报',detail:'财运⭐⭐⭐⭐⭐ | 桃花⭐⭐⭐ | 事业⭐⭐⭐⭐'},
+  {id:'dong-shang',name:'冬上签',emoji:'❄️',level:'上吉',title:'温暖相伴',desc:'适合与亲友相聚，享受温馨时光',detail:'财运⭐⭐⭐ | 桃花⭐⭐⭐⭐⭐ | 事业⭐⭐⭐'},
+  {id:'cai-shang',name:'财上签',emoji:'💰',level:'大吉',title:'财源滚滚',desc:'今日财运亨通，适合投资理财',detail:'财运⭐⭐⭐⭐⭐ | 桃花⭐⭐⭐ | 事业⭐⭐⭐⭐'},
+  {id:'ai-shang',name:'爱上签',emoji:'💕',level:'大吉',title:'桃花盛开',desc:'感情运势极佳，宜表白或约会',detail:'财运⭐⭐⭐ | 桃花⭐⭐⭐⭐⭐ | 事业⭐⭐⭐'},
+  {id:'ye-shang',name:'业上签',emoji:'🚀',level:'上吉',title:'事业腾飞',desc:'工作顺利，可能迎来晋升机会',detail:'财运⭐⭐⭐⭐ | 桃花⭐⭐⭐ | 事业⭐⭐⭐⭐⭐'},
+  {id:'jian-shang',name:'健上签',emoji:'💪',level:'中吉',title:'健康平安',desc:'身体状态良好，适合运动锻炼',detail:'财运⭐⭐⭐ | 桃花⭐⭐⭐ | 事业⭐⭐⭐ | 健康⭐⭐⭐⭐⭐'},
+  {id:'xue-shang',name:'学上签',emoji:'📚',level:'上吉',title:'学业进步',desc:'学习运佳，考试面试顺利',detail:'财运⭐⭐⭐ | 桃花⭐⭐ | 事业⭐⭐⭐⭐ | 学业⭐⭐⭐⭐⭐'},
+  {id:'ji-shang',name:'吉上签',emoji:'🌟',level:'大吉',title:'万事如意',desc:'今日诸事顺遂，心想事成',detail:'财运⭐⭐⭐⭐⭐ | 桃花⭐⭐⭐⭐⭐ | 事业⭐⭐⭐⭐⭐'},
+  {id:'ping-shang',name:'平上签',emoji:'😊',level:'中吉',title:'平稳安康',desc:'平平淡淡才是真，享受当下',detail:'财运⭐⭐⭐ | 桃花⭐⭐⭐ | 事业⭐⭐⭐'},
+  {id:'fu-shang',name:'福上签',emoji:'🏠',level:'上吉',title:'福气满满',desc:'家庭和睦，幸福美满的一天',detail:'财运⭐⭐⭐⭐ | 桃花⭐⭐⭐ | 事业⭐⭐⭐ | 家庭⭐⭐⭐⭐⭐'}
+];}
+
+// ============================================================
+//  DATA LOADING (check localStorage for admin overrides)
+// ============================================================
+let RECIPES = getRecipes();
+let DRINKS = getDrinks();
+function reloadData(){
+  try{var customR=localStorage.getItem('eatwhat_recipes')}catch(e){customR=null}
+  try{var customD=localStorage.getItem('eatwhat_drinks')}catch(e){customD=null}
+  if(customR){
+    try{
+      var parsed=JSON.parse(customR);
+      RECIPES=(Array.isArray(parsed)&&parsed.length>0)?parsed:getRecipes();
+    }catch(e){RECIPES=getRecipes()}
+  }else RECIPES=getRecipes();
+  if(customD){
+    try{
+      var parsed=JSON.parse(customD);
+      DRINKS=(Array.isArray(parsed)&&parsed.length>0)?parsed:getDrinks();
+    }catch(e){DRINKS=getDrinks()}
+  }else DRINKS=getDrinks();
+}
+try{reloadData()}catch(e){console.error('reloadData error:',e);RECIPES=getRecipes();DRINKS=getDrinks();}
+
+// ============================================================
+//  STATE
+// ============================================================
+const state = {
+  currentTab: 0,
+  filters: { mealType: null, dishType: null },
+  drinkFilter: 'all',
+  menuSearch: '', drinkSearch: '',
+  favorites: [],
+  expandedRecipeId: null, expandedDrinkId: null,
+  activeMethod: {},
+  user: null, // {nickname, password, registeredAt}
+  loginMode: 'login' // 'login' | 'register'
+};
+function loadUser(){try{state.user=JSON.parse(localStorage.getItem('eatwhat_user')||'null')}catch(e){state.user=null}}
+try{loadUser()}catch(e){console.error('loadUser error:',e);state.user=null;}
+
+// ============================================================
+//  DOM
+// ============================================================
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const navTitle=$('#nav-title');
+
+// ============================================================
+//  NAV
+// ============================================================
+const tabNames=['首页','菜单','喝什么','收藏','我的'];
+function switchTab(i){
+  if(i===state.currentTab)return;
+  state.currentTab=i;navTitle.textContent=tabNames[i];
+  $$('.tab-page').forEach((p,j)=>{p.classList.toggle('active',j===i);p.classList.toggle('hidden',j!==i)});
+  $$('#tab-bar .tab-item').forEach((t,j)=>{t.classList.toggle('active',j===i)});
+  if(i===1)renderMenu();if(i===2)renderDrinks();if(i===3)renderFavorites();if(i===4)updateProfileUI();
+}
+
+// ============================================================
+//  FAVORITES
+// ============================================================
+function loadFavs(){try{state.favorites=JSON.parse(localStorage.getItem('eatwhat_favs')||'[]')}catch(e){state.favorites=[]}}
+function saveFavs(){try{localStorage.setItem('eatwhat_favs',JSON.stringify(state.favorites))}catch(e){}}
+function isFav(id){return state.favorites.includes(id)}
+function toggleFav(id){const idx=state.favorites.indexOf(id);if(idx>=0)state.favorites.splice(idx,1);else state.favorites.push(id);saveFavs();updateFavBadge()}
+try{loadFavs()}catch(e){console.error('loadFavs error:',e);state.favorites=[];}
+
+// ============================================================
+//  FILTERS
+// ============================================================
+function setFilter(type,value){
+  if(state.filters[type]===value)state.filters[type]=null;else state.filters[type]=value;
+  updateHomeUI();updateViewMenuBtn();
+}
+function updateHomeUI(){
+  var mealNodes=$$('#tab-home [data-filter="mealType"]');
+  for(var i=0;i<mealNodes.length;i++){mealNodes[i].classList.toggle('selected',mealNodes[i].dataset.value===state.filters.mealType)}
+  var dishNodes=$$('#tab-home [data-filter="dishType"]');
+  for(var i=0;i<dishNodes.length;i++){dishNodes[i].classList.toggle('selected',dishNodes[i].dataset.value===state.filters.dishType)}
+}
+function updateViewMenuBtn(){
+  const b=$('#btn-view-menu'),h=state.filters.mealType||state.filters.dishType;
+  b.disabled=!h;b.textContent=h?'📋 查看菜单':'📋 请先选择餐次或类型';
+}
+
+// ============================================================
+//  SEARCH HELPERS
+// ============================================================
+function searchRecipes(query){
+  if(!query)return RECIPES;
+  const q=query.toLowerCase();
+  return RECIPES.filter(r=>{
+    if(r.name.toLowerCase().includes(q))return true;
+    if(r.description.toLowerCase().includes(q))return true;
+    for(const m of r.methods){
+      if(m.name.toLowerCase().includes(q))return true;
+      for(const ing of m.ingredients)if(ing.n.toLowerCase().includes(q))return true;
+      for(const step of m.steps)if(step.toLowerCase().includes(q))return true;
+      if(m.tips&&m.tips.toLowerCase().includes(q))return true;
+    }
+    return false;
+  });
+}
+function searchDrinks(query){
+  if(!query)return DRINKS;
+  const q=query.toLowerCase();
+  return DRINKS.filter(d=>{
+    if(d.name.toLowerCase().includes(q)||d.en.toLowerCase().includes(q))return true;
+    if(d.description.toLowerCase().includes(q))return true;
+    if(d.emotion.toLowerCase().includes(q))return true;
+    if(d.baseLiquor.toLowerCase().includes(q))return true;
+    if(d.searchKw.toLowerCase().includes(q))return true;
+    for(const ing of d.ingredients)if(ing.n.toLowerCase().includes(q))return true;
+    for(const step of d.steps)if(step.toLowerCase().includes(q))return true;
+    if(d.tips&&d.tips.toLowerCase().includes(q))return true;
+    return false;
+  });
+}
+
+// ============================================================
+//  MENU PAGE
+// ============================================================
+function renderMenu(){
+  state.expandedRecipeId=null;state.activeMethod={};
+  const mealLabels={breakfast:'🌅早饭',lunch:'☀️午饭',dinner:'🌙晚饭'};
+  const dishLabels={'stir-fry':'🍳炒菜',soup:'🍲汤羹',hotpot:'🫕火锅',steam:'🧆蒸煮',staple:'🍚主食',other:'🥟其他',diet:'🥗减脂餐','cold-dish':'🥒凉菜',dessert:'🍰甜点'};
+
+  const fb=$('#menu-filter-bar');
+  let fh='';
+  if(state.filters.mealType)fh+=`<span class="filter-chip selected">${mealLabels[state.filters.mealType]}<span class="fc-close" data-clear="mealType">×</span></span>`;
+  if(state.filters.dishType)fh+=`<span class="filter-chip selected">${dishLabels[state.filters.dishType]}<span class="fc-close" data-clear="dishType">×</span></span>`;
+  if(!state.filters.mealType&&!state.filters.dishType)fh+=`<span style="font-size:13px;color:var(--text-hint)">未选择筛选，显示全部</span>`;
+  else fh+=`<button class="filter-clear" data-clear="all">清除全部</button>`;
+  fb.innerHTML=fh;
+  fb.querySelectorAll('[data-clear]').forEach(el=>el.addEventListener('click',e=>{
+    e.stopPropagation();
+    const c=el.dataset.clear;
+    if(c==='all'||c==='mealType')state.filters.mealType=null;
+    if(c==='all'||c==='dishType')state.filters.dishType=null;
+    updateHomeUI();updateViewMenuBtn();renderMenu();
+  }));
+
+  let filtered=searchRecipes(state.menuSearch);
+  filtered=filtered.filter(r=>{
+    if(state.filters.mealType&&!r.mealType.includes(state.filters.mealType))return false;
+    if(state.filters.dishType&&!r.dishType.includes(state.filters.dishType))return false;
+    return true;
+  });
+
+  const rd=$('#menu-results');
+  if(!filtered.length){
+    rd.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">没有匹配的菜品</div><div class="empty-desc">试试其他关键词或放宽筛选条件</div><button class="btn-primary" style="max-width:200px;margin:0 auto" onclick="state.filters={mealType:null,dishType:null};state.menuSearch='';$('#menu-search').value='';$('#menu-search-clear').style.display='none';updateHomeUI();updateViewMenuBtn();renderMenu()">🔄 清除全部</button></div>`;
+    return;
+  }
+
+  let h=`<div class="results-count">${state.menuSearch?'搜索':''}共 <strong>${filtered.length}</strong> 道菜品</div>`;
+  filtered.forEach(r=>{
+    const stars='⭐'.repeat(r.difficulty)+'☆'.repeat(5-r.difficulty),liked=isFav(r.id);
+    h+=`<div class="recipe-card" data-recipe-id="${r.id}">
+      <div class="recipe-summary" data-action="toggle-recipe" data-id="${r.id}">
+        <div class="recipe-emoji">${r.emoji}</div><div class="recipe-info">
+          <div class="recipe-name-row"><span class="recipe-name">${r.name}</span>${r.calories?`<span class="recipe-cal">🔥${r.calories}</span>`:''}${r.methods.length>1?`<span style="font-size:11px;color:var(--green);background:var(--green-light);padding:1px 6px;border-radius:8px;margin-left:4px">${r.methods.length}种做法</span>`:''}</div>
+          <div class="recipe-desc">${r.description}</div>
+          <div class="recipe-meta"><span class="meta-time">⏱${r.time}</span><span class="meta-stars">${stars}</span></div>
+        </div>
+        <button class="fav-btn${liked?' liked':''}" data-action="toggle-fav" data-id="${r.id}">${liked?'❤️':'🤍'}</button>
+        <div class="recipe-arrow">›</div>
+      </div>
+      <div class="recipe-detail"><div class="recipe-detail-inner">
+        <div class="method-tabs">${r.methods.map((m,i)=>`<button class="method-tab${i===0?' active':''}" data-action="switch-method" data-recipe="${r.id}" data-index="${i}">${m.name}</button>`).join('')}</div>
+        ${r.methods.map((m,i)=>`<div class="method-content" data-method="${r.id}-${i}" style="${i>0?'display:none':''}">
+          <div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">🛒</span>食材清单</div><div class="ingredient-list">${m.ingredients.map(ing=>`<span class="ingredient-chip">${ing.n}<span class="ing-amount">${ing.a}</span></span>`).join('')}</div></div>
+          <div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">📝</span>烹饪步骤</div><ol class="step-list">${m.steps.map((s,si)=>`<li class="step-item"><span class="step-num">${si+1}</span>${s}</li>`).join('')}</ol></div>
+          ${m.tips?`<div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">💡</span>小贴士</div><div class="tips-box">💡 ${m.tips}</div></div>`:''}
+        </div>`).join('')}
+      </div></div></div>`;
+  });
+  rd.innerHTML=h;
+}
+
+// ============================================================
+//  DRINKS PAGE
+// ============================================================
+function renderDrinks(){
+  const ct=$('#drinks-results');
+  let filtered=searchDrinks(state.drinkSearch);
+  if(state.drinkFilter!=='all')filtered=filtered.filter(d=>d.category.includes(state.drinkFilter));
+
+  if(!filtered.length){
+    ct.innerHTML=`<div class="empty-state"><div class="empty-icon">🍸</div><div class="empty-title">暂无匹配的调酒</div><div class="empty-desc">试试其他分类或搜索关键词</div></div>`;
+    return;
+  }
+
+  let h=`<div class="results-count">${state.drinkSearch?'搜索':''}共 <strong>${filtered.length}</strong> 款调酒</div>`;
+  filtered.forEach(d=>{
+    const stars='⭐'.repeat(d.difficulty)+'☆'.repeat(5-d.difficulty),liked=isFav(d.id);
+    const alcDots={无:0,低:1,中:2,高:3}[d.alcoholLevel]||0;
+    const isDarkBg=['#21120f','#3e2723','#4e342e','#6d4c41'].includes(d.emotionColor)||d.colorGrad.includes('#3e2723')||d.colorGrad.includes('#21120f');
+    h+=`
+    <div class="drink-card" data-drink-id="${d.id}">
+      <div class="drink-card-header" style="background:${d.colorGrad}">
+        <div class="drink-card-emoji">${d.emoji}</div>
+        <div class="drink-card-info">
+          <div class="drink-card-name">${d.name}</div>
+          <div class="drink-card-en">${d.en}</div>
+          <div class="drink-card-meta">
+            <span class="drink-alc-badge">🍶 ${d.alcoholLevel}酒精</span>
+            <span class="drink-glass">🥂 ${d.glassType}</span>
+            <span>⏱${d.time}</span>
+          </div>
+          <span class="emotion-tag${isDarkBg?' dark':''}" style="background:${d.emotionColor}33;border:1px solid ${d.emotionColor}">${d.emotion}</span>
+          <div class="alc-indicator"><span class="alc-label">浓度</span><div class="alc-dots">${[1,2,3].map(i=>`<span class="alc-dot${i<=alcDots?(alcDots>=3?' filled high':' filled'):''}"></span>`).join('')}</div></div>
+        </div>
+        <button class="fav-btn" data-action="toggle-fav" data-id="${d.id}" style="color:white;font-size:22px">${liked?'❤️':'🤍'}</button>
+      </div>
+      <div class="drink-card-body">
+        <div class="drink-summary" data-action="toggle-drink" data-id="${d.id}">
+          <span class="drink-summary-text">${d.description} · ${stars}</span>
+          <span class="drink-summary-arrow">›</span>
+        </div>
+        <div class="drink-detail"><div class="drink-detail-inner">
+          <div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">🧪</span>配方用料</div><div class="ingredient-list">${d.ingredients.map(ing=>`<span class="ingredient-chip">${ing.n}<span class="ing-amount">${ing.a}</span></span>`).join('')}</div></div>
+          <div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">🥄</span>调酒步骤</div><ol class="step-list">${d.steps.map((s,si)=>`<li class="step-item"><span class="step-num">${si+1}</span>${s}</li>`).join('')}</ol></div>
+          <div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">🎨</span>装饰</div><div class="ingredient-list"><span class="ingredient-chip">${d.garnish}</span></div></div>
+          ${d.tips?`<div class="recipe-detail-section"><div class="recipe-detail-label"><span class="dl-icon">💡</span>小贴士</div><div class="tips-box">💡 ${d.tips}</div></div>`:''}
+          <div class="platform-btns">
+            <button class="platform-btn douyin" data-action="open-platform" data-platform="douyin" data-kw="${d.searchKw}">📱 抖音</button>
+            <button class="platform-btn xiaohongshu" data-action="open-platform" data-platform="xiaohongshu" data-kw="${d.searchKw}">📕 小红书</button>
+            <button class="platform-btn bilibili" data-action="open-platform" data-platform="bilibili" data-kw="${d.searchKw}">📺 B站</button>
+          </div>
+        </div></div>
+      </div>
+    </div>`;
+  });
+  ct.innerHTML=h;
+}
+
+// ============================================================
+//  FAVORITES PAGE
+// ============================================================
+function renderFavorites(){
+  const ct=$('#fav-list');
+  const favR=RECIPES.filter(r=>state.favorites.includes(r.id));
+  const favD=DRINKS.filter(d=>state.favorites.includes(d.id));
+  if(!favR.length&&!favD.length){ct.innerHTML=`<div class="empty-state"><div class="empty-icon">💔</div><div class="empty-title">还没有收藏</div><div class="empty-desc">去菜单或喝什么页面逛逛<br>点击🤍收藏喜欢的菜谱和调酒吧！</div><button class="btn-primary" style="max-width:200px;margin:0 auto" onclick="switchTab(1)">📋 去菜单</button></div>`;return}
+  let h='';
+  if(favD.length){h+=`<div class="section-title"><span class="st-icon">🍸</span>收藏的调酒</div>`;favD.forEach(d=>{h+=`<div class="fav-item" data-action="view-drink" data-id="${d.id}"><div class="fav-item-emoji">${d.emoji}</div><div class="fav-item-info"><div class="fav-item-name">${d.name}</div><div class="fav-item-desc">${d.description} · ${d.time}</div><span class="fav-item-type">🍸 调酒</span></div><button class="fav-item-remove" data-action="remove-fav" data-id="${d.id}">取消收藏</button></div>`})}
+  if(favR.length){h+=`<div class="section-title" style="margin-top:16px"><span class="st-icon">🍳</span>收藏的菜品</div>`;favR.forEach(r=>{h+=`<div class="fav-item" data-action="view-recipe" data-id="${r.id}"><div class="fav-item-emoji">${r.emoji}</div><div class="fav-item-info"><div class="fav-item-name">${r.name}</div><div class="fav-item-desc">${r.description} · ${r.time}</div><span class="fav-item-type">🍳 菜品</span></div><button class="fav-item-remove" data-action="remove-fav" data-id="${r.id}">取消收藏</button></div>`})}
+  ct.innerHTML=h;updateFavBadge();
+}
+function updateFavBadge(){
+  const ft=$$('#tab-bar .tab-item')[3];let b=ft.querySelector('.tab-badge');
+  if(state.favorites.length>0){if(!b){b=document.createElement('span');b.className='tab-badge';ft.appendChild(b)}b.textContent=state.favorites.length}else{if(b)b.remove()}
+}
+function updateProfileStats(){
+  const sf=$('#stat-favs'),sd=$('#stat-dishes'),sdr=$('#stat-drinks');
+  if(sf)sf.textContent=state.favorites.length;if(sd)sd.textContent=RECIPES.length;if(sdr)sdr.textContent=DRINKS.length;
+}
+
+// ============================================================
+//  USER / PROFILE
+// ============================================================
+function updateProfileUI(){
+  updateProfileStats();
+  const avatar=$('#profile-avatar'),name=$('#profile-display-name'),sub=$('#profile-subtitle');
+  const loginBtn=$('#btn-login-action'),logoutBtn=$('#btn-logout'),actionText=$('#login-action-text');
+  if(state.user){
+    avatar.textContent='😎';name.textContent=state.user.nickname;
+    sub.textContent=`注册于 ${new Date(state.user.registeredAt).toLocaleDateString()}`;
+    loginBtn.style.display='none';logoutBtn.style.display='flex';actionText.textContent='已登录';
+  }else{
+    avatar.textContent='😋';name.textContent='点击登录';sub.textContent='登录享受更多功能';
+    loginBtn.style.display='flex';logoutBtn.style.display='none';actionText.textContent='登录 / 注册';
+  }
+}
+
+function showLogin(){
+  state.loginMode='login';
+  $('#login-modal-title').textContent='登录';
+  $('#login-switch-text').textContent='还没有账号？';
+  $('#login-switch-link').textContent='立即注册';
+  $('#btn-submit-login').textContent='登录';
+  $('#login-nickname').value='';$('#login-password').value='';$('#login-error').style.display='none';
+  const lo=$('#login-overlay');if(lo){lo.style.display='flex';lo.style.pointerEvents='auto';}
+}
+function showRegister(){
+  state.loginMode='register';
+  $('#login-modal-title').textContent='注册';
+  $('#login-switch-text').textContent='已有账号？';
+  $('#login-switch-link').textContent='立即登录';
+  $('#btn-submit-login').textContent='注册';
+  $('#login-nickname').value='';$('#login-password').value='';$('#login-error').style.display='none';
+  const lo=$('#login-overlay');if(lo){lo.style.display='flex';lo.style.pointerEvents='auto';}
+}
+function hideLogin(){const lo=$('#login-overlay');if(lo){lo.style.display='none';lo.style.pointerEvents='none';}}
+function submitLogin(){
+  const nickname=$('#login-nickname').value.trim(),password=$('#login-password').value;
+  const err=$('#login-error');
+  if(!nickname||nickname.length<2){err.textContent='昵称至少2个字符';err.style.display='block';return}
+  if(!password||password.length<6){err.textContent='密码至少6位';err.style.display='block';return}
+
+  // Get users
+  let users=[];try{users=JSON.parse(localStorage.getItem('eatwhat_users')||'[]')}catch(e){users=[]}
+
+  if(state.loginMode==='register'){
+    if(users.find(u=>u.nickname===nickname)){err.textContent='该昵称已被注册';err.style.display='block';return}
+    const newUser={nickname,password,registeredAt:Date.now()};
+    users.push(newUser);localStorage.setItem('eatwhat_users',JSON.stringify(users));
+    state.user=newUser;localStorage.setItem('eatwhat_user',JSON.stringify(newUser));
+    hideLogin();updateProfileUI();
+  }else{
+    const found=users.find(u=>u.nickname===nickname&&u.password===password);
+    if(!found){err.textContent='昵称或密码错误';err.style.display='block';return}
+    state.user=found;localStorage.setItem('eatwhat_user',JSON.stringify(found));
+    hideLogin();updateProfileUI();
+  }
+}
+function logout(){
+  state.user=null;localStorage.removeItem('eatwhat_user');updateProfileUI();
+}
+
+// ============================================================
+//  CARD INTERACTIONS
+// ============================================================
+function toggleRecipeCard(el,id){
+  const det=el.querySelector('.recipe-detail'),exp=!el.classList.contains('expanded');
+  if(exp){
+    if(state.expandedRecipeId&&state.expandedRecipeId!==id){const p=document.querySelector(`[data-recipe-id="${state.expandedRecipeId}"]`);if(p){p.classList.remove('expanded');p.querySelector('.recipe-detail').style.maxHeight='0'}}
+    if(state.expandedDrinkId){const p=document.querySelector(`[data-drink-id="${state.expandedDrinkId}"]`);if(p){p.classList.remove('expanded');p.querySelector('.drink-detail').style.maxHeight='0'}state.expandedDrinkId=null}
+    el.classList.add('expanded');det.style.maxHeight=det.scrollHeight+'px';state.expandedRecipeId=id;
+  }else{el.classList.remove('expanded');det.style.maxHeight='0';state.expandedRecipeId=null}
+}
+function toggleDrinkCard(el,id){
+  const det=el.querySelector('.drink-detail'),exp=!el.classList.contains('expanded');
+  if(exp){
+    if(state.expandedDrinkId&&state.expandedDrinkId!==id){const p=document.querySelector(`[data-drink-id="${state.expandedDrinkId}"]`);if(p){p.classList.remove('expanded');p.querySelector('.drink-detail').style.maxHeight='0'}}
+    if(state.expandedRecipeId){const p=document.querySelector(`[data-recipe-id="${state.expandedRecipeId}"]`);if(p){p.classList.remove('expanded');p.querySelector('.recipe-detail').style.maxHeight='0'}state.expandedRecipeId=null}
+    el.classList.add('expanded');det.style.maxHeight=det.scrollHeight+'px';state.expandedDrinkId=id;
+  }else{el.classList.remove('expanded');det.style.maxHeight='0';state.expandedDrinkId=null}
+}
+function switchRecipeMethod(rid,i){
+  const c=document.querySelector(`[data-recipe-id="${rid}"]`);if(!c)return;
+  c.querySelectorAll('.method-tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  c.querySelectorAll('[data-method]').forEach(el=>{const[a,b]=el.dataset.method.split('-');el.style.display=(a===rid&&parseInt(b)===i)?'':'none'});
+  const detail=c.querySelector('.recipe-detail');
+  if(c.classList.contains('expanded')&&detail)detail.style.maxHeight=detail.scrollHeight+'px';
+}
+
+// ============================================================
+//  RANDOM
+// ============================================================
+function randomPick(){
+  let pool=getFiltered();if(!pool.length)pool=RECIPES;
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  switchTab(1);renderMenu();
+  setTimeout(()=>{const c=document.querySelector(`[data-recipe-id="${pick.id}"]`);if(c){c.scrollIntoView({behavior:'smooth',block:'center'});toggleRecipeCard(c,pick.id)}},400);
+}
+function getFiltered(){return RECIPES.filter(r=>{if(state.filters.mealType&&!r.mealType.includes(state.filters.mealType))return false;if(state.filters.dishType&&!r.dishType.includes(state.filters.dishType))return false;return true})}
+
+// ============================================================
+//  FORTUNE DRAW
+// ============================================================
+function showFortuneDraw(){
+  const overlay=$('#fortune-overlay');
+  if(overlay){
+    overlay.style.display='flex';
+    overlay.style.pointerEvents='auto';
+    // Reset UI
+    $('#fortune-animation').style.display='block';
+    $('#fortune-result').style.display='none';
+    $('#fortune-result-text').textContent='正在抽签...';
+    // Start drawing animation
+    setTimeout(()=>{
+      // Pick random fortune
+      const fortunes=getFortuneSticks();
+      const fortune=fortunes[Math.floor(Math.random()*fortunes.length)];
+      // Show result
+      $('#fortune-animation').style.display='none';
+      const result=$('#fortune-result');
+      result.style.display='block';
+      $('#fortune-emoji').textContent=fortune.emoji;
+      $('#fortune-title').textContent=`${fortune.level} · ${fortune.title}`;
+      $('#fortune-desc').textContent=fortune.desc;
+      $('#fortune-detail').textContent=fortune.detail;
+    },2000);
+  }
+}
+function hideFortuneDraw(){
+  const overlay=$('#fortune-overlay');
+  if(overlay){
+    overlay.style.display='none';
+    overlay.style.pointerEvents='none';
+  }
+}
+
+// ============================================================
+//  GLOBAL EVENTS
+// ============================================================
+document.addEventListener('click',function(e){
+  try{
+  var t=e.target;
+  if(!t)return;
+  if(t.nodeType===3)t=t.parentElement;
+  if(!t||typeof t.closest!=='function')return;
+  var el;
+  // Tab bar
+  el=t.closest('#tab-bar .tab-item');if(el){switchTab(parseInt(el.dataset.tab));return}
+  // Home filters
+  el=t.closest('[data-filter]');if(el){setFilter(el.dataset.filter,el.dataset.value);return}
+  // Home buttons
+  if(t.closest('#btn-view-menu')){if(state.filters.mealType||state.filters.dishType)switchTab(1);return}
+  if(t.closest('#btn-random-home')){randomPick();return}
+  if(t.closest('#btn-go-drinks')){switchTab(2);return}
+  if(t.closest('#btn-fortune')){showFortuneDraw();return}
+  // Fav toggle
+  el=t.closest('[data-action="toggle-fav"]');if(el){e.stopPropagation();var fid=el.dataset.id;toggleFav(fid);el.textContent=isFav(fid)?'❤️':'🤍';if(state.currentTab===3)renderFavorites();updateProfileStats();return}
+  // Recipe toggle
+  el=t.closest('[data-action="toggle-recipe"]');if(el){toggleRecipeCard(el.closest('.recipe-card'),el.dataset.id);return}
+  // Method switch
+  el=t.closest('[data-action="switch-method"]');if(el){e.stopPropagation();switchRecipeMethod(el.dataset.recipe,parseInt(el.dataset.index));return}
+  // Drink toggle
+  el=t.closest('[data-action="toggle-drink"]');if(el){toggleDrinkCard(el.closest('.drink-card'),el.dataset.id);return}
+  // Drink category
+  el=t.closest('#drink-categories .cat-chip');if(el){state.drinkFilter=el.dataset.cat;var dcs=$$('#drink-categories .cat-chip');for(var di=0;di<dcs.length;di++)dcs[di].classList.toggle('selected',dcs[di].dataset.cat===state.drinkFilter);renderDrinks();return}
+  // Platform
+  el=t.closest('[data-action="open-platform"]');if(el){e.stopPropagation();var kw=encodeURIComponent(el.dataset.kw),u='';if(el.dataset.platform==='douyin')u='https://www.douyin.com/search/'+kw;else if(el.dataset.platform==='xiaohongshu')u='https://www.xiaohongshu.com/search_result?keyword='+kw;else u='https://search.bilibili.com/all?keyword='+kw;window.open(u,'_blank');return}
+  // Remove fav
+  el=t.closest('[data-action="remove-fav"]');if(el){e.stopPropagation();toggleFav(el.dataset.id);renderFavorites();updateProfileStats();return}
+  // View recipe from fav
+  el=t.closest('[data-action="view-recipe"]');if(el){var vrid=el.dataset.id;switchTab(1);renderMenu();setTimeout(function(){var rc=document.querySelector('[data-recipe-id="'+vrid+'"]');if(rc){rc.scrollIntoView({behavior:'smooth',block:'center'});toggleRecipeCard(rc,vrid)}},400);return}
+  // View drink from fav
+  el=t.closest('[data-action="view-drink"]');if(el){var vdid=el.dataset.id;switchTab(2);setTimeout(function(){var dc=document.querySelector('[data-drink-id="'+vdid+'"]');if(dc){dc.scrollIntoView({behavior:'smooth',block:'center'});toggleDrinkCard(dc,vdid)}},400);return}
+  // Profile login/logout
+  if(t.closest('#profile-card')&&!state.user){showLogin();return}
+  if(t.closest('#btn-login-action')){showLogin();return}
+  if(t.closest('#btn-logout')){if(confirm('确定退出登录？'))logout();return}
+  // Login modal
+  if(t.closest('#btn-cancel-login')){hideLogin();return}
+  if(t.closest('#login-switch-link')){if(state.loginMode==='login')showRegister();else showLogin();return}
+  if(t.closest('#btn-submit-login')){submitLogin();return}
+  // Fortune modal
+  if(t.closest('#btn-close-fortune')){hideFortuneDraw();return}
+  }catch(err){console.error('Click handler error:',err);}
+});
+// Click overlay to close
+const loginOverlay=$('#login-overlay');if(loginOverlay)loginOverlay.addEventListener('click',e=>{if(e.target===e.currentTarget)hideLogin()});
+const fortuneOverlay=$('#fortune-overlay');if(fortuneOverlay)fortuneOverlay.addEventListener('click',e=>{if(e.target===e.currentTarget)hideFortuneDraw()});
+
+// ============================================================
+//  SEARCH INPUTS
+// ============================================================
+const menuSearchEl=$('#menu-search');if(menuSearchEl)menuSearchEl.addEventListener('input',function(){
+  state.menuSearch=this.value.trim();
+  const clearBtn=$('#menu-search-clear');if(clearBtn)clearBtn.style.display=state.menuSearch?'flex':'none';
+  renderMenu();
+});
+const menuClearEl=$('#menu-search-clear');if(menuClearEl)menuClearEl.addEventListener('click',()=>{
+  const ms=$('#menu-search');if(ms)ms.value='';state.menuSearch='';menuClearEl.style.display='none';renderMenu();
+});
+const drinkSearchEl=$('#drink-search');if(drinkSearchEl)drinkSearchEl.addEventListener('input',function(){
+  state.drinkSearch=this.value.trim();
+  const clearBtn=$('#drink-search-clear');if(clearBtn)clearBtn.style.display=state.drinkSearch?'flex':'none';
+  renderDrinks();
+});
+const drinkClearEl=$('#drink-search-clear');if(drinkClearEl)drinkClearEl.addEventListener('click',()=>{
+  const ds=$('#drink-search');if(ds)ds.value='';state.drinkSearch='';drinkClearEl.style.display='none';renderDrinks();
+});
+['#login-nickname','#login-password'].forEach(selector=>{
+  const input=$(selector);
+  if(input)input.addEventListener('keydown',function(e){
+    if(e.key==='Enter')submitLogin();
+  });
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+function init(){
+  try{
+  updateHomeUI();updateViewMenuBtn();updateFavBadge();updateProfileUI();
+  RECIPES.forEach(r=>{state.activeMethod[r.id]=0});
+  }catch(e){console.error('Init error:',e);}
+  console.log('🍜🍸 吃什么·喝什么 v5.0');
+  console.log('📋 '+RECIPES.length+'道菜品 · 🍸 '+DRINKS.length+'款调酒');
+}
+try{init()}catch(e){console.error('Fatal init error:',e);alert('初始化失败: '+e.message);}
+
+console.log('✅ Script loaded. Click handler active. Total recipes: '+RECIPES.length);
+</script>
+</body>
+</html>
