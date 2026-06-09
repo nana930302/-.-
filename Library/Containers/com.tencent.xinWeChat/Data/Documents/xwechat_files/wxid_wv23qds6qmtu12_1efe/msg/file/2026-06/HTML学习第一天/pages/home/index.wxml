@@ -1,0 +1,111 @@
+<view class="shell">
+  <view class="topbar">
+    <view>
+      <text class="topbar__title">首页</text>
+      <text class="topbar__subtitle">今天想吃什么，或者先喝点什么？</text>
+    </view>
+    <button class="ghost-btn" bindtap="goProfile">我的</button>
+  </view>
+
+  <view class="hero card">
+    <image class="hero__scene" src="../../assets/original-scene.png" mode="widthFix"></image>
+    <view class="hero__content">
+      <text class="hero__eyebrow">启动页之后的主入口</text>
+      <text class="hero__title">先摇签，再做决定</text>
+      <text class="hero__desc">保留原来最有记忆点的抽签机视觉，把“吃什么”和“喝什么”都接到同一套体验里。</text>
+      <view class="hero__actions">
+        <button class="primary-btn hero__btn" bindtap="goDrawFood">去抽今天吃什么</button>
+        <button class="secondary-btn hero__btn" bindtap="goDrawDrink">去抽今天喝什么</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="metrics">
+    <view class="metric card">
+      <text class="metric__num">{{stats.historyCount}}</text>
+      <text class="metric__label">最近已抽签</text>
+    </view>
+    <view class="metric card">
+      <text class="metric__num">{{stats.favoriteCount}}</text>
+      <text class="metric__label">我的收藏</text>
+    </view>
+  </view>
+
+  <view class="card quick-note">
+    <view>
+      <text class="section-title">今日路线建议</text>
+      <text class="section-desc">{{insight.summary}}</text>
+    </view>
+    <button class="ghost-btn quick-note__btn" bindtap="pickLatest">{{insight.latest ? '直接看看上次结果' : '先去抽签'}}</button>
+  </view>
+
+  <view class="menu card">
+    <text class="section-title">菜单预览</text>
+    <text class="section-desc">首页把主要功能像菜单一样铺开，第一次进入也能很快理解怎么玩。</text>
+    <view class="menu__grid">
+      <button class="menu__item tone-orange" bindtap="goDrawFood">
+        <text class="menu__icon">签</text>
+        <text class="menu__title">抽签吃什么</text>
+        <text class="menu__desc">保留原版机器玩法</text>
+      </button>
+      <button class="menu__item tone-blue" bindtap="goMenu">
+        <text class="menu__icon">单</text>
+        <text class="menu__title">菜单</text>
+        <text class="menu__desc">集中预览所有候选</text>
+      </button>
+      <button class="menu__item tone-pink" bindtap="goFavorites">
+        <text class="menu__icon">藏</text>
+        <text class="menu__title">收藏</text>
+        <text class="menu__desc">留下喜欢的结果</text>
+      </button>
+      <button class="menu__item tone-purple" bindtap="goProfile">
+        <text class="menu__icon">我</text>
+        <text class="menu__title">我的</text>
+        <text class="menu__desc">统计与最近记录</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="card section-card">
+    <view class="section-head">
+      <view>
+        <text class="section-title">喝什么入口</text>
+        <text class="section-desc">单独做一页饮品推荐，也能直接进饮品抽签。</text>
+      </view>
+      <button class="ghost-btn small-btn" bindtap="goDrinks">查看</button>
+    </view>
+    <view class="pill-grid">
+      <text wx:for="{{drinkPicks}}" wx:key="name" class="pill {{item.tone}}">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="card section-card">
+    <text class="section-title">今日吃什么候选</text>
+    <view class="pill-grid">
+      <text wx:for="{{foodPicks}}" wx:key="name" class="pill {{item.tone}}">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="card section-card">
+    <text class="section-title">最近一次手感</text>
+    <view wx:if="{{recentHistory.length}}">
+      <view wx:for="{{recentHistory}}" wx:key="id" class="history-item">
+        <view>
+          <text class="history-item__name">{{item.name}}</text>
+          <text class="history-item__tip">{{item.tip}}</text>
+        </view>
+        <text class="history-item__type">{{item.type === 'food' ? '吃什么' : '喝什么'}}</text>
+      </view>
+    </view>
+    <view wx:else class="empty-card">
+      <text class="section-desc">还没有抽签记录，先去摇一摇吧。</text>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="bottom-nav__item bottom-nav__item--active" data-page="home" bindtap="handleNav">首页</button>
+    <button class="bottom-nav__item" data-page="drinks" bindtap="handleNav">喝什么</button>
+    <button class="bottom-nav__item" data-page="favorites" bindtap="handleNav">收藏</button>
+    <button class="bottom-nav__item" data-page="profile" bindtap="handleNav">我的</button>
+  </view>
+</view>

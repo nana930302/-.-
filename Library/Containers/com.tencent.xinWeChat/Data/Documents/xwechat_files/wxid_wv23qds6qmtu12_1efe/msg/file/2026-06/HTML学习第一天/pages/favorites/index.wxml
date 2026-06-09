@@ -1,0 +1,33 @@
+<view class="shell">
+  <view class="topbar">
+    <view>
+      <text class="topbar__title">收藏</text>
+      <text class="topbar__subtitle">抽到喜欢的结果，可以在这里回看和重新进入。</text>
+    </view>
+    <view class="topbar__ghost"></view>
+  </view>
+
+  <view wx:if="{{favorites.length}}" class="favorites-list">
+    <view wx:for="{{favorites}}" wx:key="id" class="favorite card {{item.tone}}">
+      <text class="favorite__type">{{item.type === 'food' ? '吃什么' : '喝什么'}}</text>
+      <text class="favorite__name">{{item.name}}</text>
+      <text class="favorite__tip">{{item.tip}}</text>
+      <view class="favorite__actions">
+        <button class="secondary-btn favorite__btn" data-type="{{item.type}}" bindtap="goDraw">再去抽同类</button>
+        <button class="ghost-btn favorite__btn favorite__btn--ghost" data-id="{{item.id}}" bindtap="removeFavorite">移除</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="card empty-card">
+    <text class="section-title">还没有收藏</text>
+    <text class="section-desc">在抽签页点一下“收藏结果”，这里就会慢慢积累你的偏好。</text>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="bottom-nav__item" data-page="home" bindtap="handleNav">首页</button>
+    <button class="bottom-nav__item" data-page="drinks" bindtap="handleNav">喝什么</button>
+    <button class="bottom-nav__item bottom-nav__item--active" data-page="favorites" bindtap="handleNav">收藏</button>
+    <button class="bottom-nav__item" data-page="profile" bindtap="handleNav">我的</button>
+  </view>
+</view>

@@ -1,0 +1,69 @@
+<view class="shell">
+  <view class="topbar">
+    <button class="ghost-btn" bindtap="goBack">返回</button>
+    <view class="menu-head">
+      <text class="topbar__title">菜单</text>
+      <text class="topbar__subtitle">把候选集中展示，像点单前先看一眼完整菜单。</text>
+    </view>
+    <view class="topbar__ghost"></view>
+  </view>
+
+  <view class="card menu-panel">
+    <view class="menu-panel__row">
+      <view>
+        <text class="section-title">菜单候选库</text>
+        <text class="section-desc">这里现在已经扩成 {{totalFoods || 220}} 个候选，下滑会继续加载，适合慢慢翻。</text>
+      </view>
+      <button class="secondary-btn menu-panel__btn" data-category="food" bindtap="goDraw">去抽吃什么</button>
+    </view>
+    <view class="menu-panel__banner">
+      <text class="menu-panel__banner-title">喝什么想看更丰富的调酒单？</text>
+      <text class="menu-panel__banner-desc">单独去“喝什么”页，可以继续往下刷到 100 款调酒候选。</text>
+      <button class="ghost-btn menu-panel__banner-btn" bindtap="goDrinks">去看调酒库</button>
+    </view>
+    <view class="filter-bar">
+      <view class="filter-block">
+        <text class="filter-label">筛选口味</text>
+        <scroll-view class="filter-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+          <view class="filter-pills">
+            <text
+              wx:for="{{flavorOptions}}"
+              wx:key="*this"
+              class="filter-pill {{item === activeFlavor ? 'filter-pill--active' : ''}}"
+              data-flavor="{{item}}"
+              bindtap="changeFlavor"
+            >{{item}}</text>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="sort-row">
+        <text class="filter-label">排序方式</text>
+        <view class="sort-actions">
+          <text class="sort-chip {{sortMode === 'default' ? 'sort-chip--active' : ''}}" data-sort="default" bindtap="changeSort">默认</text>
+          <text class="sort-chip {{sortMode === 'flavor' ? 'sort-chip--active' : ''}}" data-sort="flavor" bindtap="changeSort">按口味</text>
+          <text class="sort-chip {{sortMode === 'name' ? 'sort-chip--active' : ''}}" data-sort="name" bindtap="changeSort">按名称</text>
+        </view>
+      </view>
+    </view>
+    <view class="menu-cards">
+      <view wx:for="{{foods}}" wx:key="name" class="menu-card {{item.tone}}">
+        <view class="menu-card__topline">
+          <text class="menu-card__chip">吃什么</text>
+          <text class="menu-card__chip">{{item.flavor}}</text>
+          <text wx:if="{{item.isFavorite}}" class="menu-card__fav">已收藏</text>
+        </view>
+        <text class="menu-card__name">{{item.name}}</text>
+        <text class="menu-card__tip">{{item.tip}}</text>
+        <view class="menu-card__actions">
+          <button class="secondary-btn menu-card__btn" data-category="{{item.category}}" data-name="{{item.name}}" bindtap="chooseItem">就选它</button>
+          <button class="ghost-btn menu-card__ghost" data-category="{{item.category}}" data-name="{{item.name}}" bindtap="toggleFavorite">{{item.isFavorite ? '已收藏' : '收藏'}}</button>
+        </view>
+      </view>
+    </view>
+    <view class="menu-load cardless">
+      <text wx:if="{{isLoadingMore}}" class="menu-load__text">正在加载更多菜单候选...</text>
+      <text wx:else-if="{{hasMoreFoods}}" class="menu-load__text">继续下滑，还会加载更多候选</text>
+      <text wx:else class="menu-load__text">已经翻到底了，当前筛选下共 {{foods.length}} 个候选。</text>
+    </view>
+  </view>
+</view>

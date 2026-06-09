@@ -1,6 +1,12 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/splash/index",
+    "pages/home/index",
+    "pages/menu/index",
+    "pages/draw/index",
+    "pages/drinks/index",
+    "pages/favorites/index",
+    "pages/profile/index"
   ],
   "window": {
     "navigationStyle": "custom",

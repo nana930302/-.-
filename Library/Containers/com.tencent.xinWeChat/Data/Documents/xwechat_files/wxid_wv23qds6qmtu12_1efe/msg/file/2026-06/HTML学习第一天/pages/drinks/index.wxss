@@ -1,0 +1,167 @@
+.drinks-hero {
+  display: flex;
+  overflow: hidden;
+}
+
+.drinks-hero__image {
+  width: 220rpx;
+  flex-shrink: 0;
+}
+
+.drinks-hero__content {
+  padding: 32rpx 28rpx 32rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.drinks-hero__btn {
+  margin-top: 20rpx;
+}
+
+.drinks-list,
+.section-card {
+  margin-top: 24rpx;
+  padding: 30rpx;
+}
+
+.filter-bar {
+  margin: 10rpx 0 22rpx;
+  padding: 22rpx 22rpx 18rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 248, 239, 0.68);
+}
+
+.filter-block {
+  margin-bottom: 18rpx;
+}
+
+.filter-label {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #8e5a30;
+}
+
+.filter-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filter-pills {
+  display: inline-flex;
+  gap: 12rpx;
+}
+
+.filter-pill,
+.sort-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 237, 214, 0.9);
+  color: #905728;
+  font-size: 22rpx;
+}
+
+.filter-pill--active,
+.sort-chip--active {
+  background: linear-gradient(180deg, #ff8a58, #ff6b3d);
+  color: #fff8ef;
+  font-weight: 700;
+}
+
+.sort-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.sort-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  justify-content: flex-end;
+}
+
+.drink-item {
+  padding: 26rpx 24rpx;
+  border-radius: 28rpx;
+  margin-top: 18rpx;
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.44),
+    0 10rpx 22rpx rgba(149, 79, 24, 0.08);
+}
+
+.drink-item__topline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.drink-item__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 248, 239, 0.68);
+  color: #7d4316;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.drink-item__name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #5b250c;
+  margin-bottom: 10rpx;
+}
+
+.drink-item__tip {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: rgba(91, 37, 12, 0.78);
+}
+
+.drink-item__actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+
+.drink-item__btn {
+  flex: 1;
+}
+
+.drinks-load {
+  padding-top: 26rpx;
+  text-align: center;
+}
+
+.drinks-load__text {
+  display: block;
+  font-size: 24rpx;
+  color: #a06a3d;
+}
+
+.recent__name {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 800;
+  margin-bottom: 12rpx;
+}
+
+.recent__tip {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #976035;
+}
