@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "pages/splash/index",
+    "pages/home/index",
+    "pages/menu/index",
+    "pages/draw/index",
+    "pages/drinks/index",
+    "pages/favorites/index",
+    "pages/profile/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#fff4dc",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

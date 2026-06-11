@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="stage">
+    <image class="scene" src="../../assets/original-scene.png" mode="widthFix"></image>
+
+    <view class="bowl-mask">
+      <view class="bowl-fade"></view>
+      <view class="tag-layer">
+        <block wx:for="{{tags}}" wx:key="name">
+          <image class="tag {{item.className}}" src="{{item.src}}" mode="widthFix" style="{{item.style}}"></image>
+        </block>
+      </view>
+    </view>
+
+    <view class="start-hit" bindtap="handleStart"></view>
+  </view>
+  <image wx:if="{{flyingTag.visible}}" class="flying-tag" src="{{flyingTag.src}}" mode="widthFix" style="{{flyingTag.style}}"></image>
+
+  <view class="result-card">
+    <text class="result-label">{{resultLabel}}</text>
+    <text class="result-name">{{resultName}}</text>
+    <text class="result-tip">{{resultTip}}</text>
+  </view>
+</view>

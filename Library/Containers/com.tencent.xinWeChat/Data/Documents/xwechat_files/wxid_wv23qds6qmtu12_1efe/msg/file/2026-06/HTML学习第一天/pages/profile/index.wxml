@@ -1,0 +1,66 @@
+<view class="shell">
+  <view class="topbar">
+    <view>
+      <text class="topbar__title">我的</text>
+      <text class="topbar__subtitle">把收藏、记录和清理操作收拢到个人页。</text>
+    </view>
+    <view class="topbar__ghost"></view>
+  </view>
+
+  <view class="stats-grid">
+    <view class="card stat">
+      <text class="stat__num">{{stats.favoriteCount}}</text>
+      <text class="stat__label">收藏总数</text>
+    </view>
+    <view class="card stat">
+      <text class="stat__num">{{stats.historyCount}}</text>
+      <text class="stat__label">抽签记录</text>
+    </view>
+    <view class="card stat">
+      <text class="stat__num">{{stats.foodCount}}</text>
+      <text class="stat__label">吃什么次数</text>
+    </view>
+    <view class="card stat">
+      <text class="stat__num">{{stats.drinkCount}}</text>
+      <text class="stat__label">喝什么次数</text>
+    </view>
+  </view>
+
+  <view class="card profile-hero">
+    <text class="section-title">你的选择画像</text>
+    <text class="section-desc">{{insight.summary}}</text>
+    <view wx:if="{{insight.favoritePreview.length}}" class="pill-grid profile-hero__pills">
+      <text wx:for="{{insight.favoritePreview}}" wx:key="id" class="pill {{item.tone}}">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="card profile-actions">
+    <text class="section-title">管理数据</text>
+    <view class="profile-actions__buttons">
+      <button class="secondary-btn" bindtap="clearFavorites">清空收藏</button>
+      <button class="ghost-btn profile-actions__ghost" bindtap="clearHistory">清空记录</button>
+    </view>
+  </view>
+
+  <view class="card profile-history">
+    <text class="section-title">最近记录</text>
+    <view wx:if="{{history.length}}">
+      <view wx:for="{{history}}" wx:key="id" class="profile-history__item">
+        <view>
+          <text class="profile-history__name">{{item.name}}</text>
+          <text class="profile-history__type">{{item.type === 'food' ? '吃什么' : '喝什么'}}</text>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty-card">
+      <text class="section-desc">你还没有留下抽签记录。</text>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="bottom-nav__item" data-page="home" bindtap="handleNav">首页</button>
+    <button class="bottom-nav__item" data-page="drinks" bindtap="handleNav">喝什么</button>
+    <button class="bottom-nav__item" data-page="favorites" bindtap="handleNav">收藏</button>
+    <button class="bottom-nav__item bottom-nav__item--active" data-page="profile" bindtap="handleNav">我的</button>
+  </view>
+</view>

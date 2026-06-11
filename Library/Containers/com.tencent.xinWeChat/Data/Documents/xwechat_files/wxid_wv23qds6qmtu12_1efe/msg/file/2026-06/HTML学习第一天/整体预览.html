@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>今天吃啥交给我 - 整体预览</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.82), transparent 24%),
+        linear-gradient(180deg, #fff4dc, #ffd391);
+      color: #5b250c;
+      padding: 20px 0 40px;
+    }
+    .wrap {
+      width: min(430px, calc(100vw - 24px));
+      margin: 0 auto;
+    }
+    .tabs {
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 14px;
+      border-radius: 24px;
+      background: rgba(91, 37, 12, 0.88);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 36px rgba(91, 37, 12, 0.18);
+    }
+    .tabs button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(255, 245, 232, 0.14);
+      color: rgba(255, 245, 232, 0.86);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background: #fff7ef;
+      color: #6a3112;
+      font-weight: 700;
+    }
+    .phone {
+      min-height: 860px;
+      border-radius: 36px;
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.78), transparent 22%),
+        linear-gradient(180deg, #fff4dc, #ffd391);
+      box-shadow: 0 24px 60px rgba(126, 56, 14, 0.18);
+      overflow: hidden;
+      position: relative;
+    }
+    .screen {
+      display: none;
+      padding: 22px 14px 110px;
+      min-height: 860px;
+    }
+    .screen.active { display: block; }
+    .card {
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 244, 0.98), rgba(255, 241, 221, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        0 14px 34px rgba(168, 88, 26, 0.12);
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .topbar h2 { font-size: 28px; }
+    .sub {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      color: #a56e3f;
+      line-height: 1.5;
+    }
+    .ghost, .primary, .secondary {
+      border: none;
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      height: 42px;
+      padding: 0 18px;
+    }
+    .ghost {
+      background: rgba(255,248,239,.95);
+      color: #9d612d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px rgba(168,88,26,.1);
+    }
+    .primary {
+      background: linear-gradient(180deg, #ff7f4d, #ff5a38);
+      color: #fff8ef;
+      box-shadow: inset 0 2px 0 rgba(255,229,220,.48), 0 14px 26px rgba(255,107,61,.24);
+    }
+    .secondary {
+      background: rgba(255, 237, 214, 0.95);
+      color: #9b581f;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.62), 0 10px 20px rgba(168,88,26,.08);
+    }
+    .hero img, .stage img {
+      width: 100%;
+      display: block;
+      border-radius: 28px;
+    }
+    .hero {
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .hero .content { padding: 18px; }
+    .eyebrow {
+      display: inline-flex;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,128,79,.12);
+      color: #c05f32;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .title {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .desc {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #965f33;
+    }
+    .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .metric {
+      text-align: center;
+      padding: 18px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 34px;
+      color: #ff6b3d;
+      margin-bottom: 6px;
+    }
+    .section { padding: 18px; margin-bottom: 16px; }
+    .section h3 { font-size: 20px; margin-bottom: 10px; }
+    .section p { font-size: 14px; line-height: 1.7; color: #9a6739; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .grid-item {
+      padding: 16px;
+      border-radius: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 12px 24px rgba(155,84,32,.1);
+    }
+    .grid-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,239,.74);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .grid-item strong, .menu-card strong { display:block; font-size: 20px; margin-bottom: 6px; }
+    .grid-item span, .menu-card span { font-size: 13px; line-height: 1.6; color: rgba(89,33,10,.78); }
+    .quick {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .filters {
+      margin: 14px 0 12px;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255,248,239,.72);
+    }
+    .filters strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #8e5a30;
+    }
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #6a3112;
+    }
+    .pill.active {
+      background: linear-gradient(180deg, #ff8a58, #ff6b3d);
+      color: #fff8ef;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(155,88,31,.1);
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item small {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #9c683a;
+      line-height: 1.5;
+    }
+    .stage {
+      position: relative;
+      filter: drop-shadow(0 16px 26px rgba(157,79,18,.16));
+    }
+    .tag-area {
+      position: absolute;
+      left: 13.3%;
+      top: 40.1%;
+      width: 56.6%;
+      height: 23.1%;
+    }
+    .tag {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34%;
+      min-height: 52px;
+      padding: 8px 10px;
+      clip-path: polygon(7% 28%, 17% 10%, 84% 2%, 96% 20%, 94% 77%, 83% 96%, 14% 92%, 3% 72%);
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.46), inset 0 -6px 12px rgba(141,64,12,.1), 0 10px 20px rgba(178,92,30,.16);
+      overflow: hidden;
+      font-size: 16px;
+      font-weight: 800;
+      color: #59210a;
+      text-shadow: 0 2px 0 rgba(255,255,255,.2);
+    }
+    .tag::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 6px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.28);
+    }
+    .tag::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255,247,232,.92);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,.8), 0 2px 5px rgba(126,56,14,.16);
+    }
+    .result {
+      margin-top: 16px;
+      padding: 18px;
+    }
+    .badge {
+      display: inline-flex;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,121,73,.12);
+      color: #d15b31;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .result-label { font-size: 15px; color: #b86b31; margin-bottom: 8px; }
+    .result-name { font-size: 36px; font-weight: 800; color: #ff6b3d; margin-bottom: 8px; }
+    .result-tip { font-size: 15px; line-height: 1.7; color: #7f4a20; }
+    .row-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .row-actions button { flex: 1; }
+    .menu-card {
+      padding: 16px;
+      border-radius: 22px;
+      margin-top: 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.44), 0 10px 22px rgba(149,79,24,.08);
+    }
+    .menu-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #7d4316;
+    }
+    .chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255,248,239,.68);
+    }
+    .list-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .list-actions button { flex: 1; }
+    .favorites .menu-card, .profile .stat { margin-top: 12px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .stat {
+      text-align: center;
+      padding: 18px 12px;
+    }
+    .stat strong {
+      display: block;
+      font-size: 30px;
+      color: #ff6b3d;
+      margin-bottom: 6px;
+    }
+    .tone-pink { background: linear-gradient(135deg, #ff8db0, #ffb7d2); }
+    .tone-lime { background: linear-gradient(135deg, #cce66d, #f2f28a); }
+    .tone-blue { background: linear-gradient(135deg, #7cc8ff, #b8e4ff); }
+    .tone-orange { background: linear-gradient(135deg, #ffc06c, #ffd894); }
+    .tone-purple { background: linear-gradient(135deg, #b8a4ff, #dbcfff); }
+    .tone-coral { background: linear-gradient(135deg, #ff9f71, #ffc195); }
+    .bottom-nav {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      display: flex;
+      border-radius: 999px;
+      padding: 10px 12px;
+      background: rgba(91,37,12,.88);
+      color: rgba(255,245,232,.72);
+      font-size: 13px;
+      box-shadow: 0 18px 40px rgba(91,37,12,.24);
+    }
+    .bottom-nav span {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .bottom-nav .active {
+      color: #fff8ef;
+      font-weight: 700;
+    }
+    .hint {
+      width: min(430px, calc(100vw - 24px));
+      margin: 12px auto 0;
+      color: #8f5a2d;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="tabs">
+      <button class="active" data-screen="splash">启动页</button>
+      <button data-screen="home">首页</button>
+      <button data-screen="draw">抽签页</button>
+      <button data-screen="menu">菜单</button>
+      <button data-screen="drinks">喝什么</button>
+      <button data-screen="favorites">收藏</button>
+      <button data-screen="profile">我的</button>
+    </div>
+
+    <div class="phone">
+      <section class="screen active" id="splash">
+        <div class="hero card">
+          <img src="./assets/original-scene.png" alt="主视觉">
+          <div class="content">
+            <div class="eyebrow">启动页</div>
+            <div class="title">今天吃啥交给我</div>
+            <div class="desc">一键摇签，快速帮你从“吃什么”和“喝什么”里做决定。</div>
+            <div class="actions">
+              <button class="primary">进入小程序</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="home">
+        <div class="topbar">
+          <div>
+            <h2>首页</h2>
+            <span class="sub">今天想吃什么，或者先喝点什么？</span>
+          </div>
+          <button class="ghost">我的</button>
+        </div>
+        <div class="hero card">
+          <img src="./assets/original-scene.png" alt="首页主视觉">
+          <div class="content">
+            <div class="eyebrow">启动页之后的主入口</div>
+            <div class="title">先摇签，再做决定</div>
+            <div class="desc">保留原来最有记忆点的抽签机视觉，把“吃什么”和“喝什么”都接到同一套体验里。</div>
+            <div class="actions">
+              <button class="primary">去抽今天吃什么</button>
+              <button class="secondary">去抽今天喝什么</button>
+            </div>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric card"><strong>8</strong><span>最近已抽签</span></div>
+          <div class="metric card"><strong>3</strong><span>我的收藏</span></div>
+        </div>
+        <div class="section card quick">
+          <div>
+            <h3>今日路线建议</h3>
+            <p>你最近更像在找吃什么，上次选的是炸鸡。</p>
+          </div>
+          <button class="ghost">直接看看上次结果</button>
+        </div>
+        <div class="section card">
+          <h3>菜单预览</h3>
+          <p>首页把主要功能像菜单一样铺开，第一次进入也能很快理解怎么玩。</p>
+          <div class="grid">
+            <div class="grid-item tone-orange"><div class="grid-icon">签</div><strong>抽签吃什么</strong><span>保留原版机器玩法</span></div>
+            <div class="grid-item tone-blue"><div class="grid-icon">单</div><strong>菜单</strong><span>集中预览所有候选</span></div>
+            <div class="grid-item tone-pink"><div class="grid-icon">藏</div><strong>收藏</strong><span>留下喜欢的结果</span></div>
+            <div class="grid-item tone-purple"><div class="grid-icon">我</div><strong>我的</strong><span>统计与最近记录</span></div>
+          </div>
+        </div>
+        <div class="section card">
+          <h3>喝什么入口</h3>
+          <p>单独做一页饮品推荐，也能直接进饮品抽签。</p>
+          <div class="pills">
+            <div class="pill tone-purple">芝士葡萄</div>
+            <div class="pill tone-lime">柠檬气泡水</div>
+            <div class="pill tone-coral">黑糖珍珠奶茶</div>
+          </div>
+        </div>
+        <div class="bottom-nav"><span class="active">首页</span><span>喝什么</span><span>收藏</span><span>我的</span></div>
+      </section>
+
+      <section class="screen" id="draw">
+        <div class="topbar">
+          <button class="ghost">返回</button>
+          <div style="text-align:center">
+            <h2>抽签页</h2>
+            <span class="sub">摇一摇，决定今天吃什么</span>
+          </div>
+          <div style="width:74px"></div>
+        </div>
+        <div class="stage">
+          <img src="./assets/original-scene.png" alt="抽签机">
+          <div class="tag-area">
+            <div class="tag tone-pink" style="left:3%;top:13%;transform:rotate(-12deg)">火锅</div>
+            <div class="tag tone-lime" style="left:29%;top:11%;transform:rotate(-8deg)">烧肉</div>
+            <div class="tag tone-blue" style="left:56%;top:15%;transform:rotate(8deg)">奶茶</div>
+            <div class="tag tone-orange" style="left:11%;top:55%;transform:rotate(-6deg)">麻辣烫</div>
+            <div class="tag tone-purple" style="left:37%;top:58%;transform:rotate(4deg)">寿司</div>
+            <div class="tag tone-coral" style="left:63%;top:53%;transform:rotate(-9deg)">炸鸡</div>
+          </div>
+        </div>
+        <div class="result card">
+          <div class="badge">今日签语</div>
+          <div class="result-label">今天吃：</div>
+          <div class="result-name">炸鸡</div>
+          <div class="result-tip">如果今天想奖励自己，炸鸡永远是简单直接的答案。</div>
+          <div class="row-actions">
+            <button class="secondary">收藏结果</button>
+            <button class="primary">再抽一次</button>
+          </div>
+          <div class="actions" style="margin-top:10px">
+            <button class="ghost">切换到喝什么</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="menu">
+        <div class="topbar">
+          <button class="ghost">返回</button>
+          <div style="text-align:center">
+            <h2>菜单</h2>
+            <span class="sub">把候选集中展示，像点单前先看一眼完整菜单。</span>
+          </div>
+          <div style="width:74px"></div>
+        </div>
+        <div class="section card">
+          <div class="quick">
+            <div>
+              <h3>菜单候选库</h3>
+              <p>这里现在已经扩成 220 个候选，下滑会继续加载，适合慢慢翻。</p>
+            </div>
+            <button class="secondary">去抽吃什么</button>
+          </div>
+          <div class="menu-card card" style="background:rgba(91,37,12,.08);margin-bottom:12px">
+            <strong>喝什么想看更丰富的调酒单？</strong>
+            <span>单独去“喝什么”页，可以继续往下刷到 100 款调酒候选。</span>
+            <div class="actions" style="margin-top:12px"><button class="ghost">去看调酒库</button></div>
+          </div>
+          <div class="filters">
+            <strong>筛选口味</strong>
+            <div class="pills">
+              <div class="pill active tone-orange">全部</div>
+              <div class="pill">清爽</div>
+              <div class="pill">鲜香</div>
+              <div class="pill">暖胃</div>
+              <div class="pill">重口</div>
+            </div>
+            <strong style="margin-top:10px">排序方式</strong>
+            <div class="pills">
+              <div class="pill">默认</div>
+              <div class="pill active tone-coral">按口味</div>
+              <div class="pill">按名称</div>
+            </div>
+          </div>
+          <div class="menu-card tone-pink">
+            <div class="menu-meta"><span class="chip">吃什么</span><span class="chip">暖胃</span><span class="chip">已收藏</span></div>
+            <strong>火锅</strong><span>想吃热乎一点，围着锅慢慢涮最有仪式感。</span>
+            <div class="list-actions"><button class="secondary">就选它</button><button class="ghost">已收藏</button></div>
+          </div>
+          <div class="menu-card tone-orange">
+            <div class="menu-meta"><span class="chip">吃什么</span><span class="chip">重口</span></div>
+            <strong>麻辣烫</strong><span>今天适合来一碗重口但稳妥的幸福感。</span>
+            <div class="list-actions"><button class="secondary">就选它</button><button class="ghost">收藏</button></div>
+          </div>
+          <div class="menu-card tone-lime">
+            <div class="menu-meta"><span class="chip">吃什么</span><span class="chip">重口</span></div>
+            <strong>台式椒麻鸡腿饭</strong><span>今天如果想吃得更有方向感，台式风味配上椒麻路线，会是很稳的一餐。</span>
+            <div class="list-actions"><button class="secondary">就选它</button><button class="ghost">收藏</button></div>
+          </div>
+          <div style="text-align:center;color:#a06a3d;font-size:13px;margin-top:14px">继续下滑，还会加载更多候选，直到 220 个全部展示。</div>
+        </div>
+      </section>
+
+      <section class="screen" id="drinks">
+        <div class="topbar">
+          <div>
+            <h2>喝什么</h2>
+            <span class="sub">把饮品选择单独拎出来，形成第二条主线。</span>
+          </div>
+          <div style="width:74px"></div>
+        </div>
+        <div class="hero card" style="display:flex;align-items:center;overflow:hidden">
+          <img src="./assets/cat.png" alt="cat" style="width:150px;border-radius:0">
+          <div class="content" style="padding-left:0">
+            <h3>今天先喝点什么</h3>
+            <p class="desc">这页现在会继续往下推进调酒单，已经准备了 100 款候选，可以一路下滑慢慢挑。</p>
+            <div class="actions"><button class="primary">去摇饮品签</button></div>
+          </div>
+        </div>
+        <div class="section card">
+          <h3>调酒候选库</h3>
+          <div class="filters">
+            <strong>筛选口味</strong>
+            <div class="pills">
+              <div class="pill">全部</div>
+              <div class="pill active tone-blue">清爽</div>
+              <div class="pill">果香</div>
+              <div class="pill">花香</div>
+              <div class="pill">苦甜</div>
+            </div>
+            <strong style="margin-top:10px">排序方式</strong>
+            <div class="pills">
+              <div class="pill active tone-purple">按口味</div>
+              <div class="pill">默认</div>
+              <div class="pill">按名称</div>
+            </div>
+          </div>
+          <div class="menu-card tone-purple"><div class="menu-meta"><span class="chip">调酒</span><span class="chip">清爽</span></div><strong>莫吉托</strong><span>如果今天想试一杯更有调酒感的选择，莫吉托会带来更完整的香气和层次。</span><div class="list-actions"><button class="primary">就喝这杯</button><button class="ghost">收藏</button></div></div>
+          <div class="menu-card tone-lime"><div class="menu-meta"><span class="chip">调酒</span><span class="chip">酸感</span><span class="chip">已收藏</span></div><strong>玛格丽特</strong><span>如果今天想试一杯更有调酒感的选择，玛格丽特会带来更完整的香气和层次。</span><div class="list-actions"><button class="primary">就喝这杯</button><button class="ghost">已收藏</button></div></div>
+          <div class="menu-card tone-coral"><div class="menu-meta"><span class="chip">调酒</span><span class="chip">苦甜</span></div><strong>尼格罗尼</strong><span>如果今天想试一杯更有调酒感的选择，尼格罗尼会带来更完整的香气和层次。</span><div class="list-actions"><button class="primary">就喝这杯</button><button class="ghost">收藏</button></div></div>
+          <div style="text-align:center;color:#a06a3d;font-size:13px;margin-top:14px">继续下滑，还有更多调酒候选，直到 100 款全部展示。</div>
+        </div>
+        <div class="bottom-nav"><span>首页</span><span class="active">喝什么</span><span>收藏</span><span>我的</span></div>
+      </section>
+
+      <section class="screen favorites" id="favorites">
+        <div class="topbar">
+          <div>
+            <h2>收藏</h2>
+            <span class="sub">抽到喜欢的结果，可以在这里回看和重新进入。</span>
+          </div>
+          <div style="width:74px"></div>
+        </div>
+        <div class="menu-card card tone-pink">
+          <div class="menu-meta"><span class="chip">吃什么</span></div>
+          <strong>火锅</strong><span>想吃热乎一点，围着锅慢慢涮最有仪式感。</span>
+          <div class="list-actions"><button class="secondary">再去抽同类</button><button class="ghost">移除</button></div>
+        </div>
+        <div class="menu-card card tone-purple">
+          <div class="menu-meta"><span class="chip">喝什么</span></div>
+          <strong>芝士葡萄</strong><span>果香和奶盖都在线，适合想喝点精致快乐的时候。</span>
+          <div class="list-actions"><button class="secondary">再去抽同类</button><button class="ghost">移除</button></div>
+        </div>
+        <div class="bottom-nav"><span>首页</span><span>喝什么</span><span class="active">收藏</span><span>我的</span></div>
+      </section>
+
+      <section class="screen profile" id="profile">
+        <div class="topbar">
+          <div>
+            <h2>我的</h2>
+            <span class="sub">把收藏、记录和清理操作收拢到个人页。</span>
+          </div>
+          <div style="width:74px"></div>
+        </div>
+        <div class="stats">
+          <div class="stat card"><strong>3</strong><span>收藏总数</span></div>
+          <div class="stat card"><strong>8</strong><span>抽签记录</span></div>
+          <div class="stat card"><strong>5</strong><span>吃什么次数</span></div>
+          <div class="stat card"><strong>3</strong><span>喝什么次数</span></div>
+        </div>
+        <div class="section card" style="margin-top:16px">
+          <h3>你的选择画像</h3>
+          <p>你最近更像在找吃什么，上次选的是炸鸡。</p>
+          <div class="pills">
+            <div class="pill tone-pink">火锅</div>
+            <div class="pill tone-purple">芝士葡萄</div>
+          </div>
+        </div>
+        <div class="section card">
+          <h3>最近记录</h3>
+          <div class="history-item"><div><strong>炸鸡</strong><small>吃什么</small></div></div>
+          <div class="history-item"><div><strong>黑糖珍珠奶茶</strong><small>喝什么</small></div></div>
+        </div>
+        <div class="bottom-nav"><span>首页</span><span>喝什么</span><span>收藏</span><span class="active">我的</span></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="hint">
+    这是浏览器里的整体视觉预览页，用来直观看风格和页面关系；真实微信小程序的动画、跳转和布局细节仍以开发者工具里的运行效果为准。
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tabs button');
+    const screens = document.querySelectorAll('.screen');
+    tabs.forEach(button => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.screen;
+        tabs.forEach(item => item.classList.toggle('active', item === button));
+        screens.forEach(screen => screen.classList.toggle('active', screen.id === target));
+      });
+    });
+  </script>
+</body>
+</html>

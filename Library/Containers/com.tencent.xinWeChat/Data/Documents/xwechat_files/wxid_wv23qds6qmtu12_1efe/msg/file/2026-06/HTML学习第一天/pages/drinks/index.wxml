@@ -1,0 +1,82 @@
+<view class="shell">
+  <view class="topbar">
+    <view>
+      <text class="topbar__title">喝什么</text>
+      <text class="topbar__subtitle">把饮品选择单独拎出来，形成第二条主线。</text>
+    </view>
+    <view class="topbar__ghost"></view>
+  </view>
+
+  <view class="card drinks-hero">
+    <image class="drinks-hero__image" src="../../assets/cat.png" mode="widthFix"></image>
+    <view class="drinks-hero__content">
+      <text class="section-title">今天先喝点什么</text>
+      <text class="section-desc">这页现在会继续往下推进调酒单，已经准备了 {{totalDrinks || 100}} 款候选，可以一路下滑慢慢挑。</text>
+      <button class="primary-btn drinks-hero__btn" bindtap="goDrawDrink">去摇饮品签</button>
+    </view>
+  </view>
+
+  <view class="card drinks-list">
+    <text class="section-title">调酒候选库</text>
+    <view class="filter-bar">
+      <view class="filter-block">
+        <text class="filter-label">筛选口味</text>
+        <scroll-view class="filter-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+          <view class="filter-pills">
+            <text
+              wx:for="{{flavorOptions}}"
+              wx:key="*this"
+              class="filter-pill {{item === activeFlavor ? 'filter-pill--active' : ''}}"
+              data-flavor="{{item}}"
+              bindtap="changeFlavor"
+            >{{item}}</text>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="sort-row">
+        <text class="filter-label">排序方式</text>
+        <view class="sort-actions">
+          <text class="sort-chip {{sortMode === 'default' ? 'sort-chip--active' : ''}}" data-sort="default" bindtap="changeSort">默认</text>
+          <text class="sort-chip {{sortMode === 'flavor' ? 'sort-chip--active' : ''}}" data-sort="flavor" bindtap="changeSort">按口味</text>
+          <text class="sort-chip {{sortMode === 'name' ? 'sort-chip--active' : ''}}" data-sort="name" bindtap="changeSort">按名称</text>
+        </view>
+      </view>
+    </view>
+    <view wx:for="{{drinks}}" wx:key="name" class="drink-item {{item.tone}}">
+      <view class="drink-item__topline">
+        <text class="drink-item__chip">调酒</text>
+        <text class="drink-item__chip">{{item.flavor}}</text>
+        <text wx:if="{{item.isFavorite}}" class="drink-item__chip">已收藏</text>
+      </view>
+      <text class="drink-item__name">{{item.name}}</text>
+      <text class="drink-item__tip">{{item.tip}}</text>
+      <view class="drink-item__actions">
+        <button class="primary-btn drink-item__btn" data-name="{{item.name}}" bindtap="chooseDrink">就喝这杯</button>
+        <button class="ghost-btn drink-item__btn" data-name="{{item.name}}" bindtap="toggleFavorite">{{item.isFavorite ? '已收藏' : '收藏'}}</button>
+      </view>
+    </view>
+    <view class="drinks-load">
+      <text wx:if="{{isLoadingMore}}" class="drinks-load__text">正在推进更多调酒...</text>
+      <text wx:else-if="{{hasMoreDrinks}}" class="drinks-load__text">继续下滑，还有更多调酒候选</text>
+      <text wx:else class="drinks-load__text">已经展示完当前筛选下的 {{drinks.length}} 款调酒候选。</text>
+    </view>
+  </view>
+
+  <view class="card section-card">
+    <text class="section-title">最近抽到的饮品</text>
+    <view wx:if="{{recentDrink}}" class="recent">
+      <text class="recent__name">{{recentDrink.name}}</text>
+      <text class="recent__tip">{{recentDrink.tip}}</text>
+    </view>
+    <view wx:else class="empty-card">
+      <text class="section-desc">你还没抽过饮品，点上面的按钮试试。</text>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="bottom-nav__item" data-page="home" bindtap="handleNav">首页</button>
+    <button class="bottom-nav__item bottom-nav__item--active" data-page="drinks" bindtap="handleNav">喝什么</button>
+    <button class="bottom-nav__item" data-page="favorites" bindtap="handleNav">收藏</button>
+    <button class="bottom-nav__item" data-page="profile" bindtap="handleNav">我的</button>
+  </view>
+</view>

@@ -1,0 +1,45 @@
+<view class="shell">
+  <view class="topbar">
+    <button class="ghost-btn" bindtap="goBack">返回</button>
+    <view class="draw-head">
+      <text class="topbar__title">{{pageTitle}}</text>
+      <text class="topbar__subtitle">{{pageSubtitle}}</text>
+    </view>
+    <view class="topbar__ghost"></view>
+  </view>
+
+  <view class="stage">
+    <image class="scene" src="../../assets/original-scene.png" mode="widthFix"></image>
+
+    <view class="bowl-mask">
+      <view class="bowl-fade"></view>
+      <view class="tag-layer">
+        <view wx:for="{{tags}}" wx:key="name" class="tag {{item.tone}} {{item.className}}" style="{{item.style}}">
+          <view class="tag__shine"></view>
+          <view class="tag__stamp"></view>
+          <text class="tag__text">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="start-hit" bindtap="handleStart"></view>
+  </view>
+
+  <view wx:if="{{flyingTag.visible}}" class="flying-tag {{flyingTag.tone}}" style="{{flyingTag.style}}">
+    <view class="tag__shine"></view>
+    <view class="tag__stamp"></view>
+    <text class="tag__text">{{flyingTag.name}}</text>
+  </view>
+
+  <view class="result-card card">
+    <view class="result-badge">今日签语</view>
+    <text class="result-label">{{resultLabel}}</text>
+    <text class="result-name">{{resultName}}</text>
+    <text class="result-tip">{{resultTip}}</text>
+    <view class="result-actions">
+      <button class="secondary-btn result-btn" bindtap="handleFavorite">{{isFavorite ? '取消收藏' : '收藏结果'}}</button>
+      <button class="primary-btn result-btn" bindtap="handleStart">再抽一次</button>
+    </view>
+    <button class="ghost-btn switch-btn" bindtap="switchCategory">切换到{{category === 'food' ? '喝什么' : '吃什么'}}</button>
+  </view>
+</view>

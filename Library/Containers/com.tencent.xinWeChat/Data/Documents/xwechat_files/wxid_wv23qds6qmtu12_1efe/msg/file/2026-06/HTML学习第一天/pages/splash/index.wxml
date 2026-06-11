@@ -1,0 +1,14 @@
+<view class="splash">
+  <view class="halo halo-left"></view>
+  <view class="halo halo-right"></view>
+
+  <image class="title" src="../../assets/title.png" mode="widthFix"></image>
+  <image class="hero" src="../../assets/original-scene.png" mode="widthFix"></image>
+
+  <view class="intro card">
+    <text class="intro-title">今天吃啥交给我</text>
+    <text class="intro-desc">一键摇签，快速帮你从“吃什么”和“喝什么”里做决定。</text>
+  </view>
+
+  <button class="enter-btn" bindtap="enterApp">进入小程序</button>
+</view>

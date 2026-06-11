@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>今天吃啥交给我</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:linear-gradient(180deg,#fff4dc,#ffd391);
+  color:#5b250c;
+}
+.page{
+  position:relative;
+  width:min(100vw,430px);
+  min-height:100vh;
+  margin:0 auto;
+  padding:22px 14px 24px;
+  background:
+    radial-gradient(circle at 20% 8%,rgba(255,255,255,.8),transparent 24%),
+    linear-gradient(180deg,#fff4dc,#ffd391);
+}
+.stage{
+  position:relative;
+  width:100%;
+  aspect-ratio:1306/1205;
+}
+.scene{
+  display:block;
+  width:100%;
+  border-radius:28px;
+}
+.bowl-mask{
+  position:absolute;
+  left:13.3%;
+  top:40.1%;
+  width:56.6%;
+  height:23.1%;
+  border-radius:46% 46% 34% 34% / 38% 38% 26% 26%;
+  overflow:hidden;
+}
+.bowl-fade{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 44%,rgba(255,255,255,.08),rgba(255,255,255,0) 60%,rgba(255,255,255,.04)),
+    linear-gradient(180deg,rgba(255,245,238,.04),rgba(255,221,195,.04));
+  z-index:1;
+  pointer-events:none;
+}
+.tag-layer{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  filter:saturate(1.02) contrast(1.01);
+}
+.tag{
+  position:absolute;
+  width:34%;
+  transform-origin:center;
+  will-change:transform,left,top;
+  filter:drop-shadow(0 6px 10px rgba(178,92,30,.12));
+  clip-path:polygon(7% 28%,17% 10%,84% 2%,96% 20%,94% 77%,83% 96%,14% 92%,3% 72%);
+}
+.tag.result{
+  z-index:4;
+  filter:drop-shadow(0 12px 18px rgba(255,99,43,.28));
+}
+.flying-tag{
+  position:absolute;
+  width:32%;
+  left:0;
+  top:0;
+  opacity:0;
+  pointer-events:none;
+  z-index:9;
+  transform-origin:center;
+  filter:drop-shadow(0 16px 22px rgba(255,99,43,.24));
+  clip-path:polygon(7% 28%,17% 10%,84% 2%,96% 20%,94% 77%,83% 96%,14% 92%,3% 72%);
+}
+.flying-tag.show{
+  opacity:1;
+}
+.start-hit{
+  position:absolute;
+  left:34.2%;
+  top:73.8%;
+  width:25%;
+  height:15%;
+  cursor:pointer;
+  background:transparent;
+}
+.result-card{
+  margin-top:18px;
+  background:rgba(255,248,239,.92);
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:28px;
+  padding:18px 18px 22px;
+  box-shadow:0 14px 34px rgba(168,88,26,.16);
+}
+.result-label{
+  font-size:14px;
+  color:#b86b31;
+  margin-bottom:10px;
+}
+.result-name{
+  font-size:30px;
+  font-weight:800;
+  color:#ff6b3d;
+  margin-bottom:10px;
+}
+.result-tip{
+  font-size:15px;
+  line-height:1.6;
+  color:#7f4a20;
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="stage">
+    <img class="scene" src="./assets/original-scene.png" alt="主视觉">
+    <div class="bowl-mask" id="bowlMask">
+      <div class="bowl-fade"></div>
+      <div class="tag-layer" id="tagLayer">
+        <img class="tag" data-name="火锅" src="./assets/tag-hotpot.png" alt="火锅">
+        <img class="tag" data-name="烧肉" src="./assets/tag-bbq.png" alt="烧肉">
+        <img class="tag" data-name="奶茶" src="./assets/tag-milktea.png" alt="奶茶">
+        <img class="tag" data-name="麻辣烫" src="./assets/tag-spicyhotpot.png" alt="麻辣烫">
+        <img class="tag" data-name="寿司" src="./assets/tag-sushi.png" alt="寿司">
+        <img class="tag" data-name="炸鸡" src="./assets/tag-friedchicken.png" alt="炸鸡">
+      </div>
+    </div>
+    <button class="start-hit" id="startBtn" aria-label="开始抽签"></button>
+  </section>
+  <img class="flying-tag" id="flyingTag" src="" alt="中奖标签">
+
+  <section class="result-card">
+    <div class="result-label" id="resultLabel">今天吃：</div>
+    <div class="result-name" id="resultName">奶茶</div>
+    <div class="result-tip" id="resultTip">今天不想费脑筋的时候，就让抽签机替你拍板。</div>
+  </section>
+</main>
+
+<script>
+const tags = [...document.querySelectorAll('.tag')];
+const startBtn = document.getElementById('startBtn');
+const bowlMask = document.getElementById('bowlMask');
+const flyingTag = document.getElementById('flyingTag');
+const resultLabel = document.getElementById('resultLabel');
+const resultName = document.getElementById('resultName');
+const resultTip = document.getElementById('resultTip');
+
+const tips = {
+  '火锅': '想吃热乎一点，围着锅慢慢涮最有仪式感。',
+  '烧肉': '需要一点满足感的时候，烤盘滋啦作响最能治愈。',
+  '奶茶': '先喝点甜的补充快乐值，再决定正餐也来得及。',
+  '麻辣烫': '今天适合来一碗重口但稳妥的幸福感。',
+  '寿司': '想吃得清爽一点，寿司是最不容易踩雷的选择。',
+  '炸鸡': '如果今天想奖励自己，炸鸡永远是简单直接的答案。'
+};
+
+const slots = [
+  { left: 3, top: 13, rotate: -12, scale: .98 },
+  { left: 29, top: 11, rotate: -8, scale: .99 },
+  { left: 56, top: 15, rotate: 8, scale: .98 },
+  { left: 11, top: 55, rotate: -6, scale: .92 },
+  { left: 37, top: 58, rotate: 4, scale: .91 },
+  { left: 63, top: 53, rotate: -9, scale: .92 }
+];
+
+const tagStates = tags.map((tag, index) => ({
+  el: tag,
+  base: { ...slots[index] },
+  x: slots[index].left,
+  y: slots[index].top,
+  rotate: slots[index].rotate,
+  scale: slots[index].scale,
+  seed: Math.random() * Math.PI * 2
+}));
+
+const state = {
+  phase: 'idle',
+  startTime: 0,
+  drawDuration: 2000,
+  resultDuration: 2000,
+  winnerIndex: 2,
+  flight: null
+};
+
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+const lerp = (a, b, t) => a + (b - a) * t;
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+const easeInOutSine = t => -(Math.cos(Math.PI * t) - 1) / 2;
+
+function renderTag(tagState) {
+  tagState.el.style.left = `${tagState.x}%`;
+  tagState.el.style.top = `${tagState.y}%`;
+  tagState.el.style.transform = `rotate(${tagState.rotate}deg) scale(${tagState.scale})`;
+  tagState.el.style.opacity = tagState.opacity ?? 1;
+}
+
+function renderStatic() {
+  tagStates.forEach(renderTag);
+}
+
+function resetClasses() {
+  tags.forEach(tag => tag.classList.remove('result'));
+  tagStates.forEach(tagState => {
+    tagState.opacity = 1;
+  });
+}
+
+function hideFlyingTag() {
+  flyingTag.classList.remove('show');
+  flyingTag.style.opacity = 0;
+}
+
+function setupFlight(winner) {
+  const pageRect = document.querySelector('.page').getBoundingClientRect();
+  const bowlRect = bowlMask.getBoundingClientRect();
+  const resultRect = resultName.getBoundingClientRect();
+  const startX = bowlRect.left - pageRect.left + bowlRect.width * (winner.base.left / 100) + bowlRect.width * 0.14;
+  const startY = bowlRect.top - pageRect.top + bowlRect.height * (winner.base.top / 100) + bowlRect.height * 0.08;
+  const endX = resultRect.left - pageRect.left + resultRect.width * 0.08;
+  const endY = resultRect.top - pageRect.top - resultRect.height * 0.25;
+  state.flight = {
+    startX,
+    startY,
+    controlX: startX + (endX - startX) * 0.35,
+    controlY: startY - 130,
+    endX,
+    endY
+  };
+  flyingTag.src = winner.el.src;
+  flyingTag.classList.add('show');
+}
+
+function animateIdle(time) {
+  const t = time / 1000;
+  tagStates.forEach((tagState, index) => {
+    const idle = t + index + tagState.seed;
+    tagState.x = tagState.base.left + Math.sin(idle) * .7;
+    tagState.y = tagState.base.top + Math.cos(idle * 1.1) * .7;
+    tagState.rotate = tagState.base.rotate + Math.sin(idle * .8) * 1.6;
+    tagState.scale = tagState.base.scale + Math.sin(idle) * .015;
+    renderTag(tagState);
+  });
+}
+
+function animateSpin(elapsed) {
+  const progress = clamp(elapsed / state.drawDuration, 0, 1);
+  const decel = progress < .74 ? 1 : 1 - easeOutCubic((progress - .74) / .26) * .86;
+
+  tagStates.forEach((tagState, index) => {
+    const s1 = elapsed / 110 + tagState.seed + index * .5;
+    const s2 = elapsed / 95 + tagState.seed * .8;
+    const s3 = elapsed / 80 + tagState.seed;
+    const s4 = elapsed / 125 + tagState.seed;
+    tagState.x = tagState.base.left + Math.sin(s1) * 9 * decel;
+    tagState.y = tagState.base.top + Math.cos(s2) * 12 * decel;
+    tagState.rotate = tagState.base.rotate + Math.sin(s3) * 30 * decel;
+    tagState.scale = tagState.base.scale + Math.sin(s4) * .18 * decel;
+    renderTag(tagState);
+  });
+
+  if (progress >= 1) {
+    state.phase = 'result';
+    state.startTime = performance.now();
+    resetClasses();
+    tags[state.winnerIndex].classList.add('result');
+    setupFlight(tagStates[state.winnerIndex]);
+  }
+}
+
+function animateResult(elapsed) {
+  const winner = tagStates[state.winnerIndex];
+  const t = clamp(elapsed / state.resultDuration, 0, 1);
+  const grow = easeOutCubic(clamp(t / .38, 0, 1));
+  const travel = easeInOutSine(clamp((t - .14) / .86, 0, 1));
+
+  tagStates.forEach((tagState, index) => {
+    if (index !== state.winnerIndex) {
+      tagState.x = lerp(tagState.x, tagState.base.left, .08);
+      tagState.y = lerp(tagState.y, tagState.base.top + 4, .08);
+      tagState.rotate = lerp(tagState.rotate, tagState.base.rotate, .08);
+      tagState.scale = lerp(tagState.scale, tagState.base.scale * .92, .08);
+      tagState.opacity = lerp(tagState.opacity ?? 1, .16, .08);
+      renderTag(tagState);
+      return;
+    }
+
+    winner.opacity = lerp(winner.opacity ?? 1, 0, .18);
+    winner.rotate = lerp(winner.rotate, 0, .14);
+    winner.scale = lerp(winner.scale, winner.base.scale * .9, .18);
+    renderTag(winner);
+  });
+
+  if (state.flight) {
+    const { startX, startY, controlX, controlY, endX, endY } = state.flight;
+    const curveX = Math.pow(1 - travel, 2) * startX + 2 * (1 - travel) * travel * controlX + Math.pow(travel, 2) * endX;
+    const curveY = Math.pow(1 - travel, 2) * startY + 2 * (1 - travel) * travel * controlY + Math.pow(travel, 2) * endY;
+    const scale = lerp(.72, 1.9, grow);
+    const rotate = lerp(winner.base.rotate, -4, travel);
+    const fade = t > .82 ? 1 - (t - .82) / .18 : 1;
+    flyingTag.style.opacity = fade;
+    flyingTag.style.transform = `translate(${curveX}px,${curveY}px) rotate(${rotate}deg) scale(${scale})`;
+  }
+
+  if (t >= 1) {
+    state.phase = 'idle';
+    state.flight = null;
+    hideFlyingTag();
+    resultLabel.textContent = '今天吃：';
+    resultName.textContent = winner.el.dataset.name;
+    resultTip.textContent = tips[winner.el.dataset.name];
+    resetClasses();
+  }
+}
+
+function frame(time) {
+  if (state.phase === 'spinning') {
+    animateSpin(time - state.startTime);
+  } else if (state.phase === 'result') {
+    animateResult(time - state.startTime);
+  } else {
+    animateIdle(time);
+  }
+  requestAnimationFrame(frame);
+}
+
+startBtn.addEventListener('click', () => {
+  if (state.phase !== 'idle') return;
+  state.phase = 'spinning';
+  state.startTime = performance.now();
+  state.winnerIndex = Math.floor(Math.random() * tags.length);
+  resetClasses();
+  hideFlyingTag();
+  resultLabel.textContent = '正在开奖';
+  resultName.textContent = '';
+  resultTip.textContent = '这次只摇机器里的标签，其他元素保持原图不动。';
+});
+
+renderStatic();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
