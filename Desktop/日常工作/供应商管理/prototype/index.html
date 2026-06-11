@@ -1,0 +1,3914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应商管理系统</title>
+    <style>
+        :root {
+            --bg: #f4fbf8;
+            --panel: #ffffff;
+            --panel-strong: #f8fdfb;
+            --panel-soft: rgba(255, 255, 255, 0.84);
+            --line: rgba(88, 163, 141, 0.14);
+            --line-strong: rgba(88, 163, 141, 0.24);
+            --text: #18342f;
+            --text-soft: #62827b;
+            --text-faint: #87a29b;
+            --gold: #d6a65b;
+            --gold-soft: rgba(214, 166, 91, 0.14);
+            --teal: #60b8a2;
+            --teal-soft: rgba(96, 184, 162, 0.14);
+            --orange: #eea85f;
+            --red: #e48383;
+            --green: #6abf95;
+            --shadow: 0 18px 48px rgba(129, 167, 155, 0.16);
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(96, 184, 162, 0.2), transparent 30%),
+                radial-gradient(circle at top left, rgba(214, 166, 91, 0.14), transparent 24%),
+                linear-gradient(180deg, #f8fffd 0%, #f1faf7 42%, #edf7f4 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(96, 184, 162, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(96, 184, 162, 0.05) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.55));
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            height: 78px;
+            padding: 0 28px;
+            border-bottom: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(249, 255, 253, 0.82);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #7bcbb8 0%, #4ea78f 100%);
+            box-shadow: 0 10px 24px rgba(96, 184, 162, 0.24);
+        }
+
+        .brand-copy h1 {
+            font-size: 21px;
+            letter-spacing: 0.04em;
+        }
+
+        .brand-copy p {
+            margin-top: 4px;
+            color: var(--text-soft);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .app-shell.hidden,
+        .login-screen.hidden,
+        .user-menu.hidden {
+            display: none !important;
+        }
+
+        .header-chip,
+        .user-card {
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(255, 255, 255, 0.72);
+            border-radius: 999px;
+        }
+
+        .header-chip {
+            padding: 8px 14px;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px 8px 8px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #7ac8b6, #b8d784);
+            color: white;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            min-width: 180px;
+            padding: 10px;
+            border-radius: 18px;
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: var(--shadow);
+        }
+
+        .user-menu button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 12px 14px;
+            text-align: left;
+            color: var(--text);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .user-menu button:hover {
+            background: rgba(96, 184, 162, 0.08);
+        }
+
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 18% 20%, rgba(96, 184, 162, 0.16), transparent 24%),
+                radial-gradient(circle at 82% 18%, rgba(214, 166, 91, 0.12), transparent 20%),
+                radial-gradient(circle at 50% 100%, rgba(96, 184, 162, 0.1), transparent 34%),
+                linear-gradient(180deg, #f9fffd 0%, #f3faf7 42%, #edf5f2 100%);
+        }
+
+        .login-screen::before,
+        .login-screen::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(8px);
+        }
+
+        .login-screen::before {
+            width: 260px;
+            height: 260px;
+            left: -70px;
+            top: 90px;
+            background: rgba(123, 201, 182, 0.16);
+        }
+
+        .login-screen::after {
+            width: 220px;
+            height: 220px;
+            right: -50px;
+            bottom: 70px;
+            background: rgba(214, 166, 91, 0.1);
+        }
+
+        .login-card {
+            width: min(460px, 100%);
+            display: block;
+            position: relative;
+            z-index: 1;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid rgba(88, 163, 141, 0.14);
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(22px);
+            box-shadow:
+                0 30px 80px rgba(129, 167, 155, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.72);
+        }
+
+        .login-panel {
+            padding: 34px 32px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .login-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .login-brand-mark {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            font-size: 25px;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #7bcbb8 0%, #4ea78f 100%);
+            box-shadow: 0 16px 34px rgba(96, 184, 162, 0.24);
+        }
+
+        .login-brand-copy h1 {
+            font-size: 24px;
+            letter-spacing: 0.02em;
+        }
+
+        .login-brand-copy p {
+            display: none;
+        }
+
+        .login-panel h3 {
+            display: none;
+        }
+
+        .login-actions {
+            display: grid;
+            gap: 14px;
+        }
+
+        .login-action-card {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            background: linear-gradient(180deg, rgba(248, 253, 251, 0.98), rgba(255, 255, 255, 0.98));
+        }
+
+        .ding-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 15px 18px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #1d89ff 0%, #45b5ff 100%);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 18px 32px rgba(29, 137, 255, 0.24);
+            transition: 0.22s ease;
+        }
+
+        .ding-btn:hover,
+        .login-enter-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .login-enter-btn {
+            width: 100%;
+            transition: 0.22s ease;
+        }
+
+        .login-divider {
+            position: relative;
+            text-align: center;
+            color: var(--text-faint);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+        }
+
+        .login-divider::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: rgba(88, 163, 141, 0.12);
+        }
+
+        .login-divider span {
+            position: relative;
+            padding: 0 12px;
+            background: rgba(255, 255, 255, 0.84);
+        }
+
+        .login-note {
+            display: none;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: calc(100vh - 78px);
+        }
+
+        .sidebar {
+            padding: 28px 18px;
+            border-right: 1px solid rgba(88, 163, 141, 0.12);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(245, 252, 249, 0.94));
+        }
+
+        .sidebar-label {
+            color: var(--text-faint);
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin: 8px 12px 14px;
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            color: var(--text-soft);
+            background: transparent;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(96, 184, 162, 0.08);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            color: var(--text);
+            background: linear-gradient(135deg, rgba(214, 166, 91, 0.12), rgba(96, 184, 162, 0.14));
+            border-color: var(--line-strong);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+            background: rgba(96, 184, 162, 0.1);
+            color: var(--teal);
+        }
+
+        .nav-copy strong {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .nav-copy span {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-faint);
+        }
+
+        .main-content {
+            padding: 28px;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+            animation: pageFade 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes pageFade {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            letter-spacing: 0.02em;
+        }
+
+        .page-subtitle {
+            margin-top: 8px;
+            color: var(--text-soft);
+            line-height: 1.6;
+            max-width: 760px;
+            display: none;
+        }
+
+        .page-actions,
+        .inline-actions,
+        .filter-actions,
+        .tag-row,
+        .field-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 11px 16px;
+            cursor: pointer;
+            transition: 0.22s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7bc9b6 0%, #57ab95 100%);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(96, 184, 162, 0.22);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--text);
+            border-color: rgba(88, 163, 141, 0.14);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-soft);
+            border-color: rgba(88, 163, 141, 0.14);
+        }
+
+        .btn-teal {
+            background: linear-gradient(135deg, #9fd8bd 0%, #76c4ad 100%);
+            color: white;
+            box-shadow: 0 10px 24px rgba(118, 196, 173, 0.22);
+        }
+
+        .panel,
+        .card,
+        .hero {
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 253, 251, 0.98));
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            padding: 28px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            right: -160px;
+            top: -200px;
+            background: radial-gradient(circle, rgba(96, 184, 162, 0.18), transparent 70%);
+        }
+
+        .hero-title {
+            margin-bottom: 22px;
+        }
+
+        .hero-top {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .hero-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero h3 {
+            font-size: 30px;
+            max-width: 720px;
+            line-height: 1.35;
+        }
+
+        .hero-kpis {
+            margin-top: 0;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .hero-kpi {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 250, 247, 0.98));
+        }
+
+        .hero-kpi-label {
+            color: var(--text-soft);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-kpi-value {
+            margin-top: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .hero-kpi-desc {
+            margin-top: 10px;
+            color: var(--text-soft);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .hero-strip {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 14px;
+        }
+
+        .hero-strip-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            background: rgba(247, 252, 250, 0.95);
+        }
+
+        .hero-strip-title {
+            font-size: 13px;
+            color: var(--text-soft);
+            margin-bottom: 10px;
+        }
+
+        .hero-strip-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .hero-strip-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .hero-strip-item strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .hero-dot.teal {
+            background: #76c4ad;
+        }
+
+        .hero-dot.orange {
+            background: #f0be74;
+        }
+
+        .hero-dot.blue {
+            background: #8ab6e8;
+        }
+
+        .hero p {
+            max-width: 720px;
+            color: var(--text-soft);
+            margin-top: 12px;
+            line-height: 1.75;
+            display: none;
+        }
+
+        .hero-badges {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            display: none;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(255, 255, 255, 0.78);
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .badge.gold {
+            color: var(--gold);
+            background: var(--gold-soft);
+            border-color: rgba(214, 166, 91, 0.22);
+        }
+
+        .badge.teal {
+            color: #4e9b87;
+            background: var(--teal-soft);
+            border-color: rgba(96, 184, 162, 0.24);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            padding: 22px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(244, 251, 248, 0.98));
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -20px -50px auto;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96, 184, 162, 0.14), transparent 72%);
+        }
+
+        .stat-label {
+            color: var(--text-soft);
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 38px;
+            margin: 14px 0 10px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .trend-up {
+            color: var(--green);
+        }
+
+        .trend-down {
+            color: var(--orange);
+        }
+
+        .dashboard-grid,
+        .dual-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card-subtitle {
+            color: var(--text-soft);
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .chart {
+            height: 320px;
+        }
+
+        .chart-fallback {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .todo-list,
+        .insight-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .todo-item,
+        .insight-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(247, 252, 250, 0.95);
+            border: 1px solid rgba(88, 163, 141, 0.08);
+        }
+
+        .todo-main,
+        .insight-main {
+            flex: 1;
+        }
+
+        .todo-main strong,
+        .insight-main strong {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .todo-main p,
+        .insight-main p {
+            color: var(--text-soft);
+            line-height: 1.65;
+            font-size: 13px;
+        }
+
+        .severity {
+            min-width: 92px;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .severity.high {
+            color: #b85f5f;
+            background: rgba(228, 131, 131, 0.16);
+        }
+
+        .severity.medium {
+            color: #b77324;
+            background: rgba(238, 168, 95, 0.14);
+        }
+
+        .severity.low {
+            color: #458d79;
+            background: rgba(96, 184, 162, 0.14);
+        }
+
+        .filter-card {
+            padding: 20px 22px;
+            margin-bottom: 18px;
+        }
+
+        .filter-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .filter-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .filter-note {
+            color: var(--text-soft);
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .filter-grid.compact {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+        .field,
+        .summary-tile,
+        .info-block,
+        .question-card,
+        .summary-panel {
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(88, 163, 141, 0.08);
+            background: rgba(250, 254, 252, 0.96);
+        }
+
+        .field {
+            padding: 12px 14px;
+        }
+
+        .field label {
+            display: block;
+            color: var(--text-faint);
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            background: white;
+            border: 1px solid rgba(88, 163, 141, 0.14);
+            border-radius: 10px;
+            color: var(--text);
+            padding: 11px 12px;
+        }
+
+        .field textarea {
+            min-height: 104px;
+            resize: vertical;
+        }
+
+        .tag-row {
+            margin-top: 16px;
+        }
+
+        .filter-tag {
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            color: var(--text-soft);
+            background: rgba(255, 255, 255, 0.82);
+            cursor: pointer;
+        }
+
+        .filter-tag.active {
+            color: var(--text);
+            border-color: rgba(96, 184, 162, 0.28);
+            background: rgba(96, 184, 162, 0.14);
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .summary-tile {
+            padding: 16px;
+        }
+
+        .summary-tile strong {
+            display: block;
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+
+        .summary-tile span {
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .table-footer strong {
+            color: var(--text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        th,
+        td {
+            padding: 16px 14px;
+            text-align: left;
+            border-bottom: 1px solid rgba(88, 163, 141, 0.08);
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #edf8f4;
+            color: var(--text-soft);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        tr:hover td {
+            background: rgba(96, 184, 162, 0.05);
+        }
+
+        td small {
+            display: block;
+            color: var(--text-faint);
+            margin-top: 5px;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-badge.success {
+            background: rgba(106, 191, 149, 0.14);
+            color: #4d9472;
+        }
+
+        .status-badge.warning {
+            background: rgba(238, 168, 95, 0.16);
+            color: #b77324;
+        }
+
+        .status-badge.danger {
+            background: rgba(228, 131, 131, 0.16);
+            color: #b85f5f;
+        }
+
+        .status-badge.info {
+            background: rgba(96, 184, 162, 0.16);
+            color: #458d79;
+        }
+
+        .op-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--text);
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .risk-card {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+        }
+
+        .risk-card.red {
+            background: linear-gradient(180deg, rgba(239, 107, 107, 0.14), rgba(239, 107, 107, 0.06));
+        }
+
+        .risk-card.orange {
+            background: linear-gradient(180deg, rgba(242, 166, 84, 0.14), rgba(242, 166, 84, 0.06));
+        }
+
+        .risk-card.green {
+            background: linear-gradient(180deg, rgba(96, 184, 162, 0.14), rgba(96, 184, 162, 0.06));
+        }
+
+        .risk-card strong {
+            display: block;
+            font-size: 30px;
+            margin-top: 10px;
+        }
+
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(170, 194, 186, 0.42);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            padding: 24px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: min(1220px, 100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            border-radius: 28px;
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: linear-gradient(180deg, #ffffff 0%, #f6fcfa 100%);
+            box-shadow: 0 24px 72px rgba(128, 167, 155, 0.22);
+        }
+
+        .modal-header,
+        .modal-footer {
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(88, 163, 141, 0.1);
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(88, 163, 141, 0.1);
+        }
+
+        .modal-title {
+            font-size: 22px;
+        }
+
+        .modal-subtitle {
+            color: var(--text-soft);
+            margin-top: 8px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--text-soft);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .modal-body {
+            padding: 24px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .section-card {
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            background: rgba(249, 254, 252, 0.96);
+        }
+
+        .section-card h4 {
+            font-size: 17px;
+            margin-bottom: 8px;
+        }
+
+        .section-desc {
+            color: var(--text-soft);
+            margin-bottom: 18px;
+            line-height: 1.7;
+            font-size: 13px;
+            display: none;
+        }
+
+        .field-grid.two {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .field-grid.three {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .checkbox-group,
+        .radio-chip-group,
+        .question-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-chip,
+        .radio-chip,
+        .question-option {
+            position: relative;
+        }
+
+        .checkbox-chip input,
+        .radio-chip input,
+        .question-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .checkbox-chip span,
+        .radio-chip span,
+        .question-option span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(88, 163, 141, 0.12);
+            background: rgba(255, 255, 255, 0.88);
+            color: var(--text-soft);
+            cursor: pointer;
+            transition: 0.2s ease;
+            text-align: center;
+        }
+
+        .checkbox-chip input:checked + span,
+        .radio-chip input:checked + span,
+        .question-option input:checked + span {
+            color: var(--text);
+            border-color: rgba(96, 184, 162, 0.28);
+            background: rgba(96, 184, 162, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .question-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .question-card {
+            padding: 18px;
+        }
+
+        .question-card .meta {
+            color: var(--gold);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .question-card h5 {
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .question-card p {
+            color: var(--text-soft);
+            font-size: 13px;
+            line-height: 1.7;
+            margin-top: 12px;
+        }
+
+        .summary-panel {
+            padding: 18px;
+        }
+
+        .score-display {
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .summary-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 12px;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .detail-item {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(88, 163, 141, 0.08);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .detail-item label {
+            display: block;
+            color: var(--text-faint);
+            font-size: 12px;
+            margin-bottom: 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .detail-item strong,
+        .detail-item span {
+            display: block;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .chat-shell {
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 18px;
+        }
+
+        .chat-sidebar-card,
+        .chat-main {
+            padding: 22px;
+        }
+
+        .chat-thread {
+            display: grid;
+            gap: 14px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .chat-message.ai .chat-avatar {
+            background: linear-gradient(135deg, #7bcbb8 0%, #4ea78f 100%);
+        }
+
+        .chat-message.user .chat-avatar {
+            background: linear-gradient(135deg, #d6a65b 0%, #efc57d 100%);
+        }
+
+        .chat-bubble {
+            max-width: min(760px, 100%);
+            padding: 16px 18px;
+            border-radius: 20px;
+            line-height: 1.8;
+            border: 1px solid rgba(88, 163, 141, 0.1);
+            background: rgba(249, 254, 252, 0.98);
+        }
+
+        .chat-message.user .chat-bubble {
+            background: rgba(255, 249, 238, 0.98);
+            border-color: rgba(214, 166, 91, 0.18);
+        }
+
+        .chat-bubble strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .chat-time {
+            margin-top: 8px;
+            color: var(--text-faint);
+            font-size: 12px;
+        }
+
+        .chat-composer {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 120px;
+            gap: 12px;
+        }
+
+        .chat-composer textarea {
+            min-height: 96px;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 14px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 20px;
+            color: var(--text);
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--teal);
+        }
+
+        .timeline-item small {
+            display: block;
+            color: var(--text-soft);
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .empty-state {
+            padding: 38px 18px;
+            text-align: center;
+            color: var(--text-soft);
+            line-height: 1.8;
+        }
+
+        .question-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(96, 184, 162, 0.08);
+            color: var(--text-soft);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .toast-stack {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 80;
+            display: grid;
+            gap: 10px;
+            max-width: 360px;
+        }
+
+        .toast {
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: rgba(24, 52, 47, 0.92);
+            color: white;
+            box-shadow: 0 18px 36px rgba(24, 52, 47, 0.18);
+            animation: toastIn 0.24s ease;
+        }
+
+        .toast strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .toast span {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid,
+            .summary-row,
+            .risk-grid,
+            .dashboard-grid,
+            .dual-grid,
+            .insight-grid,
+            .filter-grid,
+            .filter-grid.compact,
+            .field-grid.two,
+            .field-grid.three,
+            .hero-kpis,
+            .hero-strip,
+            .chat-shell,
+            .login-card {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header,
+            .main-content,
+            .sidebar {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .header {
+                height: auto;
+                padding-top: 14px;
+                padding-bottom: 14px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-header,
+            .modal-header,
+            .modal-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .hero-top {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-side {
+                margin-top: 0;
+            }
+
+            .page-actions,
+            .filter-actions {
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .chat-composer {
+                grid-template-columns: 1fr;
+            }
+
+            .login-panel {
+                padding: 28px 22px 24px;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <section id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-panel">
+                <div class="login-brand">
+                    <div class="login-brand-mark">供</div>
+                    <div class="login-brand-copy">
+                        <h1>供应商管理系统</h1>
+                    </div>
+                </div>
+                <div class="login-actions">
+                    <div class="login-action-card">
+                        <button class="ding-btn" id="dingLoginBtn" type="button">使用钉钉登录</button>
+                    </div>
+                    <div class="login-divider"><span>或</span></div>
+                    <button class="btn btn-secondary login-enter-btn" id="demoLoginBtn" type="button">使用演示账号进入</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="appShell" class="app-shell hidden">
+    <div class="header">
+        <div class="brand">
+            <div class="brand-mark">供</div>
+            <div class="brand-copy">
+                <h1>供应商管理系统</h1>
+                <p>采购协同工作台</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-chip">年度评价周期: 2026-01-01 至 2026-12-31</div>
+            <div class="user-card" id="userCard">
+                <div class="user-avatar">管</div>
+                <div>
+                    <div id="userGreeting" style="font-weight: 600;">下午好，系统管理员</div>
+                    <div id="userMeta" style="font-size: 12px; color: var(--text-soft);">采购管理部 / 今日已同步 09:30</div>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <button type="button" id="logoutBtn">退出登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-label">功能导航</div>
+            <div class="nav-list">
+                <button class="nav-item active" data-page="dashboard">
+                    <div class="nav-icon">01</div>
+                    <div class="nav-copy">
+                        <strong>首页看板</strong>
+                        <span>核心指标与趋势洞察</span>
+                    </div>
+                </button>
+                <button class="nav-item" data-page="suppliers">
+                    <div class="nav-icon">02</div>
+                    <div class="nav-copy">
+                        <strong>供应商管理</strong>
+                        <span>名录、同步、履约状态</span>
+                    </div>
+                </button>
+                <button class="nav-item" data-page="qualifications">
+                    <div class="nav-icon">03</div>
+                    <div class="nav-copy">
+                        <strong>资质筛查</strong>
+                        <span>预警、提醒、催办闭环</span>
+                    </div>
+                </button>
+                <button class="nav-item" data-page="evaluations">
+                    <div class="nav-icon">04</div>
+                    <div class="nav-copy">
+                        <strong>评价管理</strong>
+                        <span>日常评价与年度问卷</span>
+                    </div>
+                </button>
+                <button class="nav-item" data-page="ai-analysis">
+                    <div class="nav-icon">05</div>
+                    <div class="nav-copy">
+                        <strong>智能分析</strong>
+                        <span>风险洞察与策略建议</span>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <section id="page-dashboard" class="page active">
+                <div class="hero">
+                    <div class="hero-top">
+                        <div class="hero-main">
+                            <p>平台以外部系统同步的供应商主数据为基础，提供供应商信息查看、过期资质跟踪处置以及日常与年度评价管理，便于采购、质量与使用部门协同掌握供应商风险与表现。</p>
+                            <div class="hero-badges">
+                                <div class="badge gold">供应商总池 156 家</div>
+                                <div class="badge teal">年度评价待完成 5 家</div>
+                                <div class="badge">主数据在线协同</div>
+                            </div>
+                            <div class="hero-kpis">
+                                <div class="hero-kpi">
+                                    <div class="hero-kpi-label">待完成年度评价</div>
+                                    <div class="hero-kpi-value">5</div>
+                                    <div class="hero-kpi-desc">涉及制造商 3 家、代理商 1 家、服务商 1 家</div>
+                                </div>
+                                <div class="hero-kpi">
+                                    <div class="hero-kpi-label">本周证照异常</div>
+                                    <div class="hero-kpi-value" style="color: #e48383;">8</div>
+                                    <div class="hero-kpi-desc">已过期 3 项，30 天内预警 5 项</div>
+                                </div>
+                            </div>
+                            <div class="hero-strip">
+                                <div class="hero-strip-card">
+                                    <div class="hero-strip-title">重点事项</div>
+                                    <div class="hero-strip-list">
+                                        <div class="hero-strip-item">
+                                            <div><span class="hero-dot teal"></span><strong>华东精工有限公司</strong></div>
+                                            <span>连续 3 期日常评价下降</span>
+                                        </div>
+                                        <div class="hero-strip-item">
+                                            <div><span class="hero-dot orange"></span><strong>辰星代理有限公司</strong></div>
+                                            <span>专业资质 15 天后到期</span>
+                                        </div>
+                                        <div class="hero-strip-item">
+                                            <div><span class="hero-dot blue"></span><strong>卓一机电制造</strong></div>
+                                            <span>年度评价待发起</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hero-strip-card">
+                                    <div class="hero-strip-title">当前评价周期</div>
+                                    <div class="hero-strip-list">
+                                        <div class="hero-strip-item"><strong>评价起止</strong><span>2026-01-01 至 2026-12-31</span></div>
+                                        <div class="hero-strip-item"><strong>评价进度</strong><span>18 / 23 已完成</span></div>
+                                        <div class="hero-strip-item"><strong>平均得分</strong><span>88.6</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-head">
+                            <div>
+                                <div class="card-title">供应商类型分布</div>
+                                <div class="card-subtitle">当前合作供应商池结构占比</div>
+                            </div>
+                            <div class="badge gold">总量 156</div>
+                        </div>
+                        <div id="supplierTypeChart" class="chart"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <div>
+                                <div class="card-title">供应商评价趋势图</div>
+                                <div class="card-subtitle">近 6 个月综合评分趋势与评价量对比</div>
+                            </div>
+                            <div class="badge teal">平均 88.6</div>
+                        </div>
+                        <div id="evaluationTrendChart" class="chart"></div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">供应商总数</div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-meta">
+                            <span>较上月净增 6 家</span>
+                            <span class="trend-up">+4.0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">资质到期预警</div>
+                        <div class="stat-value" style="color: #ffd08f;">8</div>
+                        <div class="stat-meta">
+                            <span>7 家 30 天内到期</span>
+                            <span class="trend-down">-2 家</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">本月评价数量</div>
+                        <div class="stat-value">23</div>
+                        <div class="stat-meta">
+                            <span>年度评价 5 份</span>
+                            <span class="trend-up">+15%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">高风险供应商</div>
+                        <div class="stat-value" style="color: #ffb5b5;">3</div>
+                        <div class="stat-meta">
+                            <span>2 家需专项复盘</span>
+                            <span>持平</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dual-grid">
+                    <div class="card">
+                        <div class="card-head">
+                            <div>
+                                <div class="card-title">待处理事项</div>
+                                <div class="card-subtitle">按紧急程度排序展示</div>
+                            </div>
+                            <button class="btn btn-ghost" data-action="goto" data-page="qualifications">查看全部</button>
+                        </div>
+                        <div class="todo-list">
+                            <div class="todo-item">
+                                <div class="todo-main">
+                                    <strong>8 家供应商资质即将到期，建议本周内完成催办</strong>
+                                    <p>重点集中在营业执照与质量管理体系证书续期，其中 3 家剩余天数低于 10 天。</p>
+                                </div>
+                                <div class="severity high">立即处理</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-main">
+                                    <strong>华东精工连续 3 期日常评价下降，建议触发专项沟通</strong>
+                                    <p>交付及时性与售后响应均下滑，合同 HT-2026-044 已被系统标记为重点关注。</p>
+                                </div>
+                                <div class="severity medium">重点跟进</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-main">
+                                    <strong>5 家优选合格供应商年度评价未完成</strong>
+                                    <p>年度问卷已切换为真实题库，需采购、质量、使用部门联合评分后提交。</p>
+                                </div>
+                                <div class="severity low">本周完成</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <div>
+                                <div class="card-title">经营洞察</div>
+                                <div class="card-subtitle">从合同、资质、履约评分中提炼可执行建议</div>
+                            </div>
+                        </div>
+                        <div class="insight-list">
+                            <div class="insight-item">
+                                <div class="insight-main">
+                                    <strong>制造商占比 46.8%，仍是交付风险最集中的供应商类型</strong>
+                                    <p>建议将高价值制造商纳入月度履约复盘，优先检查小批试制响应和质量管控问题。</p>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-main">
+                                    <strong>服务商综合评分连续 4 个月保持在 90 分以上</strong>
+                                    <p>可结合成本控制表现，筛选 2 到 3 家优质服务商进入下一轮框架采购池。</p>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-main">
+                                    <strong>年度评价与日常评价出现偏差的供应商有 4 家</strong>
+                                    <p>建议把“风险预警与解决能力”“长期合作匹配度”加入季度经营会专项讨论。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-suppliers" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">供应商管理</h2>
+                        <p class="page-subtitle">集中展示供应商主数据、合作状态、领域分布和风险标签，并支持按业务条件快速筛选和定位。</p>
+                    </div>
+                    <div class="page-actions hidden">
+                        <button class="btn btn-teal" id="syncSuppliersBtn">同步主数据</button>
+                        <button class="btn btn-secondary" data-action="export-suppliers">导出名录</button>
+                    </div>
+                </div>
+
+                <div class="card filter-card">
+                    <div class="filter-head">
+                        <div>
+                        <div class="filter-title">主数据筛选</div>
+                        <div class="filter-note">支持名称、类型、状态、领域、风险与同步时间的组合查询。</div>
+                    </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-ghost" id="resetSupplierFilters">重置筛选</button>
+                            <button class="btn btn-secondary" data-action="save-view">保存当前视图</button>
+                        </div>
+                    </div>
+                    <div class="filter-grid">
+                        <div class="field">
+                            <label>综合检索</label>
+                            <input id="supplierSearch" type="text" placeholder="搜索供应商名称 / 编码 / 合同 / 联系人">
+                        </div>
+                        <div class="field">
+                            <label>供应商名称</label>
+                            <input id="supplierNameFilter" type="text" placeholder="按名称精确或模糊筛选">
+                        </div>
+                        <div class="field">
+                            <label>供应商编码</label>
+                            <input id="supplierCodeFilter" type="text" placeholder="按编码筛选">
+                        </div>
+                        <div class="field">
+                            <label>联系人</label>
+                            <input id="supplierContactFilter" type="text" placeholder="按联系人筛选">
+                        </div>
+                        <div class="field">
+                            <label>供应商类型</label>
+                            <select id="supplierTypeFilter">
+                                <option value="">全部类型</option>
+                                <option value="制造商">制造商</option>
+                                <option value="代理商">代理商</option>
+                                <option value="服务商">服务商</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>合作状态</label>
+                            <select id="supplierStatusFilter">
+                                <option value="">全部状态</option>
+                                <option value="正常合作">正常合作</option>
+                                <option value="重点观察">重点观察</option>
+                                <option value="暂停合作">暂停合作</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>采购领域</label>
+                            <select id="supplierDomainFilter">
+                                <option value="">全部领域</option>
+                                <option value="信息化服务">信息化服务</option>
+                                <option value="行政/办公">行政/办公</option>
+                                <option value="保洁服务">保洁服务</option>
+                                <option value="精密制造">精密制造</option>
+                                <option value="物流/仓储">物流/仓储</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>风险标签</label>
+                            <select id="supplierRiskFilter">
+                                <option value="">全部风险</option>
+                                <option value="低风险">低风险</option>
+                                <option value="中风险">中风险</option>
+                                <option value="高风险">高风险</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>最近同步</label>
+                            <select id="supplierSyncFilter">
+                                <option value="">全部</option>
+                                <option value="24h">24 小时内</option>
+                                <option value="7d">7 天内</option>
+                                <option value="late">超 7 天未同步</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>资质状态</label>
+                            <select id="supplierQualificationFilter">
+                                <option value="">全部状态</option>
+                                <option value="正常">正常</option>
+                                <option value="预警">预警</option>
+                                <option value="过期">过期</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>合同编号</label>
+                            <input id="supplierContractFilter" type="text" placeholder="按合同编号筛选">
+                        </div>
+                    </div>
+                    <div class="tag-row" id="supplierQuickTags">
+                        <button class="filter-tag active" data-value="">全部供应商</button>
+                        <button class="filter-tag" data-value="资质预警">资质预警</button>
+                        <button class="filter-tag" data-value="年度待评">年度待评</button>
+                        <button class="filter-tag" data-value="重点观察">重点观察</button>
+                    </div>
+                </div>
+
+                <div class="summary-row" id="supplierSummary"></div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <div class="card-title">供应商名录</div>
+                            <div class="card-subtitle" id="supplierTableCaption">当前共 0 家供应商</div>
+                        </div>
+                        <div class="badge">供应商主数据</div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>供应商名称</th>
+                                    <th>类型</th>
+                                    <th>采购领域</th>
+                                    <th>合作状态</th>
+                                    <th>资质状态</th>
+                                    <th>风险标签</th>
+                                    <th>主合同</th>
+                                    <th>最近同步</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supplierTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="supplierFooterHint">主数据来源: 企业资源计划系统 / 采购协同系统 同步视图</span>
+                        <span><strong>当前模式:</strong> 支持同步、维护与详情查看。</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-qualifications" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">资质筛查</h2>
+                        <p class="page-subtitle">按风险等级、资质类型和到期窗口快速定位证照问题，支持从预警到跟踪的处置闭环。</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-secondary" data-action="export-qualification-report">导出报告</button>
+                        <button class="btn btn-secondary" data-action="notification-settings">通知设置</button>
+                    </div>
+                </div>
+
+                <div class="card filter-card">
+                    <div class="filter-head">
+                        <div>
+                            <div class="filter-title">资质风险筛选</div>
+                            <div class="filter-note">按到期窗口与处置状态交叉查看，快速识别高优先级证照问题。</div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-ghost" id="resetQualificationFilters">重置筛选</button>
+                        </div>
+                    </div>
+                    <div class="filter-grid compact">
+                        <div class="field">
+                            <label>风险等级</label>
+                            <select id="qualificationRiskFilter">
+                                <option value="">全部风险</option>
+                                <option value="过期">过期</option>
+                                <option value="预警">预警</option>
+                                <option value="正常">正常</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>资质类型</label>
+                            <select id="qualificationTypeFilter">
+                                <option value="">全部资质</option>
+                                <option value="营业执照">营业执照</option>
+                                <option value="质量管理体系证书">质量管理体系证书</option>
+                                <option value="涉密资质">涉密资质</option>
+                                <option value="专业资质">专业资质</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>到期窗口</label>
+                            <select id="qualificationWindowFilter">
+                                <option value="">全部窗口</option>
+                                <option value="expired">已过期</option>
+                                <option value="30">30 天内</option>
+                                <option value="90">90 天内</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>供应商名称</label>
+                            <input id="qualificationSearch" type="text" placeholder="搜索供应商或证书编号">
+                        </div>
+                        <div class="field">
+                            <label>处置状态</label>
+                            <select id="qualificationActionFilter">
+                                <option value="">全部</option>
+                                <option value="已催办">已催办</option>
+                                <option value="待提醒">待提醒</option>
+                                <option value="正常跟踪">正常跟踪</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-grid" id="qualificationSummary"></div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <div class="card-title">资质风险明细</div>
+                            <div class="card-subtitle" id="qualificationCaption">筛选结果 0 条</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>供应商</th>
+                                    <th>资质类型</th>
+                                    <th>证书编号</th>
+                                    <th>有效期至</th>
+                                    <th>剩余天数</th>
+                                    <th>状态</th>
+                                    <th>处置状态</th>
+                                    <th>责任人</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="qualificationTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="qualificationFooterHint">系统自动按剩余天数与状态高亮风险</span>
+                        <span>建议将已过期和 30 天内预警项纳入重点跟踪。</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-evaluations" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">评价管理</h2>
+                        <p class="page-subtitle">统一管理日常评价与年度评价记录，支持按合同、供应商、评价类型和评分结果进行检索。</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" id="openEvaluationBtn">新增评价</button>
+                        <button class="btn btn-secondary" data-action="export-evaluation-list">批量导出</button>
+                    </div>
+                </div>
+
+                <div class="card filter-card">
+                    <div class="filter-head">
+                        <div>
+                            <div class="filter-title">评价记录筛选</div>
+                            <div class="filter-note">支持按时间、供应商、评价类型、供应商类型和分数区间组合筛选。</div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-ghost" id="resetEvaluationFilters">重置筛选</button>
+                            <button class="btn btn-secondary" data-action="export-current-evaluations">导出当前结果</button>
+                        </div>
+                    </div>
+                    <div class="filter-grid">
+                        <div class="field">
+                            <label>开始日期</label>
+                            <input id="evaluationStartDate" type="date" value="2026-01-01">
+                        </div>
+                        <div class="field">
+                            <label>结束日期</label>
+                            <input id="evaluationEndDate" type="date" value="2026-12-31">
+                        </div>
+                        <div class="field">
+                            <label>供应商</label>
+                            <select id="evaluationSupplierFilter"></select>
+                        </div>
+                        <div class="field">
+                            <label>评价类型</label>
+                            <select id="evaluationTypeFilter">
+                                <option value="日常评价" selected>日常评价</option>
+                                <option value="年度评价">年度评价</option>
+                                <option value="">全部类型</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>供应商类型</label>
+                            <select id="evaluationSupplierTypeFilter">
+                                <option value="">全部</option>
+                                <option value="制造商">制造商</option>
+                                <option value="代理商">代理商</option>
+                                <option value="服务商">服务商</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>分数区间</label>
+                            <select id="evaluationScoreFilter">
+                                <option value="">全部分数</option>
+                                <option value="90">90 分以上</option>
+                                <option value="80">80-89 分</option>
+                                <option value="70">70-79 分</option>
+                                <option value="69">70 分以下</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="tag-row" id="evaluationTags">
+                        <button class="filter-tag active" data-value="日常评价">日常评价</button>
+                        <button class="filter-tag" data-value="年度评价">年度评价</button>
+                        <button class="filter-tag" data-value="评价中">评价中</button>
+                        <button class="filter-tag" data-value="高分供应商">高分供应商</button>
+                    </div>
+                </div>
+
+                <div class="summary-row" id="evaluationSummary"></div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <div class="card-title">评价记录</div>
+                            <div class="card-subtitle" id="evaluationCaption">筛选结果 0 条</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>评价时间</th>
+                                    <th>供应商</th>
+                                    <th>供应商类型</th>
+                                    <th>评价类型</th>
+                                    <th>合同流水号</th>
+                                    <th>采购领域</th>
+                                    <th>评价人员</th>
+                                    <th>最终评分</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evaluationTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="evaluationFooterHint">当前默认视图: 日常评价</span>
+                        <span>支持按评价流程进行填写、复核与归档。</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-ai-analysis" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">智能分析助手</h2>
+                        <p class="page-subtitle">整合资质、合同、评价、沟通与整改信息，形成供应商风险画像和经营建议。</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-secondary" data-action="refresh-ai">刷新分析</button>
+                    </div>
+                </div>
+                <div class="chat-shell">
+                    <div class="card chat-sidebar-card">
+                        <div class="card-head">
+                            <div>
+                                <div class="card-title">推荐提问</div>
+                            </div>
+                        </div>
+                        <div class="todo-list">
+                            <div class="todo-item">
+                                <div class="todo-main">
+                                    <strong>有哪些资质风险需要优先处理？</strong>
+                                    <p>适合晨会快速确认本周证照催办重点。</p>
+                                </div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-main">
+                                    <strong>哪些供应商需要重点复盘？</strong>
+                                    <p>聚焦评分下降、合同异常与整改未闭环对象。</p>
+                                </div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-main">
+                                    <strong>下一步有哪些优化建议？</strong>
+                                    <p>查看供应商结构优化与优选名录建议。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card chat-main">
+                        <div class="card-head">
+                            <div>
+                                <div class="card-title">分析对话</div>
+                            </div>
+                            <div class="badge teal">已接入供应商、资质、评价数据</div>
+                        </div>
+                        <div class="chat-thread" id="aiChatThread"></div>
+                        <div class="chat-composer">
+                            <div class="field" style="padding: 0; border: none; background: transparent;">
+                                <textarea id="aiChatInput" placeholder="例如：请总结本周需要优先处理的供应商风险。"></textarea>
+                            </div>
+                            <button class="btn btn-primary" id="sendAiMessageBtn" type="button">发送问题</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    </div>
+    <div id="toastStack" class="toast-stack"></div>
+
+    <div id="modal-addEvaluation" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">新增供应商评价</div>
+                    <div class="modal-subtitle">支持日常评价与年度评价两种模式，年度评价按供应商类型匹配对应评价问卷。</div>
+                </div>
+                <button class="modal-close" id="closeEvaluationModal" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="section-card">
+                    <h4>基础信息</h4>
+                    <div class="section-desc">基础信息将与年度评价问卷联动，用于归档评价范围、单位、属性与人员信息。</div>
+                    <div class="field-grid three">
+                        <div class="field">
+                            <label>评价类型</label>
+                            <select id="formEvaluationType">
+                                <option value="日常评价">日常评价</option>
+                                <option value="年度评价">年度评价</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>供应商名称</label>
+                            <select id="formSupplier"></select>
+                        </div>
+                        <div class="field">
+                            <label>供应商类型</label>
+                            <select id="formSupplierType">
+                                <option value="制造商">制造商</option>
+                                <option value="代理商">代理商</option>
+                                <option value="服务商">服务商</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-grid three" style="margin-top: 12px;">
+                        <div class="field">
+                            <label>合同流水号</label>
+                            <input id="formContractNo" type="text" value="HT-2026-088">
+                        </div>
+                        <div class="field">
+                            <label>评价日期</label>
+                            <input id="formDate" type="date" value="2026-06-10">
+                        </div>
+                        <div class="field">
+                            <label>评价单位</label>
+                            <input id="formDepartment" type="text" value="采购管理部">
+                        </div>
+                    </div>
+                    <div class="field-grid three" style="margin-top: 12px;">
+                        <div class="field">
+                            <label>供应商分类</label>
+                            <select id="formSupplierCategory">
+                                <option>合格供应商</option>
+                                <option>优选合格供应商</option>
+                                <option>一般合格供应商</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>评价产品范围</label>
+                            <input id="formProductScope" type="text" value="精密结构件、配套加工件">
+                        </div>
+                        <div class="field">
+                            <label>管理属性分类</label>
+                            <select id="formManagementClass">
+                                <option>核心协同类</option>
+                                <option>一般协同类</option>
+                                <option>储备供应类</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-grid three" style="margin-top: 12px;">
+                        <div class="field">
+                            <label>考核起止日期</label>
+                            <input id="formRange" type="text" value="2026-01-01 至 2026-12-31">
+                        </div>
+                        <div class="field">
+                            <label>是否列入黑名单</label>
+                            <div class="radio-chip-group">
+                                <label class="radio-chip"><input type="radio" name="blacklist" checked><span>否</span></label>
+                                <label class="radio-chip"><input type="radio" name="blacklist"><span>一级黑名单</span></label>
+                                <label class="radio-chip"><input type="radio" name="blacklist"><span>二级黑名单</span></label>
+                                <label class="radio-chip"><input type="radio" name="blacklist"><span>三级黑名单</span></label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>供应商类型说明</label>
+                            <input id="formTypeDesc" type="text" value="制造型 / 配套加工">
+                        </div>
+                    </div>
+                    <div class="field-grid two" style="margin-top: 12px;">
+                        <div class="field">
+                            <label>采购领域</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-chip"><input type="checkbox" checked><span>精密制造</span></label>
+                                <label class="checkbox-chip"><input type="checkbox"><span>信息化服务</span></label>
+                                <label class="checkbox-chip"><input type="checkbox"><span>行政/办公</span></label>
+                                <label class="checkbox-chip"><input type="checkbox"><span>保洁服务</span></label>
+                                <label class="checkbox-chip"><input type="checkbox"><span>物流/仓储</span></label>
+                            </div>
+                        </div>
+                        <div class="field" id="evaluatorField">
+                            <label>评价人员</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-chip"><input type="checkbox" checked><span>张三</span></label>
+                                <label class="checkbox-chip"><input type="checkbox" checked><span>李四</span></label>
+                                <label class="checkbox-chip"><input type="checkbox"><span>王五</span></label>
+                                <label class="checkbox-chip"><input type="checkbox"><span>赵敏</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card" id="dailyEvaluationSection">
+                    <h4>日常评价表单</h4>
+                    <div class="section-desc">默认模式为日常评价，适合合同执行过程中的快速记录。问题保持 5 档满意度，评分将实时折算成百分制。</div>
+                    <div class="question-list" id="dailyQuestionList"></div>
+                </div>
+
+                <div class="section-card hidden" id="annualEvaluationSection">
+                    <h4>年度评价问卷</h4>
+                    <div class="section-desc" id="annualQuestionDesc"></div>
+                    <div class="question-list" id="annualQuestionList"></div>
+                </div>
+
+                <div class="field-grid two">
+                    <div class="summary-panel">
+                        <div style="color: var(--text-soft); font-size: 13px;">实时综合评分</div>
+                        <div class="score-display" id="evaluationScoreDisplay">88</div>
+                        <div class="summary-meta">
+                            <span id="evaluationScoreText">满足优选合格供应商参考要求</span>
+                            <span id="evaluationQuestionCount">已填写 0 题</span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>综合评价意见</label>
+                        <textarea id="formComment">供应商整体履约能力较稳定，价格与响应表现较好。建议继续跟踪交付风险预警、账期灵活度以及年度合作匹配度。</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="closeEvaluationModalSecondary" type="button">取消</button>
+                <div class="inline-actions">
+                    <button class="btn btn-secondary" type="button">保存草稿</button>
+                    <button class="btn btn-primary" type="button">提交评价</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-action" class="modal">
+        <div class="modal-content" style="width:min(880px,100%);">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="actionModalTitle">业务详情</div>
+                </div>
+                <button class="modal-close" id="closeActionModal" type="button">&times;</button>
+            </div>
+            <div class="modal-body" id="actionModalBody"></div>
+            <div class="modal-footer" id="actionModalFooter">
+                <button class="btn btn-ghost" id="closeActionModalSecondary" type="button">关闭</button>
+                <div class="inline-actions" id="actionModalButtons"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script>
+        const suppliers = [
+            { code: "GYS-001", name: "华东精工有限公司", contact: "刘洋", type: "制造商", domains: ["精密制造", "物流/仓储"], status: "重点观察", qualification: "预警", risk: "高风险", contractNo: "HT-2026-044", syncDays: 1, syncText: "2026-06-10 09:30", tag: "重点观察", annualPending: true, dailyEvaluationPending: true, contractEndDate: "2026-06-08", dingTalkPushed: true },
+            { code: "GYS-002", name: "启明数科有限公司", contact: "陈晨", type: "制造商", domains: ["信息化服务"], status: "正常合作", qualification: "正常", risk: "低风险", contractNo: "HT-2026-012", syncDays: 2, syncText: "2026-06-09 14:20", tag: "", annualPending: false, dailyEvaluationPending: false, contractEndDate: "2026-08-31", dingTalkPushed: false },
+            { code: "GYS-003", name: "辰星代理有限公司", contact: "周安", type: "代理商", domains: ["行政/办公", "物流/仓储"], status: "正常合作", qualification: "预警", risk: "中风险", contractNo: "HT-2026-031", syncDays: 10, syncText: "2026-05-31 18:15", tag: "资质预警", annualPending: true, dailyEvaluationPending: true, contractEndDate: "2026-05-20", dingTalkPushed: true },
+            { code: "GYS-004", name: "蓝海服务有限公司", contact: "何青", type: "服务商", domains: ["保洁服务"], status: "正常合作", qualification: "正常", risk: "低风险", contractNo: "HT-2026-056", syncDays: 1, syncText: "2026-06-10 08:50", tag: "", annualPending: false, dailyEvaluationPending: false, contractEndDate: "2026-09-30", dingTalkPushed: false },
+            { code: "GYS-005", name: "卓一机电制造", contact: "宋伟", type: "制造商", domains: ["精密制造"], status: "正常合作", qualification: "正常", risk: "低风险", contractNo: "HT-2026-063", syncDays: 5, syncText: "2026-06-05 11:10", tag: "年度待评", annualPending: true, dailyEvaluationPending: false, contractEndDate: "2026-12-15", dingTalkPushed: false },
+            { code: "GYS-006", name: "汇联商务供应链", contact: "杨琳", type: "代理商", domains: ["行政/办公"], status: "暂停合作", qualification: "过期", risk: "高风险", contractNo: "HT-2025-118", syncDays: 18, syncText: "2026-05-23 16:40", tag: "资质预警", annualPending: false, dailyEvaluationPending: true, contractEndDate: "2026-04-22", dingTalkPushed: true }
+        ];
+
+        const qualifications = [
+            { supplier: "汇联商务供应链", type: "营业执照", code: "BL-2024-8812", expireDate: "2026-06-02", daysLeft: -8, status: "过期", action: "已催办", owner: "周倩" },
+            { supplier: "华东精工有限公司", type: "质量管理体系证书", code: "ISO-2023-2041", expireDate: "2026-06-18", daysLeft: 8, status: "预警", action: "待提醒", owner: "赵敏" },
+            { supplier: "辰星代理有限公司", type: "专业资质", code: "ZY-2024-1048", expireDate: "2026-06-25", daysLeft: 15, status: "预警", action: "待提醒", owner: "王璐" },
+            { supplier: "启明数科有限公司", type: "涉密资质", code: "SM-2025-0773", expireDate: "2026-08-15", daysLeft: 66, status: "正常", action: "正常跟踪", owner: "孙宁" },
+            { supplier: "蓝海服务有限公司", type: "营业执照", code: "BL-2025-2240", expireDate: "2026-09-20", daysLeft: 102, status: "正常", action: "正常跟踪", owner: "何青" }
+        ];
+
+        const evaluations = [
+            { date: "2026-06-05", supplier: "华东精工有限公司", supplierType: "制造商", evaluationType: "日常评价", contractNo: "HT-2026-044", domain: "精密制造", evaluators: ["张三", "李四"], score: 78, status: "评价中" },
+            { date: "2026-05-28", supplier: "蓝海服务有限公司", supplierType: "服务商", evaluationType: "日常评价", contractNo: "HT-2026-056", domain: "保洁服务", evaluators: ["赵敏"], score: 93, status: "已完成" },
+            { date: "2026-05-20", supplier: "辰星代理有限公司", supplierType: "代理商", evaluationType: "日常评价", contractNo: "HT-2026-031", domain: "行政/办公", evaluators: ["王五", "周倩"], score: 82, status: "已完成" },
+            { date: "2026-04-30", supplier: "卓一机电制造", supplierType: "制造商", evaluationType: "年度评价", contractNo: "HT-2026-063", domain: "精密制造", evaluators: ["张三", "李四", "赵敏"], score: 91, status: "已完成" },
+            { date: "2026-04-25", supplier: "启明数科有限公司", supplierType: "制造商", evaluationType: "年度评价", contractNo: "HT-2026-012", domain: "信息化服务", evaluators: ["王五", "孙宁"], score: 95, status: "待评价" },
+            { date: "2026-04-22", supplier: "汇联商务供应链", supplierType: "代理商", evaluationType: "年度评价", contractNo: "HT-2025-118", domain: "行政/办公", evaluators: ["周倩", "何青"], score: 68, status: "评价中" }
+        ];
+
+        const aiConversationTemplate = [
+            {
+                role: "user",
+                title: "用户提问",
+                content: "请先帮我总结一下当前供应商管理里最需要优先关注的风险。",
+                time: "今天 09:32"
+            },
+            {
+                role: "ai",
+                title: "智能分析助手",
+                content: "当前最需要优先处理的有三类风险：一是 3 家供应商资质已过期或临近到期，建议立即催办并限制新增采购需求；二是华东精工连续多期评分下降，交付与质量双降，需要安排专项复盘；三是辰星代理在账期灵活度和让利能力上偏弱，可能影响续约谈判，建议提前准备谈判底线。",
+                time: "今天 09:32"
+            },
+            {
+                role: "user",
+                title: "用户提问",
+                content: "哪些供应商适合进入优选名录复核？",
+                time: "今天 09:33"
+            },
+            {
+                role: "ai",
+                title: "智能分析助手",
+                content: "从近 12 个月评分稳定性、资质完备度和合同表现综合看，蓝海服务有限公司、启明数科有限公司、卓一机电制造可以优先进入优选名录复核。同时建议沉淀一套高分供应商能力画像模板，用于后续开发和替代导入。",
+                time: "今天 09:33"
+            }
+        ];
+
+        const dailyQuestions = [
+            { id: "d1", category: "交付", question: "交付及时性与计划兑现情况" },
+            { id: "d2", category: "质量", question: "本次供货/服务质量满足程度" },
+            { id: "d3", category: "沟通", question: "问题响应与跨部门协同效率" },
+            { id: "d4", category: "成本", question: "价格合理性与结算配合度" },
+            { id: "d5", category: "风险", question: "风险预警、纠偏和改善执行情况" }
+        ];
+
+        const annualQuestionBank = {
+            "制造商": [
+                { id: "q1", section: "交付进度情况", question: "第1项 年度供应产品/服务交付进度情况", hint: "评分参考: 制造商/服务商 16-20、11-15、6-11、1-5、1 分；关注按期交付率和拖延情况。" },
+                { id: "q2", section: "质量状况", question: "第2项 年度供应产品/服务质量情况", hint: "评分参考: 18-20、12-17、6-11、1-5、1 分；关注验收合格率、投诉与重复性问题。" },
+                { id: "q3", section: "质量状况", question: "第3项 使用期间质量情况", hint: "评分参考: 10、8、4-6、1-5、1 分；关注使用期内质量问题和影响程度。" },
+                { id: "q5", section: "价格状况", question: "第5项 配套产品价格状况", hint: "评分参考: 8-10、5-7、3-4、1-2、1 分；关注与市场价格对比。" },
+                { id: "q7", section: "价格状况", question: "第7项 成本控制水平", hint: "评分参考: 3、2、1.5、1、0.5 分；关注主动降价和成本控制能力。" },
+                { id: "q8", section: "价格状况", question: "第8项 结算方式", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注账期与结算灵活度。" },
+                { id: "q9", section: "服务水平", question: "第9项 质量、进度等问题的响应处理态度", hint: "评分参考: 8-10、5-7、3-4、1-2、1 分；关注响应态度和问题闭环。" },
+                { id: "q10", section: "服务水平", question: "第10项 信息沟通反馈情况", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注进度、风险和反馈及时性。" },
+                { id: "q11", section: "服务水平", question: "第11项 产品售后保障", hint: "评分参考: 2-3、2、1.5、1、0.5 分；关注售后条款履行与服务到位情况。" },
+                { id: "q12", section: "能力水平", question: "第12项 生产条件保障情况", hint: "评分参考: 3-4、2-3、2、1-2、1 分；关注设备、环境、物料和人员保障。" },
+                { id: "q13", section: "能力水平", question: "第13项 技术与工艺水平", hint: "评分参考: 3、2-3、2、1-2、1 分；关注技术成熟度、工艺稳定性和创新能力。" },
+                { id: "q14", section: "能力水平", question: "第14项 小批量试用/样品提供能力", hint: "评分参考: 3、2-3、2、1-2、1 分；关注样品、小批量试制和响应速度。" },
+                { id: "q15", section: "其他", question: "第15项 长期合作潜力", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注长期合作匹配度。" },
+                { id: "q16", section: "其他", question: "第16项 风险预警与解决能力", hint: "评分参考: 3、2-3、2、1-2、1 分；关注主动预警和解决方案有效性。" },
+                { id: "q17", section: "其他", question: "第17项 对供应商的综合水平是否满意", hint: "评分参考: 5、3、1、-3、-5 分；综合评价长期合作意愿、价格与账期配合。" }
+            ],
+            "服务商": [
+                { id: "q1", section: "交付进度情况", question: "第1项 年度供应产品/服务交付进度情况", hint: "评分参考: 制造商/服务商 16-20、11-15、6-11、1-5、1 分；关注服务交付时效。" },
+                { id: "q2", section: "质量状况", question: "第2项 年度供应产品/服务质量情况", hint: "评分参考: 18-20、12-17、6-11、1-5、1 分；关注服务质量和满意度。" },
+                { id: "q4", section: "质量状况", question: "第4项 服务关键过程（因素）控制情况", hint: "评分参考: 12-15、7-11、3-6、1-2、1 分；关注关键过程识别与体系化控制。" },
+                { id: "q6", section: "价格状况", question: "第6项 服务产品价格状况", hint: "评分参考: 7-10、4-6、2-3、1-2、1 分；关注同价位下服务项数、质量与性价比。" },
+                { id: "q7", section: "价格状况", question: "第7项 成本控制水平", hint: "评分参考: 4-5、2-3、1.5、1、0.5 分；关注主动降价与让利能力。" },
+                { id: "q8", section: "价格状况", question: "第8项 结算方式", hint: "评分参考: 4-5、3、2-3、1、0.5 分；关注结算灵活度与账期要求。" },
+                { id: "q9", section: "服务水平", question: "第9项 质量、进度等问题的响应处理态度", hint: "评分参考: 8-10、5-7、3-4、1-2、1 分；关注处理态度和时效。" },
+                { id: "q10", section: "服务水平", question: "第10项 信息沟通反馈情况", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注风险和进展信息传递。" },
+                { id: "q11", section: "服务水平", question: "第11项 产品售后保障", hint: "评分参考: 2-3、2、1.5、1、0.5 分；关注售后条款履行情况。" },
+                { id: "q15", section: "其他", question: "第15项 长期合作潜力", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注长期合作目标匹配。" },
+                { id: "q16", section: "其他", question: "第16项 风险预警与解决能力", hint: "评分参考: 3、2-3、2、1-2、1 分；关注风险识别和解决能力。" },
+                { id: "q17", section: "其他", question: "第17项 对供应商的综合水平是否满意", hint: "评分参考: 5、3、1、-3、-5 分；综合评价整体实力和合作意愿。" }
+            ],
+            "代理商": [
+                { id: "q1", section: "交付进度情况", question: "第1项 年度供应产品/服务交付进度情况", hint: "评分参考: 代理商 21-25、13-20、7-14、1-6、1 分；关注交付时效和拖延情况。" },
+                { id: "q2", section: "质量状况", question: "第2项 年度供应产品/服务质量情况", hint: "评分参考: 18-20、12-17、6-11、1-5、1 分；关注产品/服务质量稳定性。" },
+                { id: "q3", section: "质量状况", question: "第3项 使用期间质量情况", hint: "评分参考: 15、13、9-11、1-10、1 分；关注使用期质量问题和重大异常。" },
+                { id: "q5", section: "价格状况", question: "第5项 配套产品价格状况", hint: "评分参考: 8-10、5-7、3-4、1-2、1 分；关注报价竞争力。" },
+                { id: "q7", section: "价格状况", question: "第7项 成本控制水平", hint: "评分参考: 4-5、2-3、1.5、1、0.5 分；关注议价与让利能力。" },
+                { id: "q8", section: "价格状况", question: "第8项 结算方式", hint: "评分参考: 4-5、3、2-3、1、0.5 分；关注结算方式与账期灵活度。" },
+                { id: "q9", section: "服务水平", question: "第9项 质量、进度等问题的响应处理态度", hint: "评分参考: 4-5、2-3、2、1-2、1 分；关注问题响应与处理态度。" },
+                { id: "q10", section: "服务水平", question: "第10项 信息沟通反馈情况", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注关键信息传递及时性。" },
+                { id: "q11", section: "服务水平", question: "第11项 产品售后保障", hint: "评分参考: 2-3、2、1.5、1、0.5 分；关注售后保障与履约。" },
+                { id: "q15", section: "其他", question: "第15项 长期合作潜力", hint: "评分参考: 2、1.75、1.5、1、0.5 分；关注长期合作目标匹配。" },
+                { id: "q16", section: "其他", question: "第16项 风险预警与解决能力", hint: "评分参考: 3、2-3、2、1-2、1 分；关注风险识别和解决方案。" },
+                { id: "q17", section: "其他", question: "第17项 对供应商的综合水平是否满意", hint: "评分参考: 5、3、1、-3、-5 分；综合评价整体实力、价格和合作意愿。" }
+            ]
+        };
+
+        const satisfactionOptions = ["非常满意", "满意", "一般满意", "不满意", "非常不满意"];
+        const satisfactionScoreMap = {
+            "非常满意": 100,
+            "满意": 85,
+            "一般满意": 70,
+            "不满意": 55,
+            "非常不满意": 40
+        };
+
+        const state = {
+            supplierQuickTag: "",
+            evaluationQuickTag: "日常评价",
+            isLoggedIn: false,
+            aiMessages: [...aiConversationTemplate],
+            currentUser: {
+                name: "系统管理员",
+                department: "采购管理部"
+            }
+        };
+
+        const annualEvaluationWindow = {
+            start: "2026-11-01",
+            end: "2026-12-31"
+        };
+
+        const qualificationLogs = {
+            "BL-2024-8812": [
+                { title: "2026-06-10 已升级加急催办", desc: "采购管理部已通知供应商于 24 小时内补充最新营业执照。" },
+                { title: "2026-06-08 证照过期预警", desc: "系统识别该资质已过期，自动推送至重点跟踪列表。" }
+            ],
+            "ISO-2023-2041": [
+                { title: "2026-06-10 待发送续期提醒", desc: "证书剩余 8 天到期，待供应商确认续期计划。" },
+                { title: "2026-06-06 已纳入周跟踪", desc: "质量管理人员已加入本周证照跟踪台账。" }
+            ],
+            "ZY-2024-1048": [
+                { title: "2026-06-10 待提醒", desc: "专业资质还有 15 天到期，等待供应商反馈续办资料。" }
+            ]
+        };
+
+        const exportTemplateRows = {
+            "制造商": [
+                { category: "交付进度情况", item: "1.年度供应产品/服务交付进度情况", score: "25 分", standard: "按期交付配套产品（服务）21-25 分；按时交付率 95%以上 15-20 分；交付率 90%以上 8-14 分；交付率 70%以上 0-7 分。", max: 25 },
+                { category: "质量状况", item: "1.年度供应产品/服务质量情况", score: "20 分", standard: "入厂验收合格率 >99% 18-20 分；95%-99% 12-17 分；90%-95% 6-11 分；90% 以下 0-5 分。", max: 20 },
+                { category: "质量状况", item: "2.使用期间质量情况", score: "10 分", standard: "未发生质量问题 10 分；一般质量问题每次扣 2 分；重大质量问题每次扣 5 分。", max: 10 },
+                { category: "价格状况", item: "1.配套产品价格状况", score: "10 分", standard: "低于市场价 10%以上 8-10 分；低于 5%以上 5-7 分；高于 2%以内 1-4 分；高于 2%以上 0 分。", max: 10 },
+                { category: "价格状况", item: "3.成本控制水平", score: "3 分", standard: "主动降价 10%以上 3 分；5%以上 2 分；3%以上 1 分；其余 0 分。", max: 3 },
+                { category: "价格状况", item: "4.结算方式", score: "2 分", standard: "可接受包括财票在内任何结算方式 2 分；款到发货 1 分；款到排产 0-1 分。", max: 2 },
+                { category: "服务水平", item: "1.质量、进度等问题的响应处理态度", score: "10 分", standard: "响应处理态度认真、端正在约定时间内解决 8-10 分；基本按时 3-7 分；不能按时解决 0-2 分。", max: 10 },
+                { category: "服务水平", item: "2.信息沟通反馈情况", score: "2 分", standard: "及时传递并反馈 2 分；能够较好传递与反馈 0-1 分。", max: 2 },
+                { category: "服务水平", item: "3.产品售后保障", score: "3 分", standard: "很好履行售后保障相关规定 2-3 分；履行态度和能力一般 0-1 分。", max: 3 },
+                { category: "能力水平", item: "1.生产条件保障情况", score: "4 分", standard: "生产条件优秀 3-4 分；基本满足需求 1-2 分；严重不足 0 分。", max: 4 },
+                { category: "能力水平", item: "2.技术与工艺水平", score: "3 分", standard: "技术工艺领先 3 分；基本达标 1-2 分；技术落后 0 分。", max: 3 },
+                { category: "能力水平", item: "3.小批量试用/样品提供能力", score: "3 分", standard: "响应快且质量好 3 分；一般 1-2 分；能力弱 0 分。", max: 3 },
+                { category: "其他", item: "1.长期合作潜力", score: "2 分", standard: "高度契合 2 分；部分契合 1 分；匹配度低 0 分。", max: 2 },
+                { category: "其他", item: "2.风险预警与解决能力", score: "3 分", standard: "主动预警并高效解决 3 分；能识别风险 1-2 分；应对能力弱 0 分。", max: 3 }
+            ],
+            "代理商": [
+                { category: "交付进度情况", item: "1.年度供应产品/服务交付进度情况", score: "30 分", standard: "按期交付 26-30 分；按时交付率 95%以上 17-25 分；交付率 90%以上 9-16 分；交付率 70%以上 0-8 分。", max: 30 },
+                { category: "质量状况", item: "1.年度供应产品/服务质量情况", score: "20 分", standard: "入厂验收合格率 >99% 18-20 分；95%-99% 12-17 分；90%-95% 6-11 分；90% 以下 0-5 分。", max: 20 },
+                { category: "质量状况", item: "2.使用期间质量情况", score: "15 分", standard: "未发生质量问题 15 分；一般质量问题每次扣 2 分；重大质量问题每次扣 5 分。", max: 15 },
+                { category: "价格状况", item: "1.配套产品价格状况", score: "10 分", standard: "低于市场价 10%以上 8-10 分；低于 5%以上 5-7 分；高于 2%以内 1-4 分；高于 2%以上 0 分。", max: 10 },
+                { category: "价格状况", item: "3.成本控制水平", score: "5 分", standard: "主动降价 10%以上 4-5 分；5%以上 2-3 分；3%以上 1 分；其余 0 分。", max: 5 },
+                { category: "价格状况", item: "4.结算方式", score: "5 分", standard: "可接受包括财票在内任何结算方式 4-5 分；款到发货 2-3 分；款到排产 0-1 分。", max: 5 },
+                { category: "服务水平", item: "1.质量、进度等问题的响应处理态度", score: "5 分", standard: "在约定时间内解决 4-5 分；基本按时 2-3 分；不能按时 0-1 分。", max: 5 },
+                { category: "服务水平", item: "2.信息沟通反馈情况", score: "2 分", standard: "及时传递并反馈 2 分；能够较好传递与反馈 0-1 分。", max: 2 },
+                { category: "服务水平", item: "3.产品售后保障", score: "3 分", standard: "很好履行售后保障相关规定 2-3 分；履行态度和能力一般 0-1 分。", max: 3 },
+                { category: "其他", item: "1.长期合作潜力", score: "2 分", standard: "高度契合 2 分；部分契合 1 分；匹配度低 0 分。", max: 2 },
+                { category: "其他", item: "2.风险预警与解决能力", score: "3 分", standard: "主动预警并高效解决 3 分；能识别风险 1-2 分；应对能力弱 0 分。", max: 3 },
+                { category: "其他", item: "3.综合满意度", score: "5 分", standard: "综合实力强 5 分；较好 3 分；一般 1 分；较弱 -3 分；差 -5 分。", max: 5 }
+            ],
+            "服务商": [
+                { category: "交付进度情况", item: "1.年度供应产品/服务交付进度情况", score: "25 分", standard: "按期交付配套产品（服务）21-25 分；按时交付率 95%以上 15-20 分；交付率 90%以上 8-14 分；交付率 70%以上 0-7 分。", max: 25 },
+                { category: "质量状况", item: "1.年度供应产品/服务质量情况", score: "20 分", standard: "服务质量总体优秀 18-20 分；良好 12-17 分；达到要求 6-11 分；一般 0-5 分。", max: 20 },
+                { category: "质量状况", item: "3.服务关键过程（因素）控制情况", score: "15 分", standard: "体系化控制措施完善 12-15 分；识别较全面 7-11 分；有基本控制 3-6 分；未识别 0-2 分。", max: 15 },
+                { category: "价格状况", item: "2.服务产品价格状况", score: "10 分", standard: "同价位项数更多、质量更高 7-10 分；有一定优势 4-6 分；无明显优势 0-3 分。", max: 10 },
+                { category: "价格状况", item: "3.成本控制水平", score: "5 分", standard: "主动降价 10%以上 4-5 分；5%以上 2-3 分；3%以上 1 分；其余 0 分。", max: 5 },
+                { category: "价格状况", item: "4.结算方式", score: "5 分", standard: "可接受包括财票在内任何结算方式 4-5 分；款到发货 2-3 分；款到排产 0-1 分。", max: 5 },
+                { category: "服务水平", item: "1.质量、进度等问题的响应处理态度", score: "10 分", standard: "在约定时间内解决 8-10 分；基本按时 3-7 分；不能按时 0-2 分。", max: 10 },
+                { category: "服务水平", item: "2.信息沟通反馈情况", score: "2 分", standard: "及时传递并反馈 2 分；能够较好传递与反馈 0-1 分。", max: 2 },
+                { category: "服务水平", item: "3.产品售后保障", score: "3 分", standard: "很好履行售后保障相关规定 2-3 分；履行态度和能力一般 0-1 分。", max: 3 },
+                { category: "其他", item: "1.长期合作潜力", score: "2 分", standard: "高度契合 2 分；部分契合 1 分；匹配度低 0 分。", max: 2 },
+                { category: "其他", item: "2.风险预警与解决能力", score: "3 分", standard: "主动预警并高效解决 3 分；能识别风险 1-2 分；应对能力弱 0 分。", max: 3 }
+            ]
+        };
+
+        function showToast(title, message) {
+            const stack = document.getElementById("toastStack");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = `<strong>${title}</strong><span>${message}</span>`;
+            stack.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(8px)";
+                toast.style.transition = "0.2s ease";
+            }, 2200);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function setActiveTag(groupSelector, value) {
+            document.querySelectorAll(`${groupSelector} .filter-tag`).forEach(tag => {
+                tag.classList.toggle("active", tag.dataset.value === value);
+            });
+        }
+
+        function isAnnualEvaluationOpen() {
+            const today = "2026-06-10";
+            return today >= annualEvaluationWindow.start && today <= annualEvaluationWindow.end;
+        }
+
+        function openActionModal({ title, body, actions = [] }) {
+            document.getElementById("actionModalTitle").textContent = title;
+            document.getElementById("actionModalBody").innerHTML = body;
+            const buttonWrap = document.getElementById("actionModalButtons");
+            buttonWrap.innerHTML = actions.map((action, index) => `
+                <button class="btn ${action.variant || (index === actions.length - 1 ? "btn-primary" : "btn-secondary")}" data-action-modal="${action.id}">${action.label}</button>
+            `).join("");
+            buttonWrap.dataset.actions = JSON.stringify(actions);
+            document.getElementById("modal-action").classList.add("active");
+        }
+
+        function closeActionModal() {
+            document.getElementById("modal-action").classList.remove("active");
+            document.getElementById("actionModalBody").innerHTML = "";
+            document.getElementById("actionModalButtons").innerHTML = "";
+            document.getElementById("actionModalButtons").dataset.actions = "[]";
+        }
+
+        function renderSupplierSummary(rows) {
+            const warningCount = rows.filter(item => item.qualification !== "正常").length;
+            const annualPendingCount = rows.filter(item => item.annualPending).length;
+            const html = [
+                { value: rows.length, label: "当前筛选供应商" },
+                { value: rows.filter(item => item.status === "正常合作").length, label: "正常合作" },
+                { value: warningCount, label: "资质预警 / 过期" },
+                { value: annualPendingCount, label: "年度待评" }
+            ].map(item => `
+                <div class="summary-tile">
+                    <strong>${item.value}</strong>
+                    <span>${item.label}</span>
+                </div>
+            `).join("");
+            document.getElementById("supplierSummary").innerHTML = html;
+        }
+
+        function renderSupplierTable() {
+            const search = document.getElementById("supplierSearch").value.trim();
+            const supplierName = document.getElementById("supplierNameFilter").value.trim();
+            const supplierCode = document.getElementById("supplierCodeFilter").value.trim();
+            const supplierContact = document.getElementById("supplierContactFilter").value.trim();
+            const type = document.getElementById("supplierTypeFilter").value;
+            const status = document.getElementById("supplierStatusFilter").value;
+            const domain = document.getElementById("supplierDomainFilter").value;
+            const risk = document.getElementById("supplierRiskFilter").value;
+            const sync = document.getElementById("supplierSyncFilter").value;
+            const qualification = document.getElementById("supplierQualificationFilter").value;
+            const contractNo = document.getElementById("supplierContractFilter").value.trim();
+
+            const rows = suppliers.filter(item => {
+                const matchSearch = !search || [item.name, item.code, item.contact, item.contractNo, item.domains.join(" ")].join(" ").includes(search);
+                const matchName = !supplierName || item.name.includes(supplierName);
+                const matchCode = !supplierCode || item.code.includes(supplierCode);
+                const matchContact = !supplierContact || item.contact.includes(supplierContact);
+                const matchType = !type || item.type === type;
+                const matchStatus = !status || item.status === status;
+                const matchDomain = !domain || item.domains.includes(domain);
+                const matchRisk = !risk || item.risk === risk;
+                const matchQualification = !qualification || item.qualification === qualification;
+                const matchContract = !contractNo || item.contractNo.includes(contractNo);
+                const matchSync = !sync ||
+                    (sync === "24h" && item.syncDays <= 1) ||
+                    (sync === "7d" && item.syncDays <= 7) ||
+                    (sync === "late" && item.syncDays > 7);
+                const matchQuickTag = !state.supplierQuickTag ||
+                    (state.supplierQuickTag === "资质预警" && item.qualification !== "正常") ||
+                    (state.supplierQuickTag === "年度待评" && item.annualPending) ||
+                    (state.supplierQuickTag === "重点观察" && item.status === "重点观察");
+                return matchSearch && matchName && matchCode && matchContact && matchType && matchStatus && matchDomain && matchRisk && matchQualification && matchContract && matchSync && matchQuickTag;
+            });
+
+            renderSupplierSummary(rows);
+            document.getElementById("supplierTableCaption").textContent = `当前共 ${rows.length} 家供应商`;
+            document.getElementById("supplierFooterHint").textContent = rows.length
+                ? `当前展示 ${rows.length} 家供应商，最近同步时间 ${rows[0].syncText}`
+                : "当前无符合条件的供应商数据";
+            document.getElementById("supplierTableBody").innerHTML = rows.length ? rows.map(item => `
+                <tr>
+                    <td>${item.name}<small>主联系人: 采购协同组 / 合同 ${item.contractNo}</small></td>
+                    <td>${item.type}</td>
+                    <td>${item.domains.join("、")}</td>
+                    <td>${renderStatus(item.status)}</td>
+                    <td>${renderStatus(item.qualification === "正常" ? "正常" : item.qualification)}</td>
+                    <td>${renderRiskBadge(item.risk)}</td>
+                    <td>${item.contractNo}</td>
+                    <td>${item.syncText}<small>${item.syncDays <= 1 ? "最近一次同步成功" : "建议尽快复核主数据"}</small></td>
+                    <td>
+                        <div class="op-group">
+                            <button class="mini-btn" data-action="view-supplier" data-supplier="${item.name}">查看详情</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("") : `<tr><td colspan="9"><div class="empty-state">未检索到符合条件的供应商，请调整筛选条件后重试。</div></td></tr>`;
+        }
+
+        function renderQualificationSummary(rows) {
+            const expired = rows.filter(item => item.status === "过期").length;
+            const warning = rows.filter(item => item.status === "预警").length;
+            const normal = rows.filter(item => item.status === "正常").length;
+            document.getElementById("qualificationSummary").innerHTML = `
+                <div class="risk-card red"><div>已过期</div><strong>${expired}</strong></div>
+                <div class="risk-card orange"><div>30 天内预警</div><strong>${warning}</strong></div>
+                <div class="risk-card green"><div>正常跟踪</div><strong>${normal}</strong></div>
+            `;
+        }
+
+        function renderQualificationTable() {
+            const risk = document.getElementById("qualificationRiskFilter").value;
+            const type = document.getElementById("qualificationTypeFilter").value;
+            const windowValue = document.getElementById("qualificationWindowFilter").value;
+            const search = document.getElementById("qualificationSearch").value.trim();
+            const action = document.getElementById("qualificationActionFilter").value;
+
+            const rows = qualifications.filter(item => {
+                const matchRisk = !risk || item.status === risk;
+                const matchType = !type || item.type === type;
+                const matchSearch = !search || [item.supplier, item.code].join(" ").includes(search);
+                const matchAction = !action || item.action === action;
+                const matchWindow = !windowValue ||
+                    (windowValue === "expired" && item.daysLeft < 0) ||
+                    (windowValue === "30" && item.daysLeft >= 0 && item.daysLeft <= 30) ||
+                    (windowValue === "90" && item.daysLeft >= 0 && item.daysLeft <= 90);
+                return matchRisk && matchType && matchSearch && matchAction && matchWindow;
+            });
+
+            renderQualificationSummary(rows);
+            document.getElementById("qualificationCaption").textContent = `筛选结果 ${rows.length} 条`;
+            document.getElementById("qualificationFooterHint").textContent = rows.length
+                ? `当前风险视图共 ${rows.length} 条记录，优先处理 ${rows.filter(item => item.status !== "正常").length} 条异常项`
+                : "当前无符合筛选条件的资质记录";
+            document.getElementById("qualificationTableBody").innerHTML = rows.length ? rows.map(item => `
+                <tr>
+                    <td>${item.supplier}</td>
+                    <td>${item.type}</td>
+                    <td>${item.code}</td>
+                    <td>${item.expireDate}</td>
+                    <td style="color: ${item.daysLeft < 0 ? "#ffb5b5" : item.daysLeft <= 30 ? "#ffd08f" : "#9ef5e8"};">${item.daysLeft < 0 ? item.daysLeft : "+" + item.daysLeft} 天</td>
+                    <td>${renderStatus(item.status)}</td>
+                    <td>${renderStatus(item.action)}</td>
+                    <td>${item.owner}</td>
+                    <td>
+                        <div class="op-group">
+                            <button class="mini-btn" data-action="view-qualification" data-code="${item.code}">查看证照</button>
+                            <button class="mini-btn" data-action="handle-qualification" data-code="${item.code}">${item.status === "过期" ? "立即催办" : item.status === "预警" ? "发送提醒" : "跟踪记录"}</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("") : `<tr><td colspan="9"><div class="empty-state">当前筛选条件下暂无资质风险记录。</div></td></tr>`;
+        }
+
+        function renderEvaluationSummary(rows) {
+            const html = [
+                { value: rows.length, label: "当前评价记录" },
+                { value: rows.filter(item => item.evaluationType === "日常评价").length, label: "日常评价" },
+                { value: rows.filter(item => item.evaluationType === "年度评价").length, label: "年度评价" },
+                { value: rows.length ? Math.round(rows.reduce((sum, item) => sum + item.score, 0) / rows.length) : 0, label: "平均最终评分" }
+            ].map(item => `
+                <div class="summary-tile">
+                    <strong>${item.value}</strong>
+                    <span>${item.label}</span>
+                </div>
+            `).join("");
+            document.getElementById("evaluationSummary").innerHTML = html;
+        }
+
+        function renderEvaluationTable() {
+            const start = document.getElementById("evaluationStartDate").value;
+            const end = document.getElementById("evaluationEndDate").value;
+            const supplier = document.getElementById("evaluationSupplierFilter").value;
+            const type = document.getElementById("evaluationTypeFilter").value;
+            const supplierType = document.getElementById("evaluationSupplierTypeFilter").value;
+            const score = document.getElementById("evaluationScoreFilter").value;
+
+            const rows = evaluations.filter(item => {
+                const matchDate = (!start || item.date >= start) && (!end || item.date <= end);
+                const matchSupplier = !supplier || item.supplier === supplier;
+                const matchType = !type || item.evaluationType === type;
+                const matchSupplierType = !supplierType || item.supplierType === supplierType;
+                const matchScore = !score ||
+                    (score === "90" && item.score >= 90) ||
+                    (score === "80" && item.score >= 80 && item.score < 90) ||
+                    (score === "70" && item.score >= 70 && item.score < 80) ||
+                    (score === "69" && item.score < 70);
+                const matchQuickTag = !state.evaluationQuickTag ||
+                    (state.evaluationQuickTag === "评价中" && item.status === "评价中") ||
+                    (state.evaluationQuickTag === "高分供应商" && item.score >= 90) ||
+                    (state.evaluationQuickTag === "日常评价" && item.evaluationType === "日常评价") ||
+                    (state.evaluationQuickTag === "年度评价" && item.evaluationType === "年度评价");
+                return matchDate && matchSupplier && matchType && matchSupplierType && matchScore && matchQuickTag;
+            });
+
+            renderEvaluationSummary(rows);
+            document.getElementById("evaluationCaption").textContent = `筛选结果 ${rows.length} 条`;
+            document.getElementById("evaluationFooterHint").textContent = rows.length
+                ? `当前视图 ${type || "全部类型"}，平均最终评分 ${Math.round(rows.reduce((sum, item) => sum + item.score, 0) / rows.length)}`
+                : "当前没有符合筛选条件的评价记录";
+            document.getElementById("evaluationTableBody").innerHTML = rows.length ? rows.map(item => `
+                <tr>
+                    <td>${item.date}</td>
+                    <td>${item.supplier}</td>
+                    <td>${item.supplierType}</td>
+                    <td>${renderStatus(item.evaluationType)}</td>
+                    <td>${item.contractNo}</td>
+                    <td>${item.domain}</td>
+                    <td>${item.evaluators.join("、")}<small>${item.evaluators.length} 人联合评价</small></td>
+                    <td><strong style="color:${item.score >= 90 ? "#d1ba7a" : item.score >= 80 ? "#9ef5e8" : item.score >= 70 ? "#ffd08f" : "#ffb5b5"};">${item.score}</strong><small>百分制最终评分</small></td>
+                    <td>${renderStatus(item.status)}</td>
+                    <td>
+                        <div class="op-group">
+                            <button class="mini-btn" data-action="view-evaluation" data-supplier="${item.supplier}" data-type="${item.evaluationType}">查看</button>
+                            <button class="mini-btn" data-action="export-evaluation" data-supplier="${item.supplier}">导出</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("") : `<tr><td colspan="10"><div class="empty-state">当前没有符合筛选条件的评价记录。</div></td></tr>`;
+        }
+
+        function getFilteredEvaluations() {
+            const start = document.getElementById("evaluationStartDate").value;
+            const end = document.getElementById("evaluationEndDate").value;
+            const supplier = document.getElementById("evaluationSupplierFilter").value;
+            const type = document.getElementById("evaluationTypeFilter").value;
+            const supplierType = document.getElementById("evaluationSupplierTypeFilter").value;
+            const score = document.getElementById("evaluationScoreFilter").value;
+
+            return evaluations.filter(item => {
+                const matchDate = (!start || item.date >= start) && (!end || item.date <= end);
+                const matchSupplier = !supplier || item.supplier === supplier;
+                const matchType = !type || item.evaluationType === type;
+                const matchSupplierType = !supplierType || item.supplierType === supplierType;
+                const matchScore = !score ||
+                    (score === "90" && item.score >= 90) ||
+                    (score === "80" && item.score >= 80 && item.score < 90) ||
+                    (score === "70" && item.score >= 70 && item.score < 80) ||
+                    (score === "69" && item.score < 70);
+                const matchQuickTag = !state.evaluationQuickTag ||
+                    (state.evaluationQuickTag === "评价中" && item.status === "评价中") ||
+                    (state.evaluationQuickTag === "高分供应商" && item.score >= 90) ||
+                    (state.evaluationQuickTag === "日常评价" && item.evaluationType === "日常评价") ||
+                    (state.evaluationQuickTag === "年度评价" && item.evaluationType === "年度评价");
+                return matchDate && matchSupplier && matchType && matchSupplierType && matchScore && matchQuickTag;
+            });
+        }
+
+        function renderStatus(status) {
+            const className = status.includes("过期") || status.includes("暂停") || status.includes("整改") ? "danger" :
+                status.includes("预警") || status.includes("待评价") || status.includes("待提醒") || status.includes("重点观察") ? "warning" :
+                status.includes("评价中") ? "info" :
+                status.includes("年度评价") || status.includes("日常评价") || status.includes("已催办") ? "info" : "success";
+            return `<span class="status-badge ${className}">${status}</span>`;
+        }
+
+        function renderAiConversation() {
+            const thread = document.getElementById("aiChatThread");
+            thread.innerHTML = state.aiMessages.map(message => `
+                <div class="chat-message ${message.role}">
+                    <div class="chat-avatar">${message.role === "ai" ? "智" : "问"}</div>
+                    <div class="chat-bubble">
+                        <strong>${message.title}</strong>
+                        <div>${message.content}</div>
+                        <div class="chat-time">${message.time}</div>
+                    </div>
+                </div>
+            `).join("");
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function sendAiMessage() {
+            const input = document.getElementById("aiChatInput");
+            const content = input.value.trim();
+            if (!content) {
+                showToast("请输入问题", "可以直接输入想查看的风险、建议或供应商分析内容。");
+                return;
+            }
+            state.aiMessages.push({
+                role: "user",
+                title: "用户提问",
+                content,
+                time: "今天 09:34"
+            });
+            state.aiMessages.push({
+                role: "ai",
+                title: "智能分析助手",
+                content: "已收到你的问题。当前原型以对话模版方式展示分析结果，后续可接入真实模型能力，结合供应商主数据、资质状态、评价结果和合同履约信息生成针对性结论。",
+                time: "今天 09:34"
+            });
+            input.value = "";
+            renderAiConversation();
+        }
+
+        function refreshDashboardCharts(retryCount = 0) {
+            const typeEl = document.getElementById("supplierTypeChart");
+            const trendEl = document.getElementById("evaluationTrendChart");
+            if (!typeEl || !trendEl) return;
+
+            const typeRect = typeEl.getBoundingClientRect();
+            const trendRect = trendEl.getBoundingClientRect();
+            const chartsReady = typeRect.width > 0 && typeRect.height > 0 && trendRect.width > 0 && trendRect.height > 0;
+
+            if (!chartsReady && retryCount < 8) {
+                requestAnimationFrame(() => refreshDashboardCharts(retryCount + 1));
+                return;
+            }
+
+            initCharts();
+            resizeDashboardCharts();
+        }
+
+        function updateLoginView() {
+            document.getElementById("loginScreen").classList.toggle("hidden", state.isLoggedIn);
+            document.getElementById("appShell").classList.toggle("hidden", !state.isLoggedIn);
+            document.getElementById("userMenu").classList.add("hidden");
+            if (state.isLoggedIn) {
+                requestAnimationFrame(() => refreshDashboardCharts());
+            }
+        }
+
+        function getGreetingByHour() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "上午";
+            if (hour < 18) return "下午";
+            return "晚上";
+        }
+
+        function updateUserDisplay() {
+            const greetingEl = document.getElementById("userGreeting");
+            const metaEl = document.getElementById("userMeta");
+            if (greetingEl) {
+                greetingEl.textContent = `${getGreetingByHour()}好，${state.currentUser.name}`;
+            }
+            if (metaEl) {
+                metaEl.textContent = `${state.currentUser.department} / 今日已同步 09:30`;
+            }
+        }
+
+        function login(source) {
+            state.currentUser = source === "ding"
+                ? { name: "系统管理员", department: "采购管理部" }
+                : { name: "演示用户", department: "采购管理部" };
+            state.isLoggedIn = true;
+            updateUserDisplay();
+            updateLoginView();
+            showToast("登录成功", source === "ding" ? "已完成钉钉登录，欢迎进入供应商管理系统。" : "已使用演示账号进入系统。");
+        }
+
+        function logout() {
+            state.isLoggedIn = false;
+            updateLoginView();
+            showToast("已退出登录", "当前账号已安全退出。");
+        }
+
+        function renderRiskBadge(risk) {
+            if (risk === "高风险") return `<span class="status-badge danger">${risk}</span>`;
+            if (risk === "中风险") return `<span class="status-badge warning">${risk}</span>`;
+            return `<span class="status-badge success">${risk}</span>`;
+        }
+
+        function getSupplierByName(name) {
+            return suppliers.find(item => item.name === name);
+        }
+
+        function getExportRowsForEvaluation(evaluation) {
+            return exportTemplateRows[evaluation.supplierType] || exportTemplateRows["制造商"];
+        }
+
+        function allocateScores(totalScore, rows) {
+            const maxTotal = rows.reduce((sum, row) => sum + row.max, 0) || 1;
+            let remaining = totalScore;
+            return rows.map((row, index) => {
+                if (index === rows.length - 1) {
+                    const last = Math.max(0, Math.min(row.max, Number(remaining.toFixed(1))));
+                    return last;
+                }
+                const raw = (totalScore * row.max) / maxTotal;
+                const value = Math.max(0, Math.min(row.max, Number(raw.toFixed(1))));
+                remaining -= value;
+                return value;
+            });
+        }
+
+        function buildExportHtml(records, titleText) {
+            const sections = records.map((evaluation, recordIndex) => {
+                const supplier = getSupplierByName(evaluation.supplier);
+                const rows = getExportRowsForEvaluation(evaluation);
+                const allocated = allocateScores(evaluation.score, rows);
+                return `
+                    <section class="sheet ${recordIndex ? "page-break" : ""}">
+                        <div class="doc-title">附件7</div>
+                        <div class="doc-subtitle">合格供应商年度打分评价表</div>
+                        <div class="doc-caption">（非航天防务领域）</div>
+                        <div class="doc-meta-grid">
+                            <div><strong>供应商名称：</strong>${evaluation.supplier}</div>
+                            <div><strong>供应商类别：</strong>${evaluation.evaluationType}</div>
+                            <div><strong>采购领域：</strong>${evaluation.domain}</div>
+                            <div><strong>类型：</strong>${evaluation.supplierType}</div>
+                            <div><strong>评价产品范围：</strong>${evaluation.domain}</div>
+                            <div><strong>供应商分类：</strong>合格供应商</div>
+                            <div><strong>一级分类：</strong>${supplier?.domains?.[0] || evaluation.domain}</div>
+                            <div><strong>二级分类：</strong>${supplier?.domains?.[1] || "—"}</div>
+                            <div><strong>三级分类：</strong>—</div>
+                            <div><strong>考核起止日期：</strong>${evaluation.evaluationType === "年度评价" ? "2026-01-01 至 2026-12-31" : `${supplier?.contractEndDate || evaluation.date} 合同结束后一单一评`}</div>
+                            <div><strong>评价单位：</strong>采购管理部</div>
+                            <div><strong>管理属性分类：</strong>日常型</div>
+                            <div><strong>一级黑名单：</strong>否</div>
+                            <div><strong>二级黑名单：</strong>否</div>
+                            <div><strong>三级黑名单：</strong>否</div>
+                            <div><strong>评价人员：</strong>${evaluation.evaluators.join("、")}</div>
+                            <div><strong>合同流水号：</strong>${evaluation.contractNo}</div>
+                            <div><strong>评价日期：</strong>${evaluation.date}</div>
+                        </div>
+                        <table class="export-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:120px;">项目</th>
+                                    <th style="width:260px;">评分项目</th>
+                                    <th>评分标准</th>
+                                    <th style="width:90px;">分值</th>
+                                    <th style="width:90px;">得分</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.map((row, index) => `
+                                    <tr>
+                                        <td>${row.category}</td>
+                                        <td>${row.item}</td>
+                                        <td>${row.standard}</td>
+                                        <td>${row.score}</td>
+                                        <td>${allocated[index]}</td>
+                                    </tr>
+                                `).join("")}
+                                <tr>
+                                    <td colspan="3" style="text-align:right;"><strong>总分</strong></td>
+                                    <td><strong>100 分</strong></td>
+                                    <td><strong>${evaluation.score}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="doc-footer">注：评价组可根据实际情况调整该表使用</div>
+                    </section>
+                `;
+            }).join("");
+
+            return `
+                <!DOCTYPE html>
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${titleText}</title>
+                    <style>
+                        body { font-family: "SimSun", "Songti SC", serif; margin: 0; background: #f2f2f2; color: #111; }
+                        .sheet { width: 1120px; margin: 24px auto; background: #fff; padding: 36px 42px; box-sizing: border-box; }
+                        .page-break { page-break-before: always; }
+                        .doc-title, .doc-subtitle, .doc-caption { text-align: center; }
+                        .doc-title { font-size: 20px; margin-bottom: 10px; }
+                        .doc-subtitle { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+                        .doc-caption { font-size: 16px; margin-bottom: 24px; }
+                        .doc-meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px 20px; font-size: 14px; margin-bottom: 18px; }
+                        .export-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+                        .export-table th, .export-table td { border: 1px solid #111; padding: 8px 10px; vertical-align: top; line-height: 1.55; }
+                        .export-table th { text-align: center; }
+                        .doc-footer { margin-top: 14px; font-size: 12px; }
+                        @media print {
+                            body { background: #fff; }
+                            .sheet { width: auto; margin: 0; padding: 12mm; box-shadow: none; }
+                        }
+                    </style>
+                </head>
+                <body>${sections}</body>
+                </html>
+            `;
+        }
+
+        function exportEvaluations(records, filenamePrefix) {
+            if (!records.length) {
+                showToast("无可导出数据", "当前范围内没有评价记录可导出。");
+                return;
+            }
+            const html = buildExportHtml(records, `${filenamePrefix}导出`);
+            const win = window.open("", "_blank");
+            if (!win) {
+                showToast("导出受阻", "浏览器拦截了新窗口，请允许弹窗后重试。");
+                return;
+            }
+            win.document.open();
+            win.document.write(html);
+            win.document.close();
+            showToast("导出已生成", `${filenamePrefix}已按附件7格式生成，可直接打印或另存。`);
+        }
+
+        function buildDetailGrid(items) {
+            return `
+                <div class="detail-grid">
+                    ${items.map(item => `
+                        <div class="detail-item">
+                            <label>${item.label}</label>
+                            <strong>${item.value}</strong>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function openSupplierDetail(name) {
+            const supplier = suppliers.find(item => item.name === name);
+            if (!supplier) return;
+            openActionModal({
+                title: `${supplier.name} · 供应商详情`,
+                body: `
+                    <div class="section-card">
+                        <h4>基础信息</h4>
+                        ${buildDetailGrid([
+                            { label: "供应商类型", value: supplier.type },
+                            { label: "主合同", value: supplier.contractNo },
+                            { label: "采购领域", value: supplier.domains.join("、") },
+                            { label: "合作状态", value: supplier.status },
+                            { label: "资质状态", value: supplier.qualification },
+                            { label: "风险标签", value: supplier.risk },
+                            { label: "合同结束日期", value: supplier.contractEndDate },
+                            { label: "协同状态", value: supplier.dailyEvaluationPending ? `合同已结束待跟进${supplier.dingTalkPushed ? " / 已推送钉钉" : ""}` : "当前协同正常" }
+                        ])}
+                    </div>
+                    <div class="section-card">
+                        <h4>最近动态</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">2026-06-10 主数据同步完成<small>系统已同步供应商基础信息与合同关联数据。</small></div>
+                            <div class="timeline-item">2026-06-05 日常评价已归档<small>最新日常评价得分已计入履约看板。</small></div>
+                            <div class="timeline-item">2026-06-01 风险标签更新<small>根据资质、评价和合同执行情况刷新供应商风险等级。</small></div>
+                        </div>
+                    </div>
+                `,
+                actions: [
+                    { id: `supplier-sync:${supplier.name}`, label: "发起同步", variant: "btn-primary" }
+                ]
+            });
+        }
+
+        function openQualificationDetail(code) {
+            const qualification = qualifications.find(item => item.code === code);
+            if (!qualification) return;
+            const logs = qualificationLogs[code] || [];
+            openActionModal({
+                title: `${qualification.type} · 证照详情`,
+                body: `
+                    <div class="section-card">
+                        <h4>证照信息</h4>
+                        ${buildDetailGrid([
+                            { label: "供应商", value: qualification.supplier },
+                            { label: "证书编号", value: qualification.code },
+                            { label: "有效期至", value: qualification.expireDate },
+                            { label: "剩余天数", value: `${qualification.daysLeft < 0 ? qualification.daysLeft : "+" + qualification.daysLeft} 天` },
+                            { label: "状态", value: qualification.status },
+                            { label: "责任人", value: qualification.owner }
+                        ])}
+                    </div>
+                    <div class="section-card">
+                        <h4>处理记录</h4>
+                        <div class="timeline">
+                            ${logs.length ? logs.map(log => `<div class="timeline-item">${log.title}<small>${log.desc}</small></div>`).join("") : `<div class="timeline-item">暂无处理记录<small>该证照尚未产生跟踪或处置记录。</small></div>`}
+                        </div>
+                    </div>
+                `,
+                actions: [
+                    { id: `qualification-handle:${qualification.code}`, label: qualification.status === "正常" ? "跟踪记录" : qualification.status === "预警" ? "发送提醒" : "立即催办", variant: "btn-primary" }
+                ]
+            });
+        }
+
+        function openEvaluationDetail(name, type) {
+            const evaluation = evaluations.find(item => item.supplier === name && item.evaluationType === type) || evaluations.find(item => item.supplier === name);
+            if (!evaluation) return;
+            openActionModal({
+                title: `${evaluation.supplier} · ${evaluation.evaluationType}`,
+                body: `
+                    <div class="section-card">
+                        <h4>评价摘要</h4>
+                        ${buildDetailGrid([
+                            { label: "评价时间", value: evaluation.date },
+                            { label: "供应商类型", value: evaluation.supplierType },
+                            { label: "合同流水号", value: evaluation.contractNo },
+                            { label: "采购领域", value: evaluation.domain },
+                            { label: "评价人员", value: evaluation.evaluators.join("、") },
+                            { label: "最终评分", value: `${evaluation.score} 分` }
+                        ])}
+                    </div>
+                    <div class="section-card">
+                        <h4>评价结论</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">综合状态: ${evaluation.status}<small>系统已根据最终评分和流程节点更新记录状态。</small></div>
+                            <div class="timeline-item">评分归类: ${evaluation.score >= 90 ? "优秀" : evaluation.score >= 80 ? "良好" : evaluation.score >= 70 ? "观察" : "整改"}<small>可继续结合合同与资质情况做后续协同动作。</small></div>
+                        </div>
+                    </div>
+                `,
+                actions: [
+                    { id: `evaluation-export:${evaluation.supplier}`, label: "导出评价", variant: "btn-secondary" },
+                    { id: `evaluation-reuse:${evaluation.supplier}`, label: "再次发起评价", variant: "btn-primary" }
+                ]
+            });
+        }
+
+        function createQuestionHTML(item, prefix, checkedIndex = 1) {
+            return `
+                <div class="question-card">
+                    <div class="meta">${item.section || item.category}</div>
+                    <h5>${item.question}</h5>
+                    <div class="question-options">
+                        ${satisfactionOptions.map((option, index) => `
+                            <label class="question-option">
+                                <input type="radio" name="${prefix}-${item.id}" value="${option}" ${index === checkedIndex ? "checked" : ""}>
+                                <span>${option}</span>
+                            </label>
+                        `).join("")}
+                    </div>
+                    ${item.hint ? `<div class="question-note">${item.hint}</div>` : ""}
+                </div>
+            `;
+        }
+
+        function renderQuestionnaires() {
+            document.getElementById("dailyQuestionList").innerHTML = dailyQuestions.map((item, index) => createQuestionHTML(item, "daily", index % 2)).join("");
+            updateAnnualQuestionnaire();
+            bindQuestionScoreListeners();
+            updateScore();
+        }
+
+        function updateAnnualQuestionnaire() {
+            const supplierType = document.getElementById("formSupplierType").value;
+            const questions = annualQuestionBank[supplierType] || [];
+            document.getElementById("annualQuestionDesc").textContent = `${supplierType}年度评价问卷，共 ${questions.length} 题。请结合年度实际合作情况逐项完成评价。`;
+            document.getElementById("annualQuestionList").innerHTML = questions.map((item, index) => createQuestionHTML(item, "annual", index === 0 ? 0 : 1)).join("");
+            bindQuestionScoreListeners();
+            updateScore();
+        }
+
+        function bindQuestionScoreListeners() {
+            document.querySelectorAll('#modal-addEvaluation input[type="radio"]').forEach(input => {
+                input.removeEventListener("change", updateScore);
+                input.addEventListener("change", updateScore);
+            });
+        }
+
+        function updateScore() {
+            const type = document.getElementById("formEvaluationType").value;
+            const selector = type === "年度评价" ? "#annualEvaluationSection input[type='radio']:checked" : "#dailyEvaluationSection input[type='radio']:checked";
+            const checked = Array.from(document.querySelectorAll(selector));
+            const total = checked.reduce((sum, input) => sum + satisfactionScoreMap[input.value], 0);
+            const average = checked.length ? Math.round(total / checked.length) : 0;
+            document.getElementById("evaluationScoreDisplay").textContent = average;
+            document.getElementById("evaluationQuestionCount").textContent = `已填写 ${checked.length} 题`;
+            document.getElementById("evaluationScoreText").textContent =
+                average >= 90 ? "综合表现优秀，建议列入优选关注名单" :
+                average >= 80 ? "满足优选合格供应商参考要求" :
+                average >= 70 ? "建议持续观察并制定改进计划" :
+                "建议启动整改或重新评估合作策略";
+        }
+
+        function collectCheckedLabels(selector) {
+            return Array.from(document.querySelectorAll(selector))
+                .filter(input => input.checked)
+                .map(input => input.nextElementSibling.textContent.trim());
+        }
+
+        function syncEvaluationFormWithSupplier() {
+            const supplierName = document.getElementById("formSupplier").value;
+            const supplier = suppliers.find(item => item.name === supplierName);
+            if (!supplier) return;
+            document.getElementById("formSupplierType").value = supplier.type;
+            document.getElementById("formContractNo").value = supplier.contractNo;
+            document.getElementById("formTypeDesc").value = supplier.type === "制造商" ? "制造型 / 配套加工" : supplier.type === "服务商" ? "服务型 / 运维保障" : "代理型 / 分销协同";
+            document.getElementById("formProductScope").value = supplier.domains.join("、");
+            updateAnnualQuestionnaire();
+        }
+
+        function toggleEvaluationMode() {
+            const type = document.getElementById("formEvaluationType").value;
+            document.getElementById("dailyEvaluationSection").classList.toggle("hidden", type !== "日常评价");
+            document.getElementById("annualEvaluationSection").classList.toggle("hidden", type !== "年度评价");
+            updateScore();
+        }
+
+        function fillSupplierOptions() {
+            const supplierOptions = ['<option value="">全部供应商</option>'].concat(
+                suppliers.map(item => `<option value="${item.name}">${item.name}</option>`)
+            ).join("");
+            document.getElementById("evaluationSupplierFilter").innerHTML = supplierOptions;
+            document.getElementById("formSupplier").innerHTML = suppliers.map(item => `<option value="${item.name}">${item.name}</option>`).join("");
+        }
+
+        function resetSupplierFilters() {
+            document.getElementById("supplierSearch").value = "";
+            document.getElementById("supplierNameFilter").value = "";
+            document.getElementById("supplierCodeFilter").value = "";
+            document.getElementById("supplierContactFilter").value = "";
+            document.getElementById("supplierTypeFilter").value = "";
+            document.getElementById("supplierStatusFilter").value = "";
+            document.getElementById("supplierDomainFilter").value = "";
+            document.getElementById("supplierRiskFilter").value = "";
+            document.getElementById("supplierSyncFilter").value = "";
+            document.getElementById("supplierQualificationFilter").value = "";
+            document.getElementById("supplierContractFilter").value = "";
+            state.supplierQuickTag = "";
+            setActiveTag("#supplierQuickTags", "");
+            renderSupplierTable();
+        }
+
+        function resetQualificationFilters() {
+            document.getElementById("qualificationRiskFilter").value = "";
+            document.getElementById("qualificationTypeFilter").value = "";
+            document.getElementById("qualificationWindowFilter").value = "";
+            document.getElementById("qualificationSearch").value = "";
+            document.getElementById("qualificationActionFilter").value = "";
+            renderQualificationTable();
+        }
+
+        function resetEvaluationFilters() {
+            document.getElementById("evaluationStartDate").value = "2026-01-01";
+            document.getElementById("evaluationEndDate").value = "2026-12-31";
+            document.getElementById("evaluationSupplierFilter").value = "";
+            document.getElementById("evaluationTypeFilter").value = "日常评价";
+            document.getElementById("evaluationSupplierTypeFilter").value = "";
+            document.getElementById("evaluationScoreFilter").value = "";
+            state.evaluationQuickTag = "日常评价";
+            setActiveTag("#evaluationTags", "日常评价");
+            renderEvaluationTable();
+        }
+
+        function showPage(pageName) {
+            document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+            document.getElementById(`page-${pageName}`).classList.add("active");
+            document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+            document.querySelector(`.nav-item[data-page="${pageName}"]`).classList.add("active");
+            if (pageName === "dashboard") requestAnimationFrame(() => refreshDashboardCharts());
+        }
+
+        function getSupplierTypeStats() {
+            const mapping = { "制造商": 0, "代理商": 0, "服务商": 0 };
+            suppliers.forEach(item => {
+                if (mapping[item.type] !== undefined) mapping[item.type] += 1;
+            });
+            return [
+                { name: "制造商", value: mapping["制造商"], color: "#76c4ad" },
+                { name: "代理商", value: mapping["代理商"], color: "#f0be74" },
+                { name: "服务商", value: mapping["服务商"], color: "#8ab6e8" }
+            ];
+        }
+
+        function getEvaluationTrendStats() {
+            const monthMap = new Map();
+            ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06"].forEach((month, index) => {
+                monthMap.set(month, { label: `${index + 1}月`, scores: [], count: 0 });
+            });
+            evaluations.forEach(item => {
+                const key = item.date.slice(0, 7);
+                if (monthMap.has(key)) {
+                    const row = monthMap.get(key);
+                    row.scores.push(item.score);
+                    row.count += 1;
+                }
+            });
+            return Array.from(monthMap.values()).map(item => ({
+                label: item.label,
+                avgScore: item.scores.length ? Math.round(item.scores.reduce((sum, score) => sum + score, 0) / item.scores.length) : 0,
+                count: item.count
+            }));
+        }
+
+        function renderTypeChartFallback(typeEl) {
+            const stats = getSupplierTypeStats();
+            const total = stats.reduce((sum, item) => sum + item.value, 0) || 1;
+            let currentAngle = -90;
+            const segments = stats.map(item => {
+                const angle = (item.value / total) * 360;
+                const start = currentAngle;
+                const end = currentAngle + angle;
+                currentAngle = end;
+                return { ...item, start, end, percent: ((item.value / total) * 100).toFixed(1) };
+            });
+
+            const polarToCartesian = (cx, cy, r, angleDeg) => {
+                const rad = (angleDeg - 90) * Math.PI / 180.0;
+                return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+            };
+
+            const describeArc = (cx, cy, rOuter, rInner, startAngle, endAngle) => {
+                const startOuter = polarToCartesian(cx, cy, rOuter, endAngle);
+                const endOuter = polarToCartesian(cx, cy, rOuter, startAngle);
+                const startInner = polarToCartesian(cx, cy, rInner, endAngle);
+                const endInner = polarToCartesian(cx, cy, rInner, startAngle);
+                const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+                return [
+                    `M ${startOuter.x} ${startOuter.y}`,
+                    `A ${rOuter} ${rOuter} 0 ${largeArcFlag} 0 ${endOuter.x} ${endOuter.y}`,
+                    `L ${endInner.x} ${endInner.y}`,
+                    `A ${rInner} ${rInner} 0 ${largeArcFlag} 1 ${startInner.x} ${startInner.y}`,
+                    "Z"
+                ].join(" ");
+            };
+
+            typeEl.innerHTML = `
+                <svg class="chart-fallback" viewBox="0 0 560 320" role="img" aria-label="供应商类型分布图">
+                    <g transform="translate(0, 6)">
+                        ${segments.map(item => `<path d="${describeArc(210, 150, 88, 50, item.start, item.end)}" fill="${item.color}" stroke="#f4fbf8" stroke-width="8"></path>`).join("")}
+                        ${segments.map((item, index) => `
+                            <g transform="translate(360, ${92 + index * 52})">
+                                <rect width="14" height="14" rx="4" fill="${item.color}"></rect>
+                                <text x="24" y="12" font-size="14" fill="#18342f">${item.name}</text>
+                                <text x="120" y="12" font-size="14" fill="#62827b">${item.value} 家 / ${item.percent}%</text>
+                            </g>
+                        `).join("")}
+                        <text x="210" y="145" text-anchor="middle" font-size="14" fill="#62827b">供应商总数</text>
+                        <text x="210" y="170" text-anchor="middle" font-size="26" font-weight="700" fill="#18342f">${total}</text>
+                    </g>
+                </svg>
+            `;
+        }
+
+        function renderTrendChartFallback(trendEl) {
+            const stats = getEvaluationTrendStats();
+            const maxCount = Math.max(...stats.map(item => item.count), 1);
+            const pointYs = stats.map(item => 250 - ((item.avgScore || 70) - 70) / 30 * 170);
+            const linePoints = stats.map((item, index) => `${70 + index * 82},${pointYs[index]}`).join(" ");
+            trendEl.innerHTML = `
+                <svg class="chart-fallback" viewBox="0 0 560 320" role="img" aria-label="供应商评价趋势图">
+                    <g>
+                        ${[0,1,2,3,4,5].map(i => `<line x1="60" y1="${70 + i * 36}" x2="520" y2="${70 + i * 36}" stroke="rgba(98,130,123,0.12)"></line>`).join("")}
+                        ${stats.map((item, index) => {
+                            const x = 82 + index * 82;
+                            const barHeight = (item.count / maxCount) * 110;
+                            return `
+                                <rect x="${x}" y="${250 - barHeight}" width="34" height="${barHeight}" rx="10" fill="${item.count ? "url(#barGradient)" : "rgba(155,195,239,0.22)"}"></rect>
+                                <text x="${x + 17}" y="282" text-anchor="middle" font-size="13" fill="#62827b">${item.label}</text>
+                            `;
+                        }).join("")}
+                        <polyline fill="none" stroke="#76c4ad" stroke-width="3" points="${linePoints}"></polyline>
+                        ${stats.map((item, index) => {
+                            const x = 70 + index * 82;
+                            const y = pointYs[index];
+                            return `<circle cx="${x}" cy="${y}" r="5" fill="#ffffff" stroke="#76c4ad" stroke-width="3"></circle>`;
+                        }).join("")}
+                        <text x="430" y="34" font-size="13" fill="#62827b">平均评分</text>
+                        <line x1="390" y1="29" x2="420" y2="29" stroke="#76c4ad" stroke-width="3"></line>
+                        <text x="510" y="34" font-size="13" fill="#62827b">评价数量</text>
+                        <rect x="470" y="20" width="22" height="12" rx="4" fill="url(#barGradient)"></rect>
+                    </g>
+                    <defs>
+                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#9bc3ef"></stop>
+                            <stop offset="100%" stop-color="#6e9dd8"></stop>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            `;
+        }
+
+        let supplierTypeChartInstance = null;
+        let evaluationTrendChartInstance = null;
+
+        function resizeDashboardCharts() {
+            const typeEl = document.getElementById("supplierTypeChart");
+            const trendEl = document.getElementById("evaluationTrendChart");
+            if (supplierTypeChartInstance) {
+                supplierTypeChartInstance.resize();
+            } else if (typeEl && !window.echarts) {
+                renderTypeChartFallback(typeEl);
+            }
+
+            if (evaluationTrendChartInstance) {
+                evaluationTrendChartInstance.resize();
+            } else if (trendEl && !window.echarts) {
+                renderTrendChartFallback(trendEl);
+            }
+        }
+
+        function initCharts() {
+            const typeEl = document.getElementById("supplierTypeChart");
+            const trendEl = document.getElementById("evaluationTrendChart");
+            if (!window.echarts || !typeEl || !trendEl) {
+                supplierTypeChartInstance = null;
+                evaluationTrendChartInstance = null;
+                if (typeEl) renderTypeChartFallback(typeEl);
+                if (trendEl) renderTrendChartFallback(trendEl);
+                return;
+            }
+
+            const typeStats = getSupplierTypeStats();
+            const trendStats = getEvaluationTrendStats();
+            const existingTypeChart = echarts.getInstanceByDom(typeEl);
+            if (existingTypeChart) existingTypeChart.dispose();
+            supplierTypeChartInstance = echarts.init(typeEl);
+            supplierTypeChartInstance.setOption({
+                backgroundColor: "transparent",
+                tooltip: { trigger: "item" },
+                legend: {
+                    bottom: 0,
+                    textStyle: { color: "#62827b" }
+                },
+                series: [{
+                    name: "供应商类型",
+                    type: "pie",
+                    radius: ["42%", "72%"],
+                    center: ["50%", "45%"],
+                    padAngle: 3,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: "#f4fbf8",
+                        borderWidth: 6
+                    },
+                    label: {
+                        color: "#18342f",
+                        formatter: "{b}\n{d}%"
+                    },
+                    data: typeStats.map(item => ({ value: item.value, name: item.name, itemStyle: { color: item.color } }))
+                }]
+            });
+
+            const existingTrendChart = echarts.getInstanceByDom(trendEl);
+            if (existingTrendChart) existingTrendChart.dispose();
+            evaluationTrendChartInstance = echarts.init(trendEl);
+            evaluationTrendChartInstance.setOption({
+                backgroundColor: "transparent",
+                tooltip: { trigger: "axis" },
+                legend: {
+                    top: 0,
+                    textStyle: { color: "#62827b" }
+                },
+                grid: { left: 40, right: 20, top: 48, bottom: 28 },
+                xAxis: {
+                    type: "category",
+                    data: trendStats.map(item => item.label),
+                    axisLine: { lineStyle: { color: "rgba(98,130,123,0.2)" } },
+                    axisLabel: { color: "#62827b" }
+                },
+                yAxis: [
+                    {
+                        type: "value",
+                        min: 70,
+                        max: 100,
+                        axisLine: { show: false },
+                        splitLine: { lineStyle: { color: "rgba(98,130,123,0.12)" } },
+                        axisLabel: { color: "#62827b" }
+                    },
+                    {
+                        type: "value",
+                        min: 0,
+                        max: 12,
+                        axisLabel: { color: "#62827b" },
+                        splitLine: { show: false }
+                    }
+                ],
+                series: [
+                    {
+                        name: "平均评分",
+                        type: "line",
+                        smooth: true,
+                        symbolSize: 8,
+                        yAxisIndex: 0,
+                        lineStyle: { width: 3, color: "#76c4ad" },
+                        itemStyle: { color: "#76c4ad" },
+                        areaStyle: { color: "rgba(118,196,173,0.16)" },
+                        data: trendStats.map(item => item.avgScore)
+                    },
+                    {
+                        name: "评价数量",
+                        type: "bar",
+                        yAxisIndex: 1,
+                        barWidth: 24,
+                        itemStyle: {
+                            color: {
+                                type: "linear",
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: "#9bc3ef" },
+                                    { offset: 1, color: "#6e9dd8" }
+                                ]
+                            },
+                            borderRadius: [8, 8, 0, 0]
+                        },
+                        data: trendStats.map(item => item.count)
+                    }
+                ]
+            });
+        }
+
+        window.addEventListener("resize", resizeDashboardCharts);
+
+        function openEvaluationModal() {
+            document.getElementById("modal-addEvaluation").classList.add("active");
+            toggleEvaluationMode();
+            updateScore();
+        }
+
+        function closeEvaluationModal() {
+            document.getElementById("modal-addEvaluation").classList.remove("active");
+        }
+
+        function openEvaluationForSupplier(supplierName, evaluationType = "日常评价") {
+            openEvaluationModal();
+            const select = document.getElementById("formSupplier");
+            if (supplierName) {
+                select.value = supplierName;
+                syncEvaluationFormWithSupplier();
+            }
+            document.getElementById("formEvaluationType").value = evaluationType;
+            toggleEvaluationMode();
+        }
+
+        function handleQualification(code) {
+            const target = qualifications.find(item => item.code === code);
+            if (!target) return;
+            if (target.status === "过期") {
+                target.action = "已催办";
+                qualificationLogs[code] = [
+                    { title: "2026-06-10 已升级加急催办", desc: "采购管理部已通知供应商于 24 小时内补充最新证照。" },
+                    ...(qualificationLogs[code] || [])
+                ];
+                showToast("催办已发送", `${target.supplier} 的 ${target.type} 已进入加急催办流程。`);
+            } else if (target.status === "预警") {
+                target.action = "已催办";
+                qualificationLogs[code] = [
+                    { title: "2026-06-10 已发送到期提醒", desc: "系统已通知供应商提交续期安排与更新资料。" },
+                    ...(qualificationLogs[code] || [])
+                ];
+                showToast("提醒已发送", `${target.supplier} 的 ${target.type} 已发送到期提醒。`);
+            } else {
+                qualificationLogs[code] = [
+                    { title: "2026-06-10 已新增跟踪记录", desc: "责任人已登记本次证照跟踪情况。" },
+                    ...(qualificationLogs[code] || [])
+                ];
+                showToast("跟踪已记录", `${target.supplier} 的 ${target.type} 已记录本次跟踪动作。`);
+            }
+            renderQualificationTable();
+        }
+
+        function submitEvaluationDraft(mode) {
+            const supplierName = document.getElementById("formSupplier").value;
+            const evaluationType = document.getElementById("formEvaluationType").value;
+            const supplierType = document.getElementById("formSupplierType").value;
+            const contractNo = document.getElementById("formContractNo").value;
+            const evaluators = collectCheckedLabels("#evaluatorField input");
+            const score = Number(document.getElementById("evaluationScoreDisplay").textContent) || 0;
+            if (mode === "submit") {
+                evaluations.unshift({
+                    date: document.getElementById("formDate").value,
+                    supplier: supplierName,
+                    supplierType,
+                    evaluationType,
+                    contractNo,
+                    domain: document.getElementById("formProductScope").value,
+                    evaluators: evaluators.length ? evaluators : ["张三"],
+                    score,
+                    status: evaluationType === "年度评价" ? "待评价" : "已完成"
+                });
+                renderEvaluationTable();
+                closeEvaluationModal();
+                showToast("评价已提交", `${supplierName} ${evaluationType} 已提交，最终评分 ${score} 分。`);
+            } else {
+                showToast("草稿已保存", `${supplierName || "当前评价"} 已保存为草稿，可稍后继续编辑。`);
+            }
+        }
+
+        function handleGlobalButtonClick(event) {
+            const button = event.target.closest("button");
+            if (!button) return;
+            const action = button.dataset.action;
+            if (!action) return;
+            if (action === "goto") {
+                showPage(button.dataset.page);
+                showToast("页面已切换", "已跳转到对应业务页面。");
+            } else if (action === "view-supplier") {
+                openSupplierDetail(button.dataset.supplier);
+            } else if (action === "sync-single-supplier") {
+                showToast("同步已发起", `${button.dataset.supplier} 的供应商主数据同步任务已提交。`);
+            } else if (action === "view-qualification") {
+                openQualificationDetail(button.dataset.code);
+            } else if (action === "handle-qualification") {
+                handleQualification(button.dataset.code);
+            } else if (action === "view-evaluation") {
+                openEvaluationDetail(button.dataset.supplier, button.dataset.type);
+            } else if (action === "export-evaluation") {
+                const target = evaluations.filter(item => item.supplier === button.dataset.supplier);
+                exportEvaluations(target.length ? [target[0]] : [], `${button.dataset.supplier}评价表`);
+            } else if (action === "export-suppliers") {
+                showToast("导出成功", "供应商名录已按当前筛选条件导出。");
+            } else if (action === "save-view") {
+                showToast("视图已保存", "当前筛选视图已保存，可供后续快速调用。");
+            } else if (action === "export-qualification-report") {
+                showToast("报告已生成", "资质风险报告已生成并准备下载。");
+            } else if (action === "notification-settings") {
+                showToast("通知设置", "资质到期提醒规则已打开。");
+            } else if (action === "export-evaluation-list") {
+                exportEvaluations(evaluations, "评价记录批量导出");
+            } else if (action === "export-current-evaluations") {
+                exportEvaluations(getFilteredEvaluations(), "当前筛选评价导出");
+            } else if (action === "refresh-ai") {
+                showToast("分析已刷新", "系统已完成最新一轮供应商画像计算。");
+            }
+        }
+
+        function handleActionModalButtonClick(event) {
+            const button = event.target.closest("[data-action-modal]");
+            if (!button) return;
+            const actionId = button.dataset.actionModal;
+            const [action, target] = actionId.split(":");
+            if (action === "supplier-sync") {
+                closeActionModal();
+                showToast("同步已发起", `${target} 的供应商主数据同步任务已提交。`);
+            } else if (action === "supplier-evaluate-daily") {
+                closeActionModal();
+                openEvaluationForSupplier(target, "日常评价");
+                const supplier = suppliers.find(item => item.name === target);
+                showToast("日常评价", `${target} 已按一单一评打开，合同 ${supplier?.contractNo || ""}${supplier?.dingTalkPushed ? "，钉钉已提醒" : ""}。`);
+            } else if (action === "supplier-evaluate-annual") {
+                closeActionModal();
+                openEvaluationForSupplier(target, "年度评价");
+                showToast("年度评价", `${target} 的年度评价问卷已打开。`);
+            } else if (action === "qualification-handle") {
+                handleQualification(target);
+                closeActionModal();
+            } else if (action === "evaluation-export") {
+                closeActionModal();
+                const evaluation = evaluations.find(item => item.supplier === target);
+                exportEvaluations(evaluation ? [evaluation] : [], `${target}评价表`);
+            } else if (action === "evaluation-reuse") {
+                closeActionModal();
+                const evaluation = evaluations.find(item => item.supplier === target);
+                openEvaluationForSupplier(target, evaluation?.evaluationType || "日常评价");
+                showToast("再次发起评价", `${target} 的${evaluation?.evaluationType || "日常评价"}表单已带入当前供应商信息。`);
+            }
+        }
+
+        function initEvents() {
+            document.querySelectorAll(".nav-item").forEach(item => {
+                item.addEventListener("click", () => showPage(item.dataset.page));
+            });
+
+            [
+                "supplierSearch", "supplierNameFilter", "supplierCodeFilter", "supplierContactFilter",
+                "supplierTypeFilter", "supplierStatusFilter", "supplierDomainFilter",
+                "supplierRiskFilter", "supplierSyncFilter", "supplierQualificationFilter",
+                "supplierContractFilter"
+            ].forEach(id => document.getElementById(id).addEventListener("input", renderSupplierTable));
+            document.querySelectorAll("#supplierQuickTags .filter-tag").forEach(tag => {
+                tag.addEventListener("click", () => {
+                    state.supplierQuickTag = tag.dataset.value;
+                    setActiveTag("#supplierQuickTags", tag.dataset.value);
+                    renderSupplierTable();
+                });
+            });
+
+            [
+                "qualificationRiskFilter", "qualificationTypeFilter", "qualificationWindowFilter",
+                "qualificationSearch", "qualificationActionFilter"
+            ].forEach(id => document.getElementById(id).addEventListener("input", renderQualificationTable));
+
+            [
+                "evaluationStartDate", "evaluationEndDate", "evaluationSupplierFilter",
+                "evaluationTypeFilter", "evaluationSupplierTypeFilter", "evaluationScoreFilter"
+            ].forEach(id => document.getElementById(id).addEventListener("input", renderEvaluationTable));
+            document.querySelectorAll("#evaluationTags .filter-tag").forEach(tag => {
+                tag.addEventListener("click", () => {
+                    state.evaluationQuickTag = tag.dataset.value;
+                    setActiveTag("#evaluationTags", tag.dataset.value);
+                    if (tag.dataset.value === "日常评价" || tag.dataset.value === "年度评价") {
+                        document.getElementById("evaluationTypeFilter").value = tag.dataset.value;
+                    }
+                    renderEvaluationTable();
+                });
+            });
+
+            document.getElementById("evaluationTypeFilter").addEventListener("change", () => {
+                const currentType = document.getElementById("evaluationTypeFilter").value;
+                if (currentType === "日常评价" || currentType === "年度评价") {
+                    state.evaluationQuickTag = currentType;
+                    setActiveTag("#evaluationTags", currentType);
+                }
+            });
+
+            document.getElementById("resetSupplierFilters").addEventListener("click", resetSupplierFilters);
+            document.getElementById("resetQualificationFilters").addEventListener("click", resetQualificationFilters);
+            document.getElementById("resetEvaluationFilters").addEventListener("click", resetEvaluationFilters);
+
+            document.getElementById("syncSuppliersBtn").addEventListener("click", () => {
+                const button = document.getElementById("syncSuppliersBtn");
+                button.textContent = "同步完成 · 刚刚更新";
+                button.disabled = true;
+                showToast("同步成功", "供应商主数据已与源系统完成同步。");
+                setTimeout(() => {
+                    button.textContent = "同步主数据";
+                    button.disabled = false;
+                }, 1800);
+            });
+
+            document.getElementById("dingLoginBtn").addEventListener("click", () => login("ding"));
+            document.getElementById("demoLoginBtn").addEventListener("click", () => login("demo"));
+            document.getElementById("logoutBtn").addEventListener("click", logout);
+            document.getElementById("userCard").addEventListener("click", event => {
+                event.stopPropagation();
+                document.getElementById("userMenu").classList.toggle("hidden");
+            });
+            document.addEventListener("click", event => {
+                if (!event.target.closest("#userCard")) {
+                    document.getElementById("userMenu").classList.add("hidden");
+                }
+            });
+            document.getElementById("sendAiMessageBtn").addEventListener("click", sendAiMessage);
+            document.getElementById("aiChatInput").addEventListener("keydown", event => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                    sendAiMessage();
+                }
+            });
+
+            document.getElementById("openEvaluationBtn").addEventListener("click", openEvaluationModal);
+            document.getElementById("closeEvaluationModal").addEventListener("click", closeEvaluationModal);
+            document.getElementById("closeEvaluationModalSecondary").addEventListener("click", closeEvaluationModal);
+            document.getElementById("modal-addEvaluation").addEventListener("click", event => {
+                if (event.target.id === "modal-addEvaluation") closeEvaluationModal();
+            });
+            document.getElementById("closeActionModal").addEventListener("click", closeActionModal);
+            document.getElementById("closeActionModalSecondary").addEventListener("click", closeActionModal);
+            document.getElementById("modal-action").addEventListener("click", event => {
+                if (event.target.id === "modal-action") closeActionModal();
+            });
+            document.getElementById("actionModalButtons").addEventListener("click", handleActionModalButtonClick);
+
+            document.getElementById("formEvaluationType").addEventListener("change", toggleEvaluationMode);
+            document.getElementById("formSupplierType").addEventListener("change", updateAnnualQuestionnaire);
+            document.getElementById("formSupplier").addEventListener("change", syncEvaluationFormWithSupplier);
+            document.querySelectorAll(".modal-footer .btn").forEach(button => {
+                if (button.textContent.includes("保存草稿")) {
+                    button.addEventListener("click", () => submitEvaluationDraft("draft"));
+                }
+                if (button.textContent.includes("提交评价")) {
+                    button.addEventListener("click", () => submitEvaluationDraft("submit"));
+                }
+            });
+            document.addEventListener("click", handleGlobalButtonClick);
+        }
+
+        function init() {
+            fillSupplierOptions();
+            renderSupplierTable();
+            renderQualificationTable();
+            renderEvaluationTable();
+            renderQuestionnaires();
+            renderAiConversation();
+            initEvents();
+            syncEvaluationFormWithSupplier();
+            updateUserDisplay();
+            updateLoginView();
+        }
+
+        init();
+    </script>
+</body>
+</html>
